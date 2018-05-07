@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="PinManagement" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="PinManagement" xmlns:intf="PinManagement" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns1="http://rpc.xml.coldfusion" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by ColdFusion version 8,0,0,176276-->
+ <wsdl:types>
+  <schema targetNamespace="PinManagement" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="http://xml.apache.org/xml-soap"/>
+   <import namespace="http://rpc.xml.coldfusion"/>
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+   <complexType name="ArrayOf_xsd_anyType">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:anyType[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   <complexType name="ArrayOf_xsd_string">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:string[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   <complexType name="ArrayOfArrayOf_xsd_anyType">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:anyType[][]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+  </schema>
+  <schema targetNamespace="http://rpc.xml.coldfusion" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="http://xml.apache.org/xml-soap"/>
+   <import namespace="PinManagement"/>
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+   <complexType name="CFCInvocationException">
+    <sequence/>
+   </complexType>
+   <complexType name="QueryBean">
+    <sequence>
+     <element name="columnList" nillable="true" type="impl:ArrayOf_xsd_string"/>
+     <element name="data" nillable="true" type="impl:ArrayOfArrayOf_xsd_anyType"/>
+    </sequence>
+   </complexType>
+  </schema>
+  <schema targetNamespace="http://xml.apache.org/xml-soap" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="http://rpc.xml.coldfusion"/>
+   <import namespace="PinManagement"/>
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+   <complexType name="mapItem">
+    <sequence>
+     <element name="key" nillable="true" type="xsd:anyType"/>
+     <element name="value" nillable="true" type="xsd:anyType"/>
+    </sequence>
+   </complexType>
+   <complexType name="Map">
+    <sequence>
+     <element maxOccurs="unbounded" minOccurs="0" name="item" type="apachesoap:mapItem"/>
+    </sequence>
+   </complexType>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="fUpdatePinBAResponse">
+
+      <wsdl:part name="fUpdatePinBAReturn" type="impl:ArrayOf_xsd_anyType"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fDeletePinBARequest">
+
+      <wsdl:part name="ClientID" type="xsd:string"/>
+
+      <wsdl:part name="ApplicationID" type="xsd:string"/>
+
+      <wsdl:part name="TransactionIndex" type="xsd:string"/>
+
+      <wsdl:part name="ClientUCI" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fDeletePinCCRequest">
+
+      <wsdl:part name="ClientID" type="xsd:string"/>
+
+      <wsdl:part name="ApplicationID" type="xsd:string"/>
+
+      <wsdl:part name="TransactionIndex" type="xsd:string"/>
+
+      <wsdl:part name="ClientUCI" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fUpdatePinCCResponse">
+
+      <wsdl:part name="fUpdatePinCCReturn" type="impl:ArrayOf_xsd_anyType"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fGetExpiredPinCCRequest">
+
+      <wsdl:part name="ClientID" type="xsd:string"/>
+
+      <wsdl:part name="ApplicationID" type="xsd:string"/>
+
+      <wsdl:part name="ExpiryMonth" type="xsd:string"/>
+
+      <wsdl:part name="ExpiryYear" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="CFCInvocationException">
+
+      <wsdl:part name="fault" type="tns1:CFCInvocationException"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fGetExpiredPinCCResponse">
+
+      <wsdl:part name="fGetExpiredPinCCReturn" type="impl:ArrayOf_xsd_anyType"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fLoadPinCCResponse">
+
+      <wsdl:part name="fLoadPinCCReturn" type="impl:ArrayOf_xsd_anyType"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fLoadPinCCRequest">
+
+      <wsdl:part name="ClientID" type="xsd:string"/>
+
+      <wsdl:part name="ApplicationID" type="xsd:string"/>
+
+      <wsdl:part name="CardNumber" type="xsd:string"/>
+
+      <wsdl:part name="CardHolder" type="xsd:string"/>
+
+      <wsdl:part name="ExpiryMonth" type="xsd:string"/>
+
+      <wsdl:part name="ExpiryYear" type="xsd:string"/>
+
+      <wsdl:part name="CardType" type="xsd:string"/>
+
+      <wsdl:part name="ClientPin" type="xsd:string"/>
+
+      <wsdl:part name="ClientUCI" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fUpdatePinCCRequest">
+
+      <wsdl:part name="ClientID" type="xsd:string"/>
+
+      <wsdl:part name="ApplicationID" type="xsd:string"/>
+
+      <wsdl:part name="TransactionIndex" type="xsd:string"/>
+
+      <wsdl:part name="CardNumber" type="xsd:string"/>
+
+      <wsdl:part name="CardHolder" type="xsd:string"/>
+
+      <wsdl:part name="ExpiryMonth" type="xsd:string"/>
+
+      <wsdl:part name="ExpiryYear" type="xsd:string"/>
+
+      <wsdl:part name="CardType" type="xsd:string"/>
+
+      <wsdl:part name="ClientPin" type="xsd:string"/>
+
+      <wsdl:part name="ClientUCI" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fUpdatePinBARequest">
+
+      <wsdl:part name="ClientID" type="xsd:string"/>
+
+      <wsdl:part name="ApplicationID" type="xsd:string"/>
+
+      <wsdl:part name="TransactionIndex" type="xsd:string"/>
+
+      <wsdl:part name="AccountNumber" type="xsd:string"/>
+
+      <wsdl:part name="AccountHolder" type="xsd:string"/>
+
+      <wsdl:part name="BranchCode" type="xsd:string"/>
+
+      <wsdl:part name="AccountType" type="xsd:string"/>
+
+      <wsdl:part name="ClientPin" type="xsd:string"/>
+
+      <wsdl:part name="ClientUCI" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fDeletePinCCResponse">
+
+      <wsdl:part name="fDeletePinCCReturn" type="impl:ArrayOf_xsd_anyType"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fDeletePinBAResponse">
+
+      <wsdl:part name="fDeletePinBAReturn" type="impl:ArrayOf_xsd_anyType"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fLoadPinBAResponse">
+
+      <wsdl:part name="fLoadPinBAReturn" type="impl:ArrayOf_xsd_anyType"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="fLoadPinBARequest">
+
+      <wsdl:part name="ClientID" type="xsd:string"/>
+
+      <wsdl:part name="ApplicationID" type="xsd:string"/>
+
+      <wsdl:part name="AccountNumber" type="xsd:string"/>
+
+      <wsdl:part name="AccountHolder" type="xsd:string"/>
+
+      <wsdl:part name="BranchCode" type="xsd:string"/>
+
+      <wsdl:part name="AccountType" type="xsd:string"/>
+
+      <wsdl:part name="ClientPin" type="xsd:string"/>
+
+      <wsdl:part name="ClientUCI" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:portType name="pinManagement">
+
+      <wsdl:operation name="fUpdatePinBA" parameterOrder="ClientID ApplicationID TransactionIndex AccountNumber AccountHolder BranchCode AccountType ClientPin ClientUCI">
+
+         <wsdl:input message="impl:fUpdatePinBARequest" name="fUpdatePinBARequest"/>
+
+         <wsdl:output message="impl:fUpdatePinBAResponse" name="fUpdatePinBAResponse"/>
+
+         <wsdl:fault message="impl:CFCInvocationException" name="CFCInvocationException"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fUpdatePinCC" parameterOrder="ClientID ApplicationID TransactionIndex CardNumber CardHolder ExpiryMonth ExpiryYear CardType ClientPin ClientUCI">
+
+         <wsdl:input message="impl:fUpdatePinCCRequest" name="fUpdatePinCCRequest"/>
+
+         <wsdl:output message="impl:fUpdatePinCCResponse" name="fUpdatePinCCResponse"/>
+
+         <wsdl:fault message="impl:CFCInvocationException" name="CFCInvocationException"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fDeletePinBA" parameterOrder="ClientID ApplicationID TransactionIndex ClientUCI">
+
+         <wsdl:input message="impl:fDeletePinBARequest" name="fDeletePinBARequest"/>
+
+         <wsdl:output message="impl:fDeletePinBAResponse" name="fDeletePinBAResponse"/>
+
+         <wsdl:fault message="impl:CFCInvocationException" name="CFCInvocationException"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fDeletePinCC" parameterOrder="ClientID ApplicationID TransactionIndex ClientUCI">
+
+         <wsdl:input message="impl:fDeletePinCCRequest" name="fDeletePinCCRequest"/>
+
+         <wsdl:output message="impl:fDeletePinCCResponse" name="fDeletePinCCResponse"/>
+
+         <wsdl:fault message="impl:CFCInvocationException" name="CFCInvocationException"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fLoadPinBA" parameterOrder="ClientID ApplicationID AccountNumber AccountHolder BranchCode AccountType ClientPin ClientUCI">
+
+         <wsdl:input message="impl:fLoadPinBARequest" name="fLoadPinBARequest"/>
+
+         <wsdl:output message="impl:fLoadPinBAResponse" name="fLoadPinBAResponse"/>
+
+         <wsdl:fault message="impl:CFCInvocationException" name="CFCInvocationException"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fLoadPinCC" parameterOrder="ClientID ApplicationID CardNumber CardHolder ExpiryMonth ExpiryYear CardType ClientPin ClientUCI">
+
+         <wsdl:input message="impl:fLoadPinCCRequest" name="fLoadPinCCRequest"/>
+
+         <wsdl:output message="impl:fLoadPinCCResponse" name="fLoadPinCCResponse"/>
+
+         <wsdl:fault message="impl:CFCInvocationException" name="CFCInvocationException"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fGetExpiredPinCC" parameterOrder="ClientID ApplicationID ExpiryMonth ExpiryYear">
+
+         <wsdl:input message="impl:fGetExpiredPinCCRequest" name="fGetExpiredPinCCRequest"/>
+
+         <wsdl:output message="impl:fGetExpiredPinCCResponse" name="fGetExpiredPinCCResponse"/>
+
+         <wsdl:fault message="impl:CFCInvocationException" name="CFCInvocationException"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="pinManagement.cfcSoapBinding" type="impl:pinManagement">
+
+      <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="fUpdatePinBA">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="fUpdatePinBARequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="fUpdatePinBAResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="CFCInvocationException">
+
+            <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="CFCInvocationException" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fUpdatePinCC">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="fUpdatePinCCRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="fUpdatePinCCResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="CFCInvocationException">
+
+            <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="CFCInvocationException" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fDeletePinBA">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="fDeletePinBARequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="fDeletePinBAResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="CFCInvocationException">
+
+            <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="CFCInvocationException" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fDeletePinCC">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="fDeletePinCCRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="fDeletePinCCResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="CFCInvocationException">
+
+            <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="CFCInvocationException" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fLoadPinBA">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="fLoadPinBARequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="fLoadPinBAResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="CFCInvocationException">
+
+            <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="CFCInvocationException" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fLoadPinCC">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="fLoadPinCCRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="fLoadPinCCResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="CFCInvocationException">
+
+            <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="CFCInvocationException" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="fGetExpiredPinCC">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="fGetExpiredPinCCRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="fGetExpiredPinCCResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="CFCInvocationException">
+
+            <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="CFCInvocationException" namespace="PinManagement" use="encoded"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="PinManagement">
+
+      <wsdl:port binding="impl:pinManagement.cfcSoapBinding" name="pinManagement.cfc">
+
+         <wsdlsoap:address location="https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>
