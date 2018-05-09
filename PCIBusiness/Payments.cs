@@ -33,7 +33,7 @@ namespace PCIBusiness
 			try
 			{
 				k   = 0;
-    			sql = "exec sp_Get_CardToToken " + Tools.DBString(bureau);
+    			sql = "exec sp_Get_CardToToken " + Tools.DBString(bureau) + ",0";
 				err = ExecuteSQL(null,false,false);
 				if ( err > 0 )
 					Tools.LogException("Payments.Summary/10",sql + " failed, return code " + err.ToString());
@@ -48,7 +48,7 @@ namespace PCIBusiness
 				provider.CardsToBeTokenized = k;
 
 				k   = 0;
-    			sql = "exec sp_Get_CardPayment " + Tools.DBString(bureau);
+    			sql = "exec sp_Get_CardPayment " + Tools.DBString(bureau) + ",0";
 				err = ExecuteSQL(null,false,false);
 				if ( err > 0 )
 					Tools.LogException("Payments.Summary/20",sql + " failed, return code " + err.ToString());
@@ -108,6 +108,8 @@ namespace PCIBusiness
 				sql = sql + "," + maxRows.ToString();
 			else if ( rowsToProcess > 0 )
 				sql = sql + "," + rowsToProcess.ToString();
+			else
+				sql = sql + ",25";
 
 			Tools.LogInfo("Payments.ProcessCards/10","Mode="+mode.ToString()+", MaxRows=" + maxRows.ToString()+", RowsToProcess=" + rowsToProcess.ToString()+", BureauCode="+bureauCode+", SQL="+sql,220);
 

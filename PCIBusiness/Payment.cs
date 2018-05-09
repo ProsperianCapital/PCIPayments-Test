@@ -406,7 +406,7 @@ namespace PCIBusiness
 
 		//	Payment
 			merchantReference         = dbConn.ColString("merchantReference");
-			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal"); // Only really for Ikajo
+			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0); // Only really for Ikajo, don't log error
 			paymentAmount             = dbConn.ColLong  ("amountInCents");
 			currencyCode              = dbConn.ColString("currencyCode");
 			paymentDescription        = dbConn.ColString("description");
