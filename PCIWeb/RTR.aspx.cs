@@ -156,16 +156,10 @@ namespace PCIWeb
 			{
 				PCIBusiness.Tools.LogInfo("RTR.Process/5","Started, provider '" + provider + "'",10);
 
-//				int    maxRows  = 0;
-//				string provider = lstProvider.SelectedValue;
-//
-//				if ( txtRows.Text.Length > 0 )
-//					maxRows = Tools.StringToInt(txtRows.Text);
-
 				using (PCIBusiness.Payments payments = new PCIBusiness.Payments())
 				{
 					int k         = payments.ProcessCards(provider,mode,maxRows);
-					lblError.Text = (payments.CountSucceeded+payments.CountFailed).ToString() + " payment(s) completed : " + payments.CountSucceeded.ToString() + " succeeded, " + payments.CountFailed.ToString() + " failed";
+					lblError.Text = (payments.CountSucceeded+payments.CountFailed).ToString() + " payment(s) completed : " + payments.CountSucceeded.ToString() + " succeeded, " + payments.CountFailed.ToString() + " failed<br />&nbsp;";
 				}
 				PCIBusiness.Tools.LogInfo("RTR.Process/10","Finished",10);
 			}
