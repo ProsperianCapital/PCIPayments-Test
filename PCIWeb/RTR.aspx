@@ -34,9 +34,10 @@ function Busy(show,msg)
 </script>
 <a href="http://prosperian.mu" target="P"><img src="LogoProsperian.png" title="Prosperian Capital" /></a>
 <form runat="server" id="frmRTR">
-	<p class="Header">
+	<div class="Header">
 	Prosperian Capital : RTR Payments
-	</p>
+	</div>
+	<hr />
 	<table class="BoxRight">
 	<tr>
 		<td>SQL Server</td><td> : <b><i><asp:Literal runat="server" ID="lblSQLServer"></asp:Literal></i></b></td></tr>
@@ -90,20 +91,22 @@ function Busy(show,msg)
 		<td>Status</td>
 		<td> : <asp:Literal runat="server" ID="lblBureauStatus"></asp:Literal></td></tr>
 	</table>
-	<p class="ButtonRow">
+	<div class="ButtonRow">
 	<asp:Button  runat="server" ID="btnProcess1" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Getting tokens ... please be patient')" onclick="btnProcess1_Click" Text="Get Tokens" />
 	<asp:Button  runat="server" ID="btnProcess2" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess2_Click" Text="Process Payments" />
-	&nbsp;&nbsp;&nbsp;
-	<asp:Button  runat="server" ID="btnConfig"   CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnConfig_Click" Text="Config" />
-	<asp:Button  runat="server" ID="btnInfo"     CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnInfo_Click"   Text="Info Log" />
-	<asp:Button  runat="server" ID="btnError"    CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnError_Click"  Text="Error Log" />
-	&nbsp;&nbsp;&nbsp;
-	<asp:Button  runat="server" ID="btnSQL"      CssClass="Button" OnClientClick="JavaScript:Busy(1,'Executing SQL ...')" onclick="btnSQL_Click" Text="Test SQL ..." />
-	<asp:Button  runat="server" ID="btnJSON"     CssClass="Button" OnClientClick="JavaScript:Busy(1,'Parsing JSON string ...')" onclick="btnJSON_Click" Text="Test JSON ..." />
-	<asp:TextBox runat="server" ID="txtTest" Width="560px"></asp:TextBox>
-	</p>
 	<hr />
-	<asp:Literal runat="server" ID="lblTest"></asp:Literal>
+	<asp:Button  runat="server" ID="btnConfig"   CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnConfig_Click" Text="Config" />
+	<asp:Button  runat="server" ID="btnInfo"     CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnInfo_Click"   Text="Today's Info Log" />
+	<asp:Button  runat="server" ID="btnError"    CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnError_Click"  Text="Today's Error Log" />
+	<hr />
+	<asp:Button  runat="server" ID="btnInfoX"    CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnInfoX_Click"   Text="Info Log dd ..." />
+	<asp:Button  runat="server" ID="btnErrorX"   CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnErrorX_Click"  Text="Error Log dd ..." />
+	<asp:Button  runat="server" ID="btnSQL"      CssClass="Button" OnClientClick="JavaScript:Busy(1,'Executing SQL ...')" onclick="btnSQL_Click" Text="Test SQL ..." />
+	<asp:Button  runat="server" ID="btnJSON"     CssClass="Button" OnClientClick="JavaScript:Busy(1,'Parsing JSON string ...')" onclick="btnJSON_Click" Text="Test JSON ..." visible="false" />
+	<asp:TextBox runat="server" ID="txtTest" Width="560px"></asp:TextBox>
+	</div>
+	<hr />
+	<asp:Label runat="server" ID="lblTest"></asp:Label>
 	<asp:Label runat="server" ID="lblError" CssClass="Error"></asp:Label>
 	<p class="Footer">
 	&nbsp;Phone +230 404 8000&nbsp; | &nbsp;Email <a href="mailto:info@prosperian.mu">Info@prosperian.mu</a>

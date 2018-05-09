@@ -199,13 +199,18 @@ namespace PCIWeb
 			return 83;
 		}
 
-		private void ShowFile(string fileName)
+		private void ShowFile(string fileName,string fileDate="")
 		{
 			StreamReader fHandle = null;
 			try
 			{
-				int k    = fileName.LastIndexOf(".");
-				fileName = fileName.Substring(0,k) + "-" + PCIBusiness.Tools.DateToString(System.DateTime.Now,7) + fileName.Substring(k);
+				int      k  = fileName.LastIndexOf(".");
+				DateTime dt = Tools.StringToDate(fileDate,1);
+
+				if ( dt <= Constants.C_NULLDATE() )
+					dt = System.DateTime.Now;
+
+				fileName = fileName.Substring(0,k) + "-" + PCIBusiness.Tools.DateToString(dt,7) + fileName.Substring(k);
 				fHandle  = File.OpenText(fileName);
 				string h = fHandle.ReadToEnd().Trim().Replace("<","&lt;").Replace(">","&gt;");
 				h        = h.Replace(Environment.NewLine,"</p><p>");
@@ -241,16 +246,24 @@ namespace PCIWeb
 		{
 			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileInfo"));
 		}
+		protected void btnInfoX_Click(Object sender, EventArgs e)
+		{
+			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileInfo"),txtTest.Text);
+		}
 		protected void btnError_Click(Object sender, EventArgs e)
 		{
 			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileErrors"));
+		}
+		protected void btnErrorX_Click(Object sender, EventArgs e)
+		{
+			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileErrors"),txtTest.Text);
 		}
 
 		protected void btnConfig_Click(Object sender, EventArgs e)
 		{
 			try
 			{
-				string folder  = "<u>System</u><br />"
+				string folder  = "<u>System Configuration</u><br />"
 				               + "- Version = " + PCIBusiness.SystemDetails.AppVersion + "<br />"
 				               + "- Date = " + PCIBusiness.SystemDetails.AppDate + "<br />"
 				               + "- Owner = " + PCIBusiness.SystemDetails.Owner + "<br />"
@@ -273,12 +286,13 @@ namespace PCIWeb
 				               + "<u>Settings</u><br />"
 				               + "- System Mode = " + PCIBusiness.Tools.ConfigValue("SystemMode") + "<br />"
 				               + "- Page timeout = " + Server.ScriptTimeout.ToString() + " seconds<br />"
+				               + "- Maximum Rows to Process = " + PCIBusiness.Tools.ConfigValue("MaximumRows") + "<br />"
 				               + "- Error Logs folder/file = " + PCIBusiness.Tools.ConfigValue("LogFileErrors") + "<br />"
 				               + "- Info Logs folder/file = " + PCIBusiness.Tools.ConfigValue("LogFileInfo") + "<br />"
 				               + "- Bin folder = " + PCIBusiness.Tools.ConfigValue("BinFolder") + "<br />";
 				System.Configuration.ConnectionStringSettings db  = System.Configuration.ConfigurationManager.ConnectionStrings["DBConn"];
-				folder         = folder + "- DB Connection [DBConn] = " + ( db == null ? "" : db.ConnectionString ) + "<p>&nbsp;</p>";
-				lblTest.Text   = folder;
+				folder       = folder + "- DB Connection [DBConn] = " + ( db == null ? "" : db.ConnectionString ) + "<p>&nbsp;</p>";
+				lblTest.Text = folder;
 			}
 			catch (Exception ex)
 			{
