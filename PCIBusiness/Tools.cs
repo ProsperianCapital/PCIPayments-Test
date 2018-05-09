@@ -789,7 +789,7 @@ namespace PCIBusiness
 						str = "(Col " + k.ToString()
 						    + ") Name = " + conn.ColName(k)
 						    + ", Type = " + conn.ColDataType("",k)
-						    + ", Value = " + conn.ColValue(k);
+						    + ", Value = " + ( conn.ColStatus("",k) == Constants.DBColumnStatus.ValueIsNull ? "NULL" : conn.ColValue(k) );
 						Tools.LogInfo("Tools.SQLDebug/4",str,255);
 						ret.Append(str+Constants.C_HTMLBREAK());
 					}

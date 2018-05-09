@@ -232,17 +232,20 @@ namespace PCIBusiness
 			}
 		}
  
-   public Constants.DBColumnStatus ColStatus(string colName)
+   public Constants.DBColumnStatus ColStatus(string colName,int colNo=999999999)
    {
-      int colNo = -999;
       try
-      {
-         colNo = dataReader.GetOrdinal(colName);
+		{
+			if ( colNo >= 0 && colNo < 99999999 )
+				dataReader.GetValue(colNo);
+			else
+				colNo = dataReader.GetOrdinal(colName);
 		}
 		catch
 		{
 			return Constants.DBColumnStatus.InvalidColumn; // 1 
 		}
+
 		try
 		{
          if ( dataReader.IsDBNull(colNo) )
