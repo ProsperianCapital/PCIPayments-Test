@@ -46,7 +46,7 @@ namespace PCIBusiness
 			T24     =  6,
 			Ikajo   = 15,
 			PayU    = 16,
-			PayGate = 29
+			PayGate = 17
 		}
 
 		public enum CreditCardType : byte
