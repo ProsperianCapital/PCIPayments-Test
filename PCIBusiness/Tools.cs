@@ -311,11 +311,19 @@ namespace PCIBusiness
 			return "";
 		}
 
-		public static string XMLNode(XmlDocument xmlDoc,string xmlTag)
+		public static string XMLNode(XmlDocument xmlDoc,string xmlTag,string nsPrefix="",string nsURL="")
 		{
 			try
 			{
-				string ret = xmlDoc.SelectSingleNode("//"+xmlTag).InnerText;
+				string ret = "";
+				if ( nsPrefix.Length == 0 || nsURL.Length == 0 )
+					ret = xmlDoc.SelectSingleNode("//"+xmlTag).InnerText;
+				else
+				{
+					XmlNamespaceManager nsMgr = new XmlNamespaceManager(xmlDoc.NameTable);
+					nsMgr.AddNamespace(nsPrefix,nsURL);
+					ret = xmlDoc.SelectSingleNode("//"+nsPrefix+":"+xmlTag,nsMgr).InnerText;
+				}
 				return ret.Trim();
 			}
 			catch

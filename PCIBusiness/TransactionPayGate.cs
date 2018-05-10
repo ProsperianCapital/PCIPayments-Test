@@ -9,97 +9,19 @@ namespace PCIBusiness
 {
 	public class TransactionPayGate : Transaction
 	{
-		private string resultSuccessful;
+		private string nsPrefix;
+		private string nsURL;
 
-//		public  bool   Successful
-//		{
-//			get { return Tools.NullToString(resultSuccessful).ToUpper() == "TRUE"; }
-//		}
-
-		private int SendXML(string url)
+		public  bool Successful
 		{
-			int    ret         = 10;
-			string xmlReceived = "";
-			payRef             = "";
-
-			try
-			{
-				if ( Tools.NullToString(url).Length == 0 )
-					url = "https://secure.paygate.co.za/payhost/process.trans?wsdl";
-
-//	TESTING
-//				url = "https://secure.paygate.co.za/payhost/process.trans";
-//	TESTING
-
-				Tools.LogInfo("TransactionPayGate.SendXML/10","URL=" + url + ", XML Sent=" + xmlSent,199);
-
-			// Construct soap object
-				ret                         = 20;
-				XmlDocument soapEnvelopeXml = new XmlDocument();
-				soapEnvelopeXml.LoadXml(xmlSent);
-
-			// Construct web request object
-				Tools.LogInfo("TransactionPayGate.SendXML/20","Create/set up web request, URL=" + url,199);
-				ret                       = 30;
-				HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
-				webRequest.Headers.Add(@"SOAP:Action");
-				webRequest.ContentType = "text/xml;charset=\"utf-8\"";
-				webRequest.Accept      = "text/xml";
-				webRequest.Method      = "POST";
-
-			// Insert soap envelope into web request
-				Tools.LogInfo("TransactionPayGate.SendXML/30","Save web request",199);
-				ret = 50;
-				using (Stream stream = webRequest.GetRequestStream())
-					soapEnvelopeXml.Save(stream);
-
-			// Get the completed web request XML
-				Tools.LogInfo("TransactionPayGate.SendXML/40","Get web response",199);
-				ret = 60;
-
-				using (WebResponse webResponse = webRequest.GetResponse())
-				{
-					ret = 63;
-					Tools.LogInfo("TransactionPayGate.SendXML/50","Read web response stream",199);
-					using (StreamReader rd = new StreamReader(webResponse.GetResponseStream()))
-					{
-						ret         = 66;
-						xmlReceived = rd.ReadToEnd();
-					}
-				}
-
-				Tools.LogInfo("TransactionPayGate.SendXML/60","XML Received=" + xmlReceived,199);
-
-			// Create an empty soap result object
-				ret       = 70;
-				xmlResult = new XmlDocument();
-				xmlResult.LoadXml(xmlReceived.ToString());
-
-//			//	Get data from result XML
-				ret              = 80;
-				resultSuccessful = Tools.XMLNode(xmlResult,"successful");
-				resultCode       = Tools.XMLNode(xmlResult,"resultCode");
-				resultMsg        = Tools.XMLNode(xmlResult,"resultMessage");
-//				payRef           = Tools.XMLNode(xmlResult,"payUReference");
-//				payToken         = Tools.XMLNode(xmlResult,"pmId");
-
-//				if ( Successful )
-//					return 0;
-
-				Tools.LogInfo("TransactionPayGate.SendXML/90","URL=" + url + ", XML Sent=" + xmlSent+", XML Received="+xmlReceived,220);
-			}
-			catch (Exception ex)
-			{
-				Tools.LogInfo("TransactionPayGate.SendXML/98","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayGate.SendXML/99","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex);
-			}
-			return ret;
+			get { return Tools.NullToString(resultCode) == "990017"; }
 		}
 
 		public override int GetToken(Payment payment)
 		{
-			int ret = 300;
-			xmlSent = "";
+			int ret  = 300;
+			xmlSent  = "";
+			payToken = "";
 
 			Tools.LogInfo("TransactionPayGate.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,199);
 
@@ -110,16 +32,16 @@ namespace PCIBusiness
 				        + "<pay:CardExpiryDate>" + Tools.XMLSafe(payment.CardExpiryMM) + Tools.XMLSafe(payment.CardExpiryYYYY) + "</pay:CardExpiryDate>"
 				        + "<pay:CVV>" + Tools.XMLSafe(payment.CardCVV) + "</pay:CVV>"
 				        + "<pay:Vault>true</pay:Vault>"
-				        + "<pay:BudgetPeriod>0</pay:BudgetPeriod>"
 				        + SetUpXML(payment,2);
 
 			//	Version 1
-				ret    = SendXML(payment.ProviderURL);
+			//	ret = SendXML(payment.ProviderURL);
 
 			//	Version 2
-				CallWebService(payment.ProviderURL,xmlSent);
+				ret = CallWebService(payment.ProviderURL);
 
-//				payRef = Tools.XMLNode(xmlResult,"payUReference");
+				if ( ret == 0 ) // Success
+					payToken = Tools.XMLNode(xmlResult,"VaultId",nsPrefix,nsURL);
 
 				Tools.LogInfo("TransactionPayGate.GetToken/20","ResultCode="+ResultCode,199);
 			}
@@ -142,13 +64,15 @@ namespace PCIBusiness
 			try
 			{
 				xmlSent = SetUpXML(payment,1)
-				        + "<pay:CVV>" + Tools.XMLSafe(payment.CardCVV) + "</pay:CVV>"
 				        + "<pay:VaultId>" + Tools.XMLSafe(payment.CardToken) + "</pay:VaultId>"
-				        + "<pay:BudgetPeriod>0</pay:BudgetPeriod>"
+				        + "<pay:CVV>" + Tools.XMLSafe(payment.CardCVV) + "</pay:CVV>"
 				        + SetUpXML(payment,2);
 
-				ret    = SendXML(payment.ProviderURL);
-//				payRef = Tools.XMLNode(xmlResult,"payUReference");
+			//	Version 1
+			//	ret = SendXML(payment.ProviderURL);
+
+			//	Version 2
+				ret = CallWebService(payment.ProviderURL);
 
 				Tools.LogInfo("TransactionPayGate.ProcessPayment/20","ResultCode="+ResultCode,199);
 			}
@@ -170,10 +94,11 @@ namespace PCIBusiness
 				     + "<pay:SinglePaymentRequest>"
 				     +   "<pay:CardPaymentRequest>"
 				     +     "<pay:Account>"
-//				     +       "<pay:PayGateId>" + Tools.XMLSafe(payment.ProviderUserID) + "</pay:PayGateId>"
-//				     +       "<pay:Password>" + Tools.XMLSafe(payment.ProviderPassword) + "</pay:Password>"
-				     +       "<pay:PayGateId>10011064270</pay:PayGateId>"
-				     +       "<pay:Password>test</pay:Password>"
+				     +       "<pay:PayGateId>" + Tools.XMLSafe(payment.ProviderUserID) + "</pay:PayGateId>"
+				     +       "<pay:Password>" + Tools.XMLSafe(payment.ProviderPassword) + "</pay:Password>"
+//	Testing ...
+//				     +       "<pay:PayGateId>10011064270</pay:PayGateId>"
+//				     +       "<pay:Password>test</pay:Password>"
 				     +     "</pay:Account>"
 				     +     "<pay:Customer>"
 				     +       "<pay:FirstName>" + Tools.XMLSafe(payment.FirstName) + "</pay:FirstName>"
@@ -182,7 +107,8 @@ namespace PCIBusiness
 				     +       "<pay:Email>" + Tools.XMLSafe(payment.EMail) + "</pay:Email>"
 				     +     "</pay:Customer>";
 			else
-				return     "<pay:Order>"
+				return     "<pay:BudgetPeriod>0</pay:BudgetPeriod>"
+				     +     "<pay:Order>"
 				     +       "<pay:MerchantOrderId>" + Tools.XMLSafe(payment.MerchantReference) + "</pay:MerchantOrderId>"
 				     +       "<pay:Currency>" + Tools.XMLSafe(payment.CurrencyCode) + "</pay:Currency>"
 				     +       "<pay:Amount>" + payment.PaymentAmount.ToString() + "</pay:Amount>"
@@ -191,49 +117,72 @@ namespace PCIBusiness
 				     + "</pay:SinglePaymentRequest>"
 				     + "</soapenv:Body>"
 				     + "</soapenv:Envelope>";
-
-//				        +       "<pay:Telephone></pay:Telephone>"
-//				        +     "<pay:Redirect>"
-//				        +       "<pay:NotifyUrl></pay:NotifyUrl>"
-//				        +       "<pay:ReturnUrl></pay:ReturnUrl>"
-//				        +     "</pay:Redirect>"
-
 		}
 
-		private XmlDocument CallWebService(string url, string soap)
+		private int CallWebService(string url)
       {
+			int ret = 10;
+
 			try
 			{
 				using ( WebClient wc = new WebClient() )
 				{
-				//	ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11
-					XmlDocument retXMLDoc = new XmlDocument();
- 
+				//	XmlDocument retXMLDoc = new XmlDocument();
 				//	wc.Headers.Add("Content-Type", "application/soap+xml; charset=utf-8")
-					wc.Encoding = System.Text.Encoding.UTF8;
-					string ret = wc.UploadString(url,soap);
+
+					Tools.LogInfo("TransactionPayGate.CallWebService/10","xmlSent="+xmlSent,199);
+
+					ret           = 20;
+					wc.Encoding   = System.Text.Encoding.UTF8;
+					string xmlOut = wc.UploadString(url,xmlSent);
+
 				//	Dim _byteOrderMarkUtf8 As String = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble())
 				//	If retString.StartsWith(_byteOrderMarkUtf8) Then
 				//    retString = retString.Remove(0, _byteOrderMarkUtf8.Length)
 				//	End If
-					retXMLDoc.LoadXml(ret);
-					return retXMLDoc;
+
+					ret        = 30;
+					xmlResult  = new XmlDocument();
+					xmlResult.LoadXml(xmlOut);
+					ret        = 40;
+					resultCode = Tools.XMLNode(xmlResult,"ResultCode"       ,nsPrefix,nsURL);
+					resultMsg  = Tools.XMLNode(xmlResult,"ResultDescription",nsPrefix,nsURL);
+					payRef     = Tools.XMLNode(xmlResult,"PayRequestId"     ,nsPrefix,nsURL);
+					ret        = 50;
+
+					Tools.LogInfo("TransactionPayGate.CallWebService/50","resultCode="+resultCode,199);
+
+					if ( resultCode == "990017" ) // Successful
+						return 0;
+
+					if ( resultCode.Length == 0 && resultMsg.Length == 0 )
+					{
+						ret        = 60;
+						resultCode = Tools.XMLNode(xmlResult,"faultcode"); // Namespace not needed
+						resultMsg  = Tools.XMLNode(xmlResult,"faultstring");
+						Tools.LogInfo("TransactionPayGate.CallWebService/60","faultcode="+resultCode,199);
+					}
 				}
 			}
 			catch (Exception ex)
 			{
-//				if ( ex.tyTypeOf (ex) Is ThreadAbortException Then
-//                'Do nothing - just continue
-//            Else
-//                Response.Redirect("~/Site/SiteError.aspx")
-//            End If
+				Tools.LogInfo("TransactionPayGate.CallWebService/98","ret="+ret.ToString(),200);
+				Tools.LogException("TransactionPayGate.CallWebService/99","(ret="+ret.ToString()+"), xmlSent="+xmlSent,ex);
 			}
-			return null;
+			return ret;
 		}
 
 		public TransactionPayGate() : base()
 		{
 			bureauCode = Tools.BureauCode(Constants.PaymentProvider.PayGate);
+
+		//	Force TLS 1.2
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
+
+		//	Namespace for result XML
+			nsPrefix = "ns2";
+			nsURL    = "http://www.paygate.co.za/PayHOST";
 		}
 	}
 }
