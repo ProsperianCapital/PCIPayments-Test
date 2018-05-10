@@ -257,15 +257,6 @@ namespace PCIWeb
 			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileErrors"));
 		}
 
-//		protected void btnInfoX_Click(Object sender, EventArgs e)
-//		{
-//			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileInfo"),txtTest.Text);
-//		}
-//		protected void btnErrorX_Click(Object sender, EventArgs e)
-//		{
-//			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileErrors"),txtTest.Text);
-//		}
-
 		protected void btnConfig_Click(Object sender, EventArgs e)
 		{
 			try
@@ -293,7 +284,7 @@ namespace PCIWeb
 				               + "<u>Settings</u><br />"
 				               + "- System Mode = " + PCIBusiness.Tools.ConfigValue("SystemMode") + "<br />"
 				               + "- Page timeout = " + Server.ScriptTimeout.ToString() + " seconds<br />"
-				               + "- Maximum Rows to Process = " + PCIBusiness.Tools.ConfigValue("MaximumRows") + "<br />"
+				               + "- Rows to Process per Iteration = " + PCIBusiness.Tools.ConfigValue("MaximumRows") + "<br />"
 				               + "- Error Logs folder/file = " + PCIBusiness.Tools.ConfigValue("LogFileErrors") + "<br />"
 				               + "- Info Logs folder/file = " + PCIBusiness.Tools.ConfigValue("LogFileInfo") + "<br />"
 				               + "- Bin folder = " + PCIBusiness.Tools.ConfigValue("BinFolder") + "<br />";
