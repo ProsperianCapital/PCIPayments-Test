@@ -99,6 +99,7 @@ namespace PCIBusiness
 //	Testing ...
 //				     +       "<pay:PayGateId>10011064270</pay:PayGateId>"
 //				     +       "<pay:Password>test</pay:Password>"
+//	Testing ...
 				     +     "</pay:Account>"
 				     +     "<pay:Customer>"
 				     +       "<pay:FirstName>" + Tools.XMLSafe(payment.FirstName) + "</pay:FirstName>"
@@ -122,6 +123,9 @@ namespace PCIBusiness
 		private int CallWebService(string url)
       {
 			int ret = 10;
+
+			if ( Tools.NullToString(url).Length == 0 )
+				url = "https://secure.paygate.co.za/payhost/process.trans";
 
 			try
 			{
@@ -152,22 +156,22 @@ namespace PCIBusiness
 
 					Tools.LogInfo("TransactionPayGate.CallWebService/50","XML Out="+xmlOut,199);
 
-					if ( resultCode == "990017" ) // Successful
+					if ( Successful )
 						return 0;
 
 					if ( resultCode.Length == 0 && resultMsg.Length == 0 )
 					{
 						ret        = 60;
-					//	resultCode = Tools.XMLNode(xmlResult,"faultcode"); // Namespace not needed
+						resultCode = Tools.XMLNode(xmlResult,"faultcode"); // Namespace not needed
 						resultMsg  = Tools.XMLNode(xmlResult,"faultstring");
-						Tools.LogInfo("TransactionPayGate.CallWebService/60","faultcode="+resultCode,199);
+					//	Tools.LogInfo("TransactionPayGate.CallWebService/60","faultcode="+resultCode,199);
 					}
 				}
 			}
 			catch (Exception ex)
 			{
 				Tools.LogInfo("TransactionPayGate.CallWebService/98","ret="+ret.ToString(),200);
-				Tools.LogException("TransactionPayGate.CallWebService/99","(ret="+ret.ToString()+"), xmlSent="+xmlSent,ex);
+				Tools.LogException("TransactionPayGate.CallWebService/99","ret="+ret.ToString(),ex);
 			}
 			return ret;
 		}

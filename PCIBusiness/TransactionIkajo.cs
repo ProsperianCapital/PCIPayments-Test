@@ -101,8 +101,8 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionIkajo.GetToken/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionIkajo.GetToken/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionIkajo.GetToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionIkajo.GetToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
 			}
 			return ret;
 		}
@@ -155,8 +155,8 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionIkajo.ProcessPayment/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionIkajo.ProcessPayment/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionIkajo.ProcessPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionIkajo.ProcessPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
 			}
 			return ret;
 		}
@@ -177,13 +177,13 @@ namespace PCIBusiness
 
 //	Not needed
 			//	UTF-32
-			//	bytes = md5.ComputeHash(new UTF32Encoding().GetBytes(data));
+//				bytes = md5.ComputeHash(new UTF32Encoding().GetBytes(data));
 			//	ASCIII
-			//	bytes = md5.ComputeHash(ASCIIEncoding.ASCII.GetBytes(data));
+//				bytes = md5.ComputeHash(ASCIIEncoding.ASCII.GetBytes(data));
 			//	Default
-			//	bytes = md5.ComputeHash(Encoding.Default.GetBytes(data));
+//				bytes = md5.ComputeHash(Encoding.Default.GetBytes(data));
 			//	Unicode
-			//	bytes = md5.ComputeHash(new UnicodeEncoding().GetBytes(data));
+//				bytes = md5.ComputeHash(new UnicodeEncoding().GetBytes(data));
 
 			for (k = 0; k < bytes.Length; k++)
 				hash.Append(bytes[k].ToString("x2"));
