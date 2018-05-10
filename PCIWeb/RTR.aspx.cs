@@ -30,6 +30,7 @@ namespace PCIWeb
 			btnProcess2.Enabled = ( systemStatus == 0 );
 			lblTest.Text        = "";
 			lblError.Text       = "";
+			lblJS.Text          = "";
 
 			if ( ! Page.IsPostBack )
 			{
@@ -193,24 +194,35 @@ namespace PCIWeb
 			return 83;
 		}
 
-		private void ShowFile(string fileName,string fileDate="")
+		private void ShowFile(string fileName)
 		{
 			StreamReader fHandle = null;
+			DateTime     fDate   = System.DateTime.Now;
+			lblJS.Text           = "<script type='text/javascript'>ShowElt('divLogs',1)</script>";
+
 			try
 			{
-				int      k  = fileName.LastIndexOf(".");
-				DateTime dt = Tools.StringToDate(fileDate,1);
+				if ( rdo1.Checked )
+					fDate = fDate.AddDays(-1);
+				else if ( rdo2.Checked )
+					fDate = fDate.AddDays(-2);
+				else if ( rdoX.Checked && txtDate.Text.Trim().Length == 10 )
+					fDate = Tools.StringToDate(txtDate.Text,1);
+				else if ( ! rdo0.Checked )
+					return;
 
-				if ( dt <= Constants.C_NULLDATE() )
-					dt = System.DateTime.Now;
+				if ( fDate <= Constants.C_NULLDATE() )
+					return;
 
-				fileName = fileName.Substring(0,k) + "-" + PCIBusiness.Tools.DateToString(dt,7) + fileName.Substring(k);
+				int k    = fileName.LastIndexOf(".");
+				fileName = fileName.Substring(0,k) + "-" + PCIBusiness.Tools.DateToString(fDate,7) + fileName.Substring(k);
 				fHandle  = File.OpenText(fileName);
 				string h = fHandle.ReadToEnd().Trim().Replace("<","&lt;").Replace(">","&gt;");
 				h        = h.Replace(Environment.NewLine,"</p><p>");
 				if ( ! h.EndsWith("<p>") )
 					h = h + "<p>";
 				lblTest.Text = "<div class='Error'>Log File : " + fileName + "</div><p>" + h + "&nbsp;</p>";
+				lblJS.Text   = "";
 			}
 			catch
 			{
@@ -240,18 +252,19 @@ namespace PCIWeb
 		{
 			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileInfo"));
 		}
-		protected void btnInfoX_Click(Object sender, EventArgs e)
-		{
-			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileInfo"),txtTest.Text);
-		}
 		protected void btnError_Click(Object sender, EventArgs e)
 		{
 			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileErrors"));
 		}
-		protected void btnErrorX_Click(Object sender, EventArgs e)
-		{
-			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileErrors"),txtTest.Text);
-		}
+
+//		protected void btnInfoX_Click(Object sender, EventArgs e)
+//		{
+//			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileInfo"),txtTest.Text);
+//		}
+//		protected void btnErrorX_Click(Object sender, EventArgs e)
+//		{
+//			ShowFile(PCIBusiness.Tools.ConfigValue("LogFileErrors"),txtTest.Text);
+//		}
 
 		protected void btnConfig_Click(Object sender, EventArgs e)
 		{
