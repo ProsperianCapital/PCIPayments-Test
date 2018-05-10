@@ -130,7 +130,7 @@ namespace PCIBusiness
 				//	XmlDocument retXMLDoc = new XmlDocument();
 				//	wc.Headers.Add("Content-Type", "application/soap+xml; charset=utf-8")
 
-					Tools.LogInfo("TransactionPayGate.CallWebService/10","xmlSent="+xmlSent,199);
+					Tools.LogInfo("TransactionPayGate.CallWebService/10","XML In="+xmlSent,199);
 
 					ret           = 20;
 					wc.Encoding   = System.Text.Encoding.UTF8;
@@ -150,7 +150,7 @@ namespace PCIBusiness
 					payRef     = Tools.XMLNode(xmlResult,"PayRequestId"     ,nsPrefix,nsURL);
 					ret        = 50;
 
-					Tools.LogInfo("TransactionPayGate.CallWebService/50","resultCode="+resultCode,199);
+					Tools.LogInfo("TransactionPayGate.CallWebService/50","XML Out="+xmlOut,199);
 
 					if ( resultCode == "990017" ) // Successful
 						return 0;
@@ -158,7 +158,7 @@ namespace PCIBusiness
 					if ( resultCode.Length == 0 && resultMsg.Length == 0 )
 					{
 						ret        = 60;
-						resultCode = Tools.XMLNode(xmlResult,"faultcode"); // Namespace not needed
+					//	resultCode = Tools.XMLNode(xmlResult,"faultcode"); // Namespace not needed
 						resultMsg  = Tools.XMLNode(xmlResult,"faultstring");
 						Tools.LogInfo("TransactionPayGate.CallWebService/60","faultcode="+resultCode,199);
 					}
