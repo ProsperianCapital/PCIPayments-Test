@@ -134,7 +134,7 @@ function Busy(show,msg)
 	<span style="float:right;margin-right:5px"><asp:Literal runat="server" ID="lblVersion"></asp:Literal></span>
 	</p>
 
-	<div id="divLogs" style="display:none;left:10px;top:20px;position:fixed;border:1px solid #000000;padding:5px;background-color:aquamarine">
+	<div id="divLogs" style="display:none;left:10px;bottom:40px;position:fixed;border:1px solid #000000;padding:5px;background-color:aquamarine">
 		<div style="background-color:hotpink;padding:5px;font-size:18px;font-weight:bold">Log Files</div>
 		Show logs for ...<br />
 		<asp:RadioButton runat="server" ID="rdo0" GroupName="rdoLog" />Today<br />
