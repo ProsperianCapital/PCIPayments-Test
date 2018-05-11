@@ -99,6 +99,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
+    <Compile Include="Web References\PayGateVault\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -148,8 +153,27 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <None Include="Web References\PayGateVault\PayVault.wsdl" />
+    <None Include="Web References\PayGateVault\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\PayGateVault\vaultData1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="https://secure.paygate.co.za/PayVault/PayVault.wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\PayGateVault\</RelPath>
+      <UpdateFromURL>https://secure.paygate.co.za/PayVault/PayVault.wsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>PCIBusiness_za_co_paygate_secure_PayVault</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="https://secure.payinspect.com/paymentgw/PayTechniqueCreditCardService.wsdl">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\IkajoService\</RelPath>

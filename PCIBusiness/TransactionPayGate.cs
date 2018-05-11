@@ -4,6 +4,7 @@ using System.Xml;
 using System.Net;
 using System.Net.Http;
 using System.IO;
+using PCIBusiness.PayGateVault;
 
 namespace PCIBusiness
 {
@@ -17,13 +18,13 @@ namespace PCIBusiness
 			get { return Tools.NullToString(resultCode) == "990017"; }
 		}
 
-		public override int GetToken(Payment payment)
+		public int GetTokenViaTransaction(Payment payment) // This works but you need at least 1 cent to go through
 		{
 			int ret  = 300;
 			xmlSent  = "";
 			payToken = "";
 
-			Tools.LogInfo("TransactionPayGate.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionPayGate.GetToken/710","RESERVE, Merchant Ref=" + payment.MerchantReference,199);
 
 			try
 			{
@@ -43,13 +44,127 @@ namespace PCIBusiness
 				if ( ret == 0 ) // Success
 					payToken = Tools.XMLNode(xmlResult,"VaultId",nsPrefix,nsURL);
 
-				Tools.LogInfo("TransactionPayGate.GetToken/20","ResultCode="+ResultCode,199);
+				Tools.LogInfo("TransactionPayGate.GetToken/720","ResultCode="+ResultCode,199);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayGate.GetToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayGate.GetToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionPayGate.GetToken/798","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionPayGate.GetToken/799","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
 			}
+			return ret;
+		}
+
+
+		public override int GetToken(Payment payment)
+		{
+			int ret   = 300;
+			xmlSent   = "";
+			payToken  = "";
+			resultMsg = "";
+
+			Tools.LogInfo("TransactionPayGate.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,199);
+
+			try
+			{
+			/*
+				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
+						  +                  " xmlns:putCard='urn:paygate.payvault'>"
+						  + "<soapenv:Header />"
+						  + "<soapenv:Body>"
+						  +   "<putCard:vaultData>"
+						  +     "<putCard:cardNo>" + Tools.XMLSafe(payment.CardNumber) + "</cardNo>"
+						  +     "<putCard:expMonth>" + Tools.XMLSafe(payment.CardExpiryMM) + "</expMonth>"
+						  +     "<putCard:expYear>" + Tools.XMLSafe(payment.CardExpiryYYYY) + "</expYear>"
+						  +   "</putCard:vaultData>"
+						  + "</soapenv:Body>"
+						  + "</soapenv:Envelope>";
+
+				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>"
+						  + "<soapenv:Header>"
+						  +   "<login>" + Tools.XMLSafe(payment.ProviderUserID) + "</login>"
+						  +   "<password>" + Tools.XMLSafe(payment.ProviderPassword) + "</password>"
+						  + "</soapenv:Header>"
+						  + "<soapenv:Body>"
+						  +   "<putCard xmlns='urn:paygate.payvault'>"
+						  +   "<vaultData>"
+						  +     "<cardNo>" + Tools.XMLSafe(payment.CardNumber) + "</cardNo>"
+						  +     "<expMonth>" + Tools.XMLSafe(payment.CardExpiryMM) + "</expMonth>"
+						  +     "<expYear>" + Tools.XMLSafe(payment.CardExpiryYYYY) + "</expYear>"
+						  +   "</vaultData>"
+						  +   "</putCard>"
+						  + "</soapenv:Body>"
+						  + "</soapenv:Envelope>";
+
+				xmlSent = "<Envelope xmlns='http://schemas.xmlsoap.org/soap/envelope/'>"
+						  + "<Body>"
+						  +   "<putCard xmlns='urn:paygate.payvault'>"
+						  +   "<vaultData>"
+						  +     "<cardNo>" + Tools.XMLSafe(payment.CardNumber) + "</cardNo>"
+						  +     "<expMonth>" + Tools.XMLSafe(payment.CardExpiryMM) + "</expMonth>"
+						  +     "<expYear>" + Tools.XMLSafe(payment.CardExpiryYYYY) + "</expYear>"
+						  +   "</vaultData>"
+						  +   "</putCard>"
+						  + "</Body>"
+						  + "</Envelope>";
+			*/
+
+				xmlSent = "<Envelope xmlns='http://schemas.xmlsoap.org/soap/envelope/'>"
+						  + "<Body>"
+						  +   "<putCard xmlns='urn:paygate.payvault'>"
+						  +   "<vaultData>"
+						  +     "<cardNo>" + Tools.XMLSafe(payment.CardNumber) + "</cardNo>"
+						  +     "<expMonth>" + Tools.XMLSafe(payment.CardExpiryMM) + "</expMonth>"
+						  +     "<expYear>" + Tools.XMLSafe(payment.CardExpiryYYYY) + "</expYear>"
+						  +   "</vaultData>"
+						  +   "</putCard>"
+						  + "</Body>"
+						  + "</Envelope>";
+
+				//	Version 1
+				//	ret = SendXML(payment.ProviderURL);
+
+				//	Version 2
+				//	ret = CallWebService(payment.ProviderURL);
+
+				//	Version 3
+				ret = 310;
+				using (PayGateVault.PayVault vault = new PayVault())
+				{
+					ret                             = 320;
+					PayGateVault.vaultData cardData = new vaultData();
+					ICredentials           login    = new NetworkCredential(payment.ProviderUserID,payment.ProviderPassword);	
+
+					ret               = 330;
+					cardData.cardNo   = payment.CardNumber;
+					ret               = 340;
+					cardData.expMonth = payment.CardExpiryMM;
+					ret               = 350;
+					cardData.expYear  = payment.CardExpiryYYYY;
+					ret               = 360;
+					vault.Credentials = login;
+					ret               = 370;
+					payToken          = vault.putCard(cardData);
+					ret               = 380;
+					login             = null;
+					cardData          = null;
+					ret               = 999; // Means all OK
+				}
+				Tools.LogInfo("TransactionPayGate.GetToken/20","Ret="+ret.ToString()+", VaultId="+payToken);
+			}
+			catch (Exception ex)
+			{
+				resultMsg = ex.Message;
+				Tools.LogInfo("TransactionPayGate.GetToken/98","Ret="+ret.ToString(),255);
+				Tools.LogException("TransactionPayGate.GetToken/99","Ret="+ret.ToString(),ex);
+			}
+
+			if ( ret == 999 && payToken.Length > 0 ) // Success
+			{
+				ret        = 0;
+				resultCode = "990017";
+			}
+			else
+				resultCode = ret.ToString();
 			return ret;
 		}
 
