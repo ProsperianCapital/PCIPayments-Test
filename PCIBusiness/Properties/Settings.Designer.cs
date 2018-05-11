@@ -53,5 +53,15 @@ namespace PCIBusiness.Properties {
                 return ((string)(this["PCIBusiness_IkajoService_PtCardService"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://secure.paygate.co.za/PayVault/process.trans")]
+        public string PCIBusiness_za_co_paygate_secure_PayVault {
+            get {
+                return ((string)(this["PCIBusiness_za_co_paygate_secure_PayVault"]));
+            }
+        }
     }
 }
