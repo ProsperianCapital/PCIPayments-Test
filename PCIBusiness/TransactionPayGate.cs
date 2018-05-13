@@ -61,8 +61,9 @@ namespace PCIBusiness
 			xmlSent   = "";
 			payToken  = "";
 			resultMsg = "";
+			xmlResult = new XmlDocument();
 
-			Tools.LogInfo("TransactionPayGate.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionPayGate.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,220);
 
 			try
 			{
@@ -120,13 +121,13 @@ namespace PCIBusiness
 						  + "</Body>"
 						  + "</Envelope>";
 
-				//	Version 1
-				//	ret = SendXML(payment.ProviderURL);
+			//	Version 1
+			//	ret = SendXML(payment.ProviderURL);
 
-				//	Version 2
-				//	ret = CallWebService(payment.ProviderURL);
+			//	Version 2
+			//	ret = CallWebService(payment.ProviderURL);
 
-				//	Version 3
+			//	Version 3
 				ret = 310;
 				using (PayGateVault.PayVault vault = new PayVault())
 				{
@@ -149,7 +150,7 @@ namespace PCIBusiness
 					cardData          = null;
 					ret               = 999; // Means all OK
 				}
-				Tools.LogInfo("TransactionPayGate.GetToken/20","Ret="+ret.ToString()+", VaultId="+payToken);
+				Tools.LogInfo("TransactionPayGate.GetToken/20","Ret="+ret.ToString()+", VaultId="+payToken,220);
 			}
 			catch (Exception ex)
 			{
@@ -162,9 +163,15 @@ namespace PCIBusiness
 			{
 				ret        = 0;
 				resultCode = "990017";
+				xmlResult.LoadXml("<VaultId>" + Tools.XMLSafe(payToken) + "</VaultId>");
 			}
 			else
+			{
+				if ( resultMsg.Length == 0 )
+					resultMsg = "Tokenization failed";
+				xmlResult.LoadXml("<Error><Code>" + ret.ToString() + "</Code><Message>" + Tools.XMLSafe(resultMsg) + "</Message></Error>");
 				resultCode = ret.ToString();
+			}
 			return ret;
 		}
 

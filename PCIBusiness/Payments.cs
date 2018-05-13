@@ -10,6 +10,8 @@ namespace PCIBusiness
 		private int       fail;
 		private int       err;
 
+		private const int MAX_ROWS = 50; // Default maximum per iteration
+
 		public override BaseData NewItem()
 		{
 			return new   Payment("");
@@ -33,7 +35,7 @@ namespace PCIBusiness
 			try
 			{
 				k   = 0;
-    			sql = "exec sp_Get_CardToToken " + Tools.DBString(bureau) + ",10";
+    			sql = "exec sp_Get_CardToToken " + Tools.DBString(bureau) + "," + MAX_ROWS.ToString();
 				err = ExecuteSQL(null,false,false);
 				if ( err > 0 )
 					Tools.LogException("Payments.Summary/10",sql + " failed, return code " + err.ToString());
@@ -48,7 +50,7 @@ namespace PCIBusiness
 				provider.CardsToBeTokenized = k;
 
 				k   = 0;
-    			sql = "exec sp_Get_CardPayment " + Tools.DBString(bureau) + ",10";
+    			sql = "exec sp_Get_CardPayment " + Tools.DBString(bureau) + "," + MAX_ROWS.ToString();
 				err = ExecuteSQL(null,false,false);
 				if ( err > 0 )
 					Tools.LogException("Payments.Summary/20",sql + " failed, return code " + err.ToString());
@@ -75,17 +77,18 @@ namespace PCIBusiness
 
 		public int ProcessCards(string bureau,byte mode=0,int rowsToProcess=0)
 		{
-			int    maxRows = Tools.StringToInt(Tools.ConfigValue("MaximumRows"));
-			int    iter    = 0;
-			string desc    = "";
+			int    maxRows  = Tools.StringToInt(Tools.ConfigValue("MaximumRows"));
+			int    iter     = 0;
+			string desc     = "";
 
 			bureauCode = Tools.NullToString(bureau);
 			success    = 0;
 			fail       = 0;
-			maxRows    = ( maxRows < 1 || maxRows > 25 ? 25 : maxRows );
+			maxRows    = ( maxRows < 1 ? MAX_ROWS : maxRows );
+//			maxRows    = ( maxRows < 1 || maxRows > MAX_ROWS ? MAX_ROWS : maxRows );
 
 			if ( bureauCode.Length < 1 )
-				return 10;
+				return 0;
 			else if ( mode == 1 )
     		{
 				sql  = "exec sp_Get_CardToToken " + Tools.DBString(bureauCode);
@@ -97,7 +100,7 @@ namespace PCIBusiness
 				desc = "Payment";
 			}
 			else
-				return 20;
+				return 0;
 
 			if ( rowsToProcess < 1 )
 				rowsToProcess = 0;
@@ -109,49 +112,36 @@ namespace PCIBusiness
 			else if ( rowsToProcess > 0 )
 				sql = sql + "," + rowsToProcess.ToString();
 			else
-				sql = sql + ",25";
+				sql = sql + "," + MAX_ROWS.ToString();
 
-			Tools.LogInfo("Payments.ProcessCards/10","Mode="+mode.ToString()+", MaxRows=" + maxRows.ToString()+", RowsToProcess=" + rowsToProcess.ToString()+", BureauCode="+bureauCode+", SQL="+sql,220);
+			Tools.LogInfo("Payments.ProcessCards/10","Mode="+mode.ToString()+", MaxRows=" + maxRows.ToString()+", RowsToProcess=" + rowsToProcess.ToString()+", BureauCode="+bureauCode+", SQL="+sql,199);
 
 			try
 			{
-				bool allDone = false;
-				while ( ! allDone )
+				while ( rowsToProcess < 1 || rowsToProcess > success + fail )
 				{
-					err = ExecuteSQL(null,false,false);
-					if ( err > 0 )
-					{
-						Tools.LogException("Payments.ProcessCards/20",sql + " failed, return code " + err.ToString());
+					if ( LoadDataFromSQL(maxRows) < 1 )
 						break;
-					}
-					using (PCIBusiness.Payment payment = new PCIBusiness.Payment(bureauCode))
-					{
-						int rowsDone = 0;
-						iter++;
-						while ( ! dbConn.EOF && ! allDone && rowsDone < maxRows ) // Max per iteration
-						{
-							payment.LoadData(dbConn);
-							if ( mode == 1 )
-								err = payment.GetToken();
-							else
-								err = payment.ProcessPayment();
-							dbConn.NextRow();
-							if ( err == 0 )
-								success++;
-							else
-								fail++;
-							rowsDone++;
-							if ( rowsToProcess > 0 && success + fail >= rowsToProcess )
-								allDone = true;
-						}
-						if (dbConn.EOF)
-							allDone = true;
-						Tools.LogInfo("Payments.ProcessCards/30","Iteration " + iter.ToString() + " (" + rowsDone.ToString() + " " + desc + "s processed)",220);
-					}
-					err = 0;
 					Tools.CloseDB(ref dbConn);
+					int rowsDone = 0;
+					iter++;
+					foreach (Payment payment in objList)
+					{
+						payment.BureauCode = bureauCode;
+						if ( mode == 1 )
+							err = payment.GetToken();
+						else
+							err = payment.ProcessPayment();
+						if ( err == 0 )
+							success++;
+						else
+							fail++;
+						rowsDone++;
+						if ( rowsToProcess > 0 && rowsToProcess <= success + fail )
+							break;
+					}
+					Tools.LogInfo("Payments.ProcessCards/30","Iteration " + iter.ToString() + " (" + rowsDone.ToString() + " " + desc + "s processed)",199);
 				}
-				return err;
 			}
 			catch (Exception ex)
 			{
@@ -160,9 +150,9 @@ namespace PCIBusiness
 			finally
 			{
 				Tools.CloseDB(ref dbConn);
-				Tools.LogInfo("Payments.ProcessCards/90","Finished (" + success.ToString() + " " + desc + "s succeeded, " + fail.ToString() + " "+ desc + "s failed)",220);
+				Tools.LogInfo("Payments.ProcessCards/90","Finished (" + success.ToString() + " " + desc + "s succeeded, " + fail.ToString() + " "+ desc + "s failed)",199);
 			}
-			return 90;
+			return success+fail;
 		}
 	}
 }

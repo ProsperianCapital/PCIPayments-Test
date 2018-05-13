@@ -47,6 +47,7 @@ namespace PCIBusiness
 
 
 //		Payment Provider stuff
+
 		public string    ProviderAccount
 		{
 			get 
@@ -65,6 +66,11 @@ namespace PCIBusiness
 					return "XXXX";
 				return "";
 			}
+		}
+		public string    BureauCode
+		{
+			get { return  Tools.NullToString(bureauCode); }
+			set { bureauCode = value.Trim(); }
 		}
 		public string    ProviderKey
 		{
@@ -312,6 +318,11 @@ namespace PCIBusiness
 
 		public int GetToken()
 		{
+//	Testing
+//			Tools.LogInfo("Payment.GetToken/1","Merchant Ref=" + merchantReference,220);
+//			return 899;
+//	Testing
+
 			int ret = 64020;
 			sql     = "";
 			Tools.LogInfo("Payment.GetToken/10","Merchant Ref=" + merchantReference,10);
@@ -432,9 +443,6 @@ namespace PCIBusiness
 		public Payment(string bureau) : base()
 		{
 			bureauCode = Tools.NullToString(bureau);
-		//	Load provider info here ... it will be passed to the Transaction
-		//	if ( bureauCode.Length > 0 )
-		//		provider = (new Providers()).LoadOne(bureauCode);
 		}
 	}
 }
