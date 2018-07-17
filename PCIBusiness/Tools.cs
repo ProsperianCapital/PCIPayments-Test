@@ -331,7 +331,7 @@ namespace PCIBusiness
 			return "";
 		}
 
-		public static string XMLSafe(string str)
+		public static string XMLSafe(string str,byte encoding=0)
 		{
       // Converts a string to safe format for XML:
       // (1) Removes leading and trailing spaces
@@ -340,6 +340,7 @@ namespace PCIBusiness
     
 			if ( string.IsNullOrWhiteSpace(str) )
 				return "";
+
 			str = str.Trim();
          str = str.Replace("'","`");
          str = str.Replace("\"","`");
@@ -348,6 +349,14 @@ namespace PCIBusiness
          str = str.Replace("&"," and ");
          str = str.Replace("  and "," and ");
          str = str.Replace(" and  "," and ");
+
+			if ( encoding == 29 ) // Unicode
+			{
+				byte[] unicodeBytes = Encoding.UTF8.GetBytes(str);
+				string ret          = Encoding.UTF8.GetString(unicodeBytes,0,unicodeBytes.Length);
+				LogInfo("Tools.XMLSafe","Str (in)='"+str+"', Str (out)='"+ret+"'");
+				return ret;
+			}
          return str;
 		}
 

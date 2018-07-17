@@ -64,6 +64,8 @@ namespace PCIBusiness
 					return "MY014473";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
 					return "XXXX";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
+					return "XXXX";
 				return "";
 			}
 		}
@@ -92,7 +94,7 @@ namespace PCIBusiness
 
 //			get { return "https://payment.ccp.boarding.transact24.com/PaymentCard";           } // T24
 //			get { return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl"; } MyGate
-//			get { return "https://secure.paygate.co.za/payhost/process.trans?wsdl";           } PayGate
+//			get { return "https://secure.paygate.co.za/payhost/process.trans";           } PayGate
 		}
 
 //		public string    MerchantUserId
@@ -339,6 +341,8 @@ namespace PCIBusiness
 					transaction = new TransactionMyGate();
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
 					transaction = new TransactionPayGate();
+//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
+//					transaction = new TransactionPayFast();
 				else
 					return ret;
 			}
@@ -374,6 +378,8 @@ namespace PCIBusiness
 					transaction = new TransactionMyGate();
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
 					transaction = new TransactionPayGate();
+//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
+//					transaction = new TransactionPayFast();
 				else
 					return ret;
 			}

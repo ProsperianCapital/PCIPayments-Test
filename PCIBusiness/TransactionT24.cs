@@ -110,7 +110,7 @@ namespace PCIBusiness
 				if ( Successful )
 					return 0;
 
-				Tools.LogInfo("TransactionT24.SendXML/80","URL=" + url + ", XML Sent=" + xmlSent+", XML Received="+xmlReceived,220);
+				Tools.LogInfo("TransactionT24.SendXML/80","XML Sent=" + xmlSent+", XML Received=" + xmlReceived,220);
 			}
 			catch (Exception ex)
 			{
@@ -184,7 +184,7 @@ namespace PCIBusiness
 				ret        = 40;
 				xmlSent    = xmlSent + "&control=" + HashSHA1(chk);
 
-				Tools.LogInfo("TransactionT24.GetToken/10","(Reserve) POST="+xmlSent+", Key="+payment.ProviderKey,10);
+				Tools.LogInfo("TransactionT24.GetToken/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
 
 				ret        = PostHTML(payment.ProviderURL);
 				payToken   = Tools.XMLNode(xmlResult,"merchant_card_number");
@@ -236,7 +236,7 @@ namespace PCIBusiness
 				        + "&expiremonth=" + Tools.URLString(payment.CardExpiryMM)
 				        + "&expireyear="  + Tools.URLString(payment.CardExpiryYY)
 				        + "&cvv="         + Tools.URLString(payment.CardCVV);
-				Tools.LogInfo("TransactionT24.GetToken/2","POST="+xmlSent+", Key="+payment.ProviderKey,10);
+				Tools.LogInfo("TransactionT24.GetToken/2","Post="+xmlSent+", Key="+payment.ProviderKey,10);
 				ret = 40;
 				ret = PostHTML(payment.ProviderURL);
 			}
@@ -292,7 +292,7 @@ namespace PCIBusiness
 				ret        = 40;
 				xmlSent    = xmlSent + "&control=" + HashSHA1(chk);
 
-				Tools.LogInfo("TransactionT24.ProcessPayment/20","POST="+xmlSent+", Key="+payment.ProviderKey,30);
+				Tools.LogInfo("TransactionT24.ProcessPayment/20","Post="+xmlSent+", Key="+payment.ProviderKey,30);
 
 				ret        = PostHTML(payment.ProviderURL);
 			}
