@@ -354,7 +354,7 @@ namespace PCIBusiness
 			{
 				byte[] unicodeBytes = Encoding.UTF8.GetBytes(str);
 				string ret          = Encoding.UTF8.GetString(unicodeBytes,0,unicodeBytes.Length);
-				LogInfo("Tools.XMLSafe","Str (in)='"+str+"', Str (out)='"+ret+"'");
+				LogInfo("Tools.XMLSafe","Str (in)='"+str+"', Str (out)='"+ret+"'",255);
 				return ret;
 			}
          return str;
