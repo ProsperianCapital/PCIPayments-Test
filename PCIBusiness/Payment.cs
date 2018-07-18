@@ -325,8 +325,9 @@ namespace PCIBusiness
 //			return 899;
 //	Testing
 
-			int ret = 64020;
-			sql     = "";
+			int processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
+			int ret         = 64020;
+			sql             = "";
 			Tools.LogInfo("Payment.GetToken/10","Merchant Ref=" + merchantReference,10);
 
 			if ( transaction == null || transaction.BureauCode != bureauCode )
@@ -347,22 +348,28 @@ namespace PCIBusiness
 					return ret;
 			}
 			ret = transaction.GetToken(this);
-			sql = "exec sp_Upd_CardTokenVault @MerchantReference = "           + Tools.DBString(merchantReference) // nvarchar(20),
-				                           + ",@PaymentBureauCode = "           + Tools.DBString(bureauCode)        // char(3),
-			                              + ",@PaymentBureauToken = "          + Tools.DBString(transaction.PaymentToken)
-			                              + ",@BureauSubmissionSoap = "        + Tools.DBString(transaction.XMLSent,3)
-			                              + ",@BureauResultSoap = "            + Tools.DBString(transaction.XMLResult,3)
-			                              + ",@TransactionStatusCode = "       + Tools.DBString(transaction.ResultCode)
-		                                 + ",@CardTokenisationStatusCode = '" + ( ret == 0 ? "007'" : "001'" );
-			Tools.LogInfo("Payment.GetToken/20","SQL=" + sql,20);
-			int k = ExecuteSQLUpdate();
+
+			if ( processMode == (int)Constants.ProcessMode.FullUpdate ||
+			     processMode == (int)Constants.ProcessMode.UpdateToken )
+			{
+				sql = "exec sp_Upd_CardTokenVault @MerchantReference = "           + Tools.DBString(merchantReference) // nvarchar(20),
+				                              + ",@PaymentBureauCode = "           + Tools.DBString(bureauCode)        // char(3),
+			                                 + ",@PaymentBureauToken = "          + Tools.DBString(transaction.PaymentToken)
+			                                 + ",@BureauSubmissionSoap = "        + Tools.DBString(transaction.XMLSent,3)
+			                                 + ",@BureauResultSoap = "            + Tools.DBString(transaction.XMLResult,3)
+			                                 + ",@TransactionStatusCode = "       + Tools.DBString(transaction.ResultCode)
+		                                    + ",@CardTokenisationStatusCode = '" + ( ret == 0 ? "007'" : "001'" );
+				Tools.LogInfo("Payment.GetToken/20","SQL=" + sql,20);
+				int k = ExecuteSQLUpdate();
+			}
 			Tools.LogInfo("Payment.GetToken/90","Ret=" + ret.ToString(),20);
 			return ret;
 		}
 
 		public int ProcessPayment()
 		{
-			int ret = 37020;
+			int processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
+			int ret         = 37020;
 			int k;
 			Tools.LogInfo("Payment.ProcessPayment/10","Merchant Ref=" + merchantReference,10);
 
@@ -383,17 +390,34 @@ namespace PCIBusiness
 				else
 					return ret;
 			}
-			sql = "exec sp_Upd_CardPayment @MerchantReference = " + Tools.DBString(merchantReference)
-			                           + ",@TransactionStatusCode = '77'";
-			Tools.LogInfo("Payment.ProcessPayment/20","SQL 1=" + sql,20);
-			k   = ExecuteSQLUpdate();
-			Tools.LogInfo("Payment.ProcessPayment/30","SQL 1 complete",20);
+			if ( processMode == (int)Constants.ProcessMode.FullUpdate         ||
+			     processMode == (int)Constants.ProcessMode.UpdatePaymentStep1 ||
+			     processMode == (int)Constants.ProcessMode.UpdatePaymentStep1AndStep2 )
+			{
+				sql = "exec sp_Upd_CardPayment @MerchantReference = " + Tools.DBString(merchantReference)
+			                              + ",@TransactionStatusCode = '77'";
+				Tools.LogInfo("Payment.ProcessPayment/20","SQL 1=" + sql,20);
+				k   = ExecuteSQLUpdate();
+				Tools.LogInfo("Payment.ProcessPayment/30","SQL 1 complete",20);
+			}
+			else
+				Tools.LogInfo("Payment.ProcessPayment/40","SQL 1 skipped",20);
+
 			ret = transaction.ProcessPayment(this);
-			sql = "exec sp_Upd_CardPayment @MerchantReference = " + Tools.DBString(merchantReference)
-			                           + ",@TransactionStatusCode = " + Tools.DBString(transaction.ResultCode);
-			Tools.LogInfo("Payment.ProcessPayment/40","SQL 2=" + sql,20);
-			k   = ExecuteSQLUpdate();
-			Tools.LogInfo("Payment.ProcessPayment/50","SQL 2 complete",20);
+
+			if ( processMode == (int)Constants.ProcessMode.FullUpdate         ||
+			     processMode == (int)Constants.ProcessMode.UpdatePaymentStep2 ||
+			     processMode == (int)Constants.ProcessMode.UpdatePaymentStep1AndStep2 )
+			{
+				sql = "exec sp_Upd_CardPayment @MerchantReference = " + Tools.DBString(merchantReference)
+			                              + ",@TransactionStatusCode = " + Tools.DBString(transaction.ResultCode);
+				Tools.LogInfo("Payment.ProcessPayment/50","SQL 2=" + sql,20);
+				k   = ExecuteSQLUpdate();
+				Tools.LogInfo("Payment.ProcessPayment/60","SQL 2 complete",20);
+			}
+			else
+				Tools.LogInfo("Payment.ProcessPayment/70","SQL 2 skipped",20);
+
 			return ret;
 		}
 

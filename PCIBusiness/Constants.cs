@@ -72,5 +72,14 @@ namespace PCIBusiness
 			Testing     = 2,
 			Live        = 3
 		}
+		public enum ProcessMode : int
+		{
+			FullUpdate                 =  0, // Live
+			UpdateToken                = 10,
+			UpdatePaymentStep1         = 21,
+			UpdatePaymentStep2         = 22,
+			UpdatePaymentStep1AndStep2 = 23,
+			NoUpdate                   = 99
+		}
 	}
 }
