@@ -387,13 +387,17 @@ namespace PCIBusiness
       try
       {
          colNo = dataReader.GetOrdinal(colName);
-         if ( ! dataReader.IsDBNull(colNo) )
-				return dataReader.GetString(colNo).Trim();
 
-//				if ( dataReader.GetDataTypeName(colNo).ToUpper() == "NVARCHAR" )
-//					return dataReader.GetSqlString(colNo).ToString().Trim();
-//				else
-//					return dataReader.GetString(colNo).Trim();
+//			if ( ! dataReader.IsDBNull(colNo) )
+//				return dataReader.GetString(colNo).Trim();
+
+			if ( ! dataReader.IsDBNull(colNo) )
+			{
+				string colType = dataReader.GetDataTypeName(colNo).ToUpper();
+				if ( colType == "NCHAR" || colType == "NVARCHAR" )
+					return dataReader.GetSqlString(colNo).ToString().Trim();
+				return dataReader.GetString(colNo).Trim();
+			}
       }
       catch (Exception ex)
       {
