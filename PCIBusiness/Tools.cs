@@ -370,7 +370,7 @@ namespace PCIBusiness
 //				return ret.Substring(1);
 			}
 
-//	Ver 3
+//	Ver 3 and 4
 			if ( encoding == 29 ) // Unicode
 			{
 				byte[] unicodeBytes = Encoding.UTF8.GetBytes(str);
@@ -383,7 +383,23 @@ namespace PCIBusiness
 				}
 				LogInfo("Tools.XMLSafe/3","Str (in)='"+str+"', Str (out)='"+ret10+"'",255);
 				LogInfo("Tools.XMLSafe/4","Str (in)='"+str+"', Str (out)='"+ret16+"'",255);
-				return ret10;
+//				return ret10;
+			}
+
+//	Ver 5
+			if ( encoding == 29 ) // Unicode
+			{
+				byte[] unicodeBytes5 = Encoding.UTF8.GetBytes(str);
+				byte[] unicodeBytes6 = new UTF8Encoding().GetBytes(str);
+				string ret5          = "";
+				string ret6          = "";
+				for ( int k = 0 ; k < unicodeBytes5.Length ; k++ )
+					ret5 = ret5 + "/" + unicodeBytes5[k].ToString("x2");
+				for ( int k = 0 ; k < unicodeBytes6.Length ; k++ )
+					ret6 = ret6 + "/" + unicodeBytes6[k].ToString("x2");
+				LogInfo("Tools.XMLSafe/5","Str (in)='"+str+"', Str (out)='"+ret5.Substring(1)+"'",255);
+				LogInfo("Tools.XMLSafe/6","Str (in)='"+str+"', Str (out)='"+ret6.Substring(1)+"'",255);
+				return ret5.Substring(1);
 			}
          return str;
 		}
