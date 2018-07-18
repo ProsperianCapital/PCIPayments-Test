@@ -399,7 +399,17 @@ namespace PCIBusiness
 					ret6 = ret6 + "&#x" + unicodeBytes6[k].ToString("x2") + ";";
 				LogInfo("Tools.XMLSafe/5","Str (in)='"+str+"', Str (out)='"+ret5.Substring(1)+"'",255);
 				LogInfo("Tools.XMLSafe/6","Str (in)='"+str+"', Str (out)='"+ret6.Substring(1)+"'",255);
-				return ret6.Substring(1);
+//				return ret6.Substring(1);
+			}
+
+//	Ver 7
+			if ( encoding == 29 ) // Unicode
+			{
+				byte[] utf8Bytes = new byte[str.Length];
+				for ( int k = 0 ; k < str.Length ; k++ )
+					utf8Bytes[k] = (byte)str[k];
+				LogInfo("Tools.XMLSafe/7","Str (in)='"+str+"', Str (out)='"+Encoding.UTF8.GetString(utf8Bytes,0,utf8Bytes.Length)+"'",255);
+				return Encoding.UTF8.GetString(utf8Bytes,0,utf8Bytes.Length);
 			}
          return str;
 		}
