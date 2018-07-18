@@ -350,11 +350,23 @@ namespace PCIBusiness
          str = str.Replace("  and "," and ");
          str = str.Replace(" and  "," and ");
 
+//	Ver 1
 			if ( encoding == 29 ) // Unicode
 			{
 				byte[] unicodeBytes = Encoding.UTF8.GetBytes(str);
 				string ret          = Encoding.UTF8.GetString(unicodeBytes,0,unicodeBytes.Length);
-				LogInfo("Tools.XMLSafe","Str (in)='"+str+"', Str (out)='"+ret+"'",255);
+				LogInfo("Tools.XMLSafe/1","Str (in)='"+str+"', Str (out)='"+ret+"'",255);
+//				return ret;
+			}
+
+//	Ver 2
+			if ( encoding == 29 ) // Unicode
+			{
+				byte[] unicodeBytes = Encoding.UTF8.GetBytes(str);
+				string ret          = "";
+				for ( int k = 0 ; k < unicodeBytes.Length ; k++ )
+					ret = ret + unicodeBytes[k];
+				LogInfo("Tools.XMLSafe/2","Str (in)='"+str+"', Str (out)='"+ret+"'",255);
 				return ret;
 			}
          return str;
