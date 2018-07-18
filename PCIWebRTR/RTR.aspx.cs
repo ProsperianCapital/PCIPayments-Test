@@ -283,6 +283,7 @@ namespace PCIWebRTR
 				               + "- Request.PhysicalApplicationPath = " + Request.PhysicalApplicationPath + "<hr />"
 				               + "<u>Settings</u><br />"
 				               + "- System Mode = " + PCIBusiness.Tools.ConfigValue("SystemMode") + "<br />"
+				               + "- Process Mode = " + PCIBusiness.Tools.ConfigValue("ProcessMode") + "<br />"
 				               + "- Page timeout = " + Server.ScriptTimeout.ToString() + " seconds<br />"
 				               + "- Rows to Process per Iteration = " + PCIBusiness.Tools.ConfigValue("MaximumRows") + "<br />"
 				               + "- Error Logs folder/file = " + PCIBusiness.Tools.ConfigValue("LogFileErrors") + "<br />"
