@@ -365,9 +365,9 @@ namespace PCIBusiness
 				byte[] unicodeBytes = Encoding.UTF8.GetBytes(str);
 				string ret          = "";
 				for ( int k = 0 ; k < unicodeBytes.Length ; k++ )
-					ret = ret + unicodeBytes[k];
-				LogInfo("Tools.XMLSafe/2","Str (in)='"+str+"', Str (out)='"+ret+"'",255);
-				return ret;
+					ret = ret + "/" + unicodeBytes[k];
+				LogInfo("Tools.XMLSafe/2","Str (in)='"+str+"', Str (out)='"+ret.Substring(1)+"'",255);
+				return ret.Substring(1);
 			}
          return str;
 		}
