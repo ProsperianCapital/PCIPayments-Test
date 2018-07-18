@@ -394,14 +394,19 @@ namespace PCIBusiness
 			if ( ! dataReader.IsDBNull(colNo) )
 			{
 				string colType = dataReader.GetDataTypeName(colNo).ToUpper();
+				string colValue;
 				if ( colType == "NCHAR" || colType == "NVARCHAR" )
-					return dataReader.GetSqlString(colNo).ToString().Trim();
-				return dataReader.GetString(colNo).Trim();
+					colValue = dataReader.GetSqlString(colNo).ToString();
+				else
+					colValue = dataReader.GetString(colNo);
+				if ( errorMode == 37 )
+					Tools.LogInfo ( ModuleName("DBConn.ColString"), "Column " + colName + " : Col No = " + colNo.ToString() + ", SQL Type = " + colType + ", Value = '" + colValue + "'", 255 );
+				return colValue.Trim();
 			}
       }
       catch (Exception ex)
       {
-			if ( errorMode == 1 )
+			if ( errorMode > 0 )
 				Tools.LogException ( ModuleName("DBConn.ColString"), colName, ex );
       }
       return "";
