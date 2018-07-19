@@ -426,24 +426,24 @@ namespace PCIBusiness
 			dbConn.SourceInfo  = "Payment.LoadData";
 
 		//	Payment Provider
-			providerKey      = dbConn.ColString("Safekey");
-			providerURL      = dbConn.ColString("url");
-			providerAccount  = dbConn.ColString("MerchantAccount",0);
-			providerUserID   = dbConn.ColString("MerchantUserId");
-			providerPassword = dbConn.ColString("MerchantUserPassword");
+			providerKey      = dbConn.ColString ("Safekey");
+			providerURL      = dbConn.ColString ("url");
+			providerAccount  = dbConn.ColString ("MerchantAccount",0);
+			providerUserID   = dbConn.ColString ("MerchantUserId");
+			providerPassword = dbConn.ColString ("MerchantUserPassword");
 
 		//	Customer
-			firstName        = dbConn.ColString("firstName",37);
-			lastName         = dbConn.ColString("lastName",37);
-			email            = dbConn.ColString("email");
-			phoneCell        = dbConn.ColString("mobile");
-			regionalId       = dbConn.ColString("regionalId",0);
-			address1         = dbConn.ColString("address1",0);
-			address2         = dbConn.ColString("city",0);
-			postalCode       = dbConn.ColString("zip_code",0);
-			provinceCode     = dbConn.ColString("State",0);
-			countryCode      = dbConn.ColString("CountryCode");
-			ipAddress        = dbConn.ColString("IPAddress",0);
+			firstName        = dbConn.ColUniCode("firstName",37);
+			lastName         = dbConn.ColUniCode("lastName",37);
+			email            = dbConn.ColString ("email");
+			phoneCell        = dbConn.ColString ("mobile");
+			regionalId       = dbConn.ColString ("regionalId",0);
+			address1         = dbConn.ColString ("address1",0);
+			address2         = dbConn.ColString ("city",0);
+			postalCode       = dbConn.ColString ("zip_code",0);
+			provinceCode     = dbConn.ColString ("State",0);
+			countryCode      = dbConn.ColString ("CountryCode");
+			ipAddress        = dbConn.ColString ("IPAddress",0);
 
 		//	Payment
 			merchantReference         = dbConn.ColString("merchantReference");

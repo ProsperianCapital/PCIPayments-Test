@@ -387,27 +387,61 @@ namespace PCIBusiness
       try
       {
          colNo = dataReader.GetOrdinal(colName);
+			if ( ! dataReader.IsDBNull(colNo) )
+				return dataReader.GetString(colNo).Trim();
 
 //			if ( ! dataReader.IsDBNull(colNo) )
-//				return dataReader.GetString(colNo).Trim();
+//			{
+//				string colType = dataReader.GetDataTypeName(colNo).ToUpper();
+//				string colValue;
+//				if ( colType == "NCHAR" || colType == "NVARCHAR" )
+//					colValue = dataReader.GetSqlString(colNo).ToString();
+//				else
+//					colValue = dataReader.GetString(colNo);
+//				if ( errorMode == 37 )
+//					Tools.LogInfo ( ModuleName("DBConn.ColString"), "Column " + colName + " : Col No = " + colNo.ToString() + ", SQL Type = " + colType + ", Value = '" + colValue + "'", 255 );
+//				return colValue.Trim();
+//			}
 
-			if ( ! dataReader.IsDBNull(colNo) )
-			{
-				string colType = dataReader.GetDataTypeName(colNo).ToUpper();
-				string colValue;
-				if ( colType == "NCHAR" || colType == "NVARCHAR" )
-					colValue = dataReader.GetSqlString(colNo).ToString();
-				else
-					colValue = dataReader.GetString(colNo);
-				if ( errorMode == 37 )
-					Tools.LogInfo ( ModuleName("DBConn.ColString"), "Column " + colName + " : Col No = " + colNo.ToString() + ", SQL Type = " + colType + ", Value = '" + colValue + "'", 255 );
-				return colValue.Trim();
-			}
-      }
+     }
       catch (Exception ex)
       {
 			if ( errorMode > 0 )
 				Tools.LogException ( ModuleName("DBConn.ColString"), colName, ex );
+      }
+      return "";
+   }
+
+
+   public string ColUniCode(string colName,byte errorMode=1)
+   {
+      try
+      {
+         colNo = dataReader.GetOrdinal(colName);
+
+			if ( dataReader.IsDBNull(colNo) )
+				return "";
+
+			string    pre     = "/";
+			string    ret     = "";
+			SqlString str     = dataReader.GetSqlString(colNo);
+			byte[]    uniCode = str.GetUnicodeBytes();
+
+			if ( uniCode.Length < 1 )
+				return "";
+
+			for ( int k = 0 ; k < uniCode.Length ; k ++ )
+				ret = ret + pre + uniCode[k];
+
+			if ( errorMode == 37 )
+				Tools.LogInfo ( ModuleName("DBConn.ColUniCode"), "Column " + colName + " : Col No = " + colNo.ToString() + ", Str Value = '" + str.ToString() + "', UniCode Value = '" + ret + "'", 255 );
+
+			return ret;
+      }
+      catch (Exception ex)
+      {
+			if ( errorMode > 0 )
+				Tools.LogException ( ModuleName("DBConn.ColUniCode"), colName, ex );
       }
       return "";
    }
