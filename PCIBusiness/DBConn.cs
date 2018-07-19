@@ -423,25 +423,50 @@ namespace PCIBusiness
 				return "";
 
 			string    pre     = "\\u";
-			string    ret1    = "";
-			string    ret2    = "";
-			string    ret3    = "";
-			SqlString str     = dataReader.GetSqlString(colNo);
-			byte[]    uniCode = str.GetUnicodeBytes();
+			SqlString strA    = dataReader.GetSqlString(colNo);
+			string    strB    = strA.ToString();
 
-			if ( uniCode.Length < 1 )
-				return "";
+			byte[]    uniCodeA = strA.GetUnicodeBytes();
+			byte[]    uniCodeB = Encoding.Unicode.GetBytes(strB);
+			byte[]    uniCodeC = Encoding.UTF8.GetBytes(strB);
 
-			for ( int k = 0 ; k < uniCode.Length ; k ++ )
-				ret1 = ret1 + pre + uniCode[k];
+			string    retA1    = "";
+			string    retA2    = "";
+			string    retA3    = "";
+			string    retB1    = "";
+			string    retB2    = "";
+			string    retB3    = "";
+			string    retC1    = "";
+			string    retC2    = "";
+			string    retC3    = "";
 
-			ret2 = Encoding.UTF8.GetString(uniCode);
-			ret3 = Encoding.Unicode.GetString(uniCode);
+//			if ( uniCode.Length < 1 )
+//				return "";
+
+			for ( int k = 0 ; k < uniCodeA.Length ; k ++ )
+				retA1 = retA1 + pre + uniCodeA[k];
+
+			retA2 = Encoding.UTF8.GetString(uniCodeA);
+			retA3 = Encoding.Unicode.GetString(uniCodeA);
+
+			for ( int k = 0 ; k < uniCodeB.Length ; k ++ )
+				retB1 = retB1 + pre + uniCodeB[k];
+
+			retB2 = Encoding.UTF8.GetString(uniCodeB);
+			retB3 = Encoding.Unicode.GetString(uniCodeB);
+
+			for ( int k = 0 ; k < uniCodeC.Length ; k ++ )
+				retC1 = retC1 + pre + uniCodeC[k];
+
+			retC2 = Encoding.UTF8.GetString(uniCodeC);
+			retC3 = Encoding.Unicode.GetString(uniCodeC);
 
 			if ( errorMode == 29 )
-				Tools.LogInfo ( ModuleName("DBConn.ColUniCode"), "Str (Orig) = '" + str.ToString() + "', ret1 = '" + ret1 + "', ret2 = '" + ret2 + "', ret3 = '" + ret3 + "'", 255 );
+				Tools.LogInfo ( ModuleName("DBConn.ColUniCode/A"), "retA1 = '" + retA1 + "', retA2 = '" + retA2 + "', retA3 = '" + retA3 + "'", 255 );
+				Tools.LogInfo ( ModuleName("DBConn.ColUniCode/B"), "retB1 = '" + retB1 + "', retB2 = '" + retB2 + "', retB3 = '" + retB3 + "'", 255 );
+				Tools.LogInfo ( ModuleName("DBConn.ColUniCode/C"), "retC1 = '" + retC1 + "', retC2 = '" + retC2 + "', retC3 = '" + retC3 + "'", 255 );
 
-			return ret2;
+			return retB1;
       }
       catch (Exception ex)
       {
