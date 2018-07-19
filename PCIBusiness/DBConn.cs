@@ -417,7 +417,9 @@ namespace PCIBusiness
    {
       try
       {
-			if ( colNo >= 88888 )
+			if ( colNumber >= 0 && colNumber <= 88888 )
+				colNo = colNumber;
+			else
 				colNo = dataReader.GetOrdinal(colName);
 
 			if ( dataReader.IsDBNull(colNo) )
