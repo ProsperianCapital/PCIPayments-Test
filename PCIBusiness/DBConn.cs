@@ -422,8 +422,10 @@ namespace PCIBusiness
 			if ( dataReader.IsDBNull(colNo) )
 				return "";
 
-			string    pre     = "/";
-			string    ret     = "";
+			string    pre     = "\\u";
+			string    ret1    = "";
+			string    ret2    = "";
+			string    ret3    = "";
 			SqlString str     = dataReader.GetSqlString(colNo);
 			byte[]    uniCode = str.GetUnicodeBytes();
 
@@ -431,12 +433,15 @@ namespace PCIBusiness
 				return "";
 
 			for ( int k = 0 ; k < uniCode.Length ; k ++ )
-				ret = ret + pre + uniCode[k];
+				ret1 = ret1 + pre + uniCode[k];
 
-			if ( errorMode == 37 )
-				Tools.LogInfo ( ModuleName("DBConn.ColUniCode"), "Column " + colName + " : Col No = " + colNo.ToString() + ", Str Value = '" + str.ToString() + "', UniCode Value = '" + ret + "'", 255 );
+			ret2 = Encoding.UTF8.GetString(uniCode);
+			ret3 = Encoding.Unicode.GetString(uniCode);
 
-			return ret;
+			if ( errorMode == 29 )
+				Tools.LogInfo ( ModuleName("DBConn.ColUniCode"), "Str (Orig) = '" + str.ToString() + "', ret1 = '" + ret1 + "', ret2 = '" + ret2 + "', ret3 = '" + ret3 + "'", 255 );
+
+			return ret2;
       }
       catch (Exception ex)
       {
