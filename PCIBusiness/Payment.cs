@@ -433,8 +433,8 @@ namespace PCIBusiness
 			providerPassword = dbConn.ColString ("MerchantUserPassword");
 
 		//	Customer
-			firstName        = dbConn.ColUniCode("firstName",29);
-			lastName         = dbConn.ColUniCode("lastName",29);
+			firstName        = dbConn.ColUniCode("firstName");
+			lastName         = dbConn.ColUniCode("lastName");
 			email            = dbConn.ColString ("email");
 			phoneCell        = dbConn.ColString ("mobile");
 			regionalId       = dbConn.ColString ("regionalId",0);

@@ -280,8 +280,8 @@ namespace PCIBusiness
 				     +       "<pay:Password>" + Tools.XMLSafe(payment.ProviderPassword) + "</pay:Password>"
 				     +     "</pay:Account>"
 				     +     "<pay:Customer>"
-				     +       "<pay:FirstName>" + Tools.XMLSafe(payment.FirstName,29) + "</pay:FirstName>"
-				     +       "<pay:LastName>" + Tools.XMLSafe(payment.LastName,29) + "</pay:LastName>"
+				     +       "<pay:FirstName>" + Tools.XMLSafe(payment.FirstName) + "</pay:FirstName>"
+				     +       "<pay:LastName>" + Tools.XMLSafe(payment.LastName) + "</pay:LastName>"
 				     +       "<pay:Mobile>" + Tools.XMLSafe(payment.PhoneCell) + "</pay:Mobile>"
 				     +       "<pay:Email>" + Tools.XMLSafe(payment.EMail) + "</pay:Email>"
 				     +     "</pay:Customer>";

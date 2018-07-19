@@ -413,15 +413,21 @@ namespace PCIBusiness
    }
 
 
-   public string ColUniCode(string colName,byte errorMode=1)
+   public string ColUniCode(string colName,byte errorMode=1,int colNumber=99999)
    {
       try
       {
-         colNo = dataReader.GetOrdinal(colName);
+			if ( colNo >= 88888 )
+				colNo = dataReader.GetOrdinal(colName);
 
 			if ( dataReader.IsDBNull(colNo) )
 				return "";
 
+			SqlString str     = dataReader.GetSqlString(colNo);
+			byte[]    uniCode = str.GetUnicodeBytes();
+			return Encoding.Unicode.GetString(uniCode);
+
+/*
 			string    pre     = "\\u";
 			SqlString str1    = dataReader.GetSqlString(colNo);
 			string    str2    = str1.ToString();
@@ -473,6 +479,8 @@ namespace PCIBusiness
 				Tools.LogInfo ( ModuleName("DBConn.ColUniCode/D"), "retD1 = '" + retD1 + "', retD2 = '" + retD2 + "', retD3 = '" + retD3 + "'", 255 );
 			}
 			return retB1;
+*/
+
       }
       catch (Exception ex)
       {

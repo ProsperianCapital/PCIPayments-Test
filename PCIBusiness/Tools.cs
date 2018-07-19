@@ -350,6 +350,8 @@ namespace PCIBusiness
          str = str.Replace("  and "," and ");
          str = str.Replace(" and  "," and ");
 
+//	UniCode testing
+/*
 //	Ver 1
 			if ( encoding == 29 ) // Unicode
 			{
@@ -433,9 +435,9 @@ namespace PCIBusiness
 						else
 							ret9 = ret9 + utfBytes[(k*3)+h].ToString("x2");
 				LogInfo("Tools.XMLSafe/9","Str (in)='"+str+"', Str (out)='"+ret9+"'",255);
-				return ret9;
+//				return ret9;
 			}
-
+*/
          return str;
 		}
 
@@ -880,12 +882,21 @@ namespace PCIBusiness
 					Tools.LogInfo("Tools.SQLDebug/3",str,255);
 					ret.Append(str+"<hr />"); // Constants.C_HTMLBREAK());
 
+					string colType;
+
 					for ( int k = 0 ; k < conn.ColumnCount ; k++ )
 					{
 						str = "(Col " + k.ToString()
 						    + ") Name = " + conn.ColName(k)
 						    + ", Type = " + conn.ColDataType("",k)
-						    + ", Value = " + ( conn.ColStatus("",k) == Constants.DBColumnStatus.ValueIsNull ? "NULL" : conn.ColValue(k) );
+						    + ", Value = ";
+						colType = conn.ColDataType("",k).ToUpper();
+						if ( conn.ColStatus("",k) == Constants.DBColumnStatus.ValueIsNull )
+							str = str + "NULL";
+						else if ( colType == "NVARCHAR" || colType == "NCHAR" )
+							str = str + conn.ColUniCode("",0,k);
+						else
+							str = str + conn.ColValue(k);
 						Tools.LogInfo("Tools.SQLDebug/4",str,255);
 						ret.Append(str+Constants.C_HTMLBREAK());
 					}
