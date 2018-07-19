@@ -423,12 +423,12 @@ namespace PCIBusiness
 				return "";
 
 			string    pre     = "\\u";
-			SqlString strA    = dataReader.GetSqlString(colNo);
-			string    strB    = strA.ToString();
+			SqlString str1    = dataReader.GetSqlString(colNo);
+			string    str2    = str1.ToString();
 
-			byte[]    uniCodeA = strA.GetUnicodeBytes();
-			byte[]    uniCodeB = Encoding.Unicode.GetBytes(strB);
-			byte[]    uniCodeC = Encoding.UTF8.GetBytes(strB);
+			byte[]    uniCodeA = str1.GetUnicodeBytes();
+			byte[]    uniCodeB = Encoding.Unicode.GetBytes(str2);
+			byte[]    uniCodeC = Encoding.UTF8.GetBytes(str2);
 
 			string    retA1    = "";
 			string    retA2    = "";
@@ -461,11 +461,17 @@ namespace PCIBusiness
 			retC2 = Encoding.UTF8.GetString(uniCodeC);
 			retC3 = Encoding.Unicode.GetString(uniCodeC);
 
+			string retD1 = System.Text.UnicodeEncoding.Unicode.GetString(uniCodeA);
+			string retD2 = System.Text.UnicodeEncoding.Unicode.GetString(uniCodeB);
+			string retD3 = System.Text.UnicodeEncoding.Unicode.GetString(uniCodeC);
+
 			if ( errorMode == 29 )
+			{
 				Tools.LogInfo ( ModuleName("DBConn.ColUniCode/A"), "retA1 = '" + retA1 + "', retA2 = '" + retA2 + "', retA3 = '" + retA3 + "'", 255 );
 				Tools.LogInfo ( ModuleName("DBConn.ColUniCode/B"), "retB1 = '" + retB1 + "', retB2 = '" + retB2 + "', retB3 = '" + retB3 + "'", 255 );
 				Tools.LogInfo ( ModuleName("DBConn.ColUniCode/C"), "retC1 = '" + retC1 + "', retC2 = '" + retC2 + "', retC3 = '" + retC3 + "'", 255 );
-
+				Tools.LogInfo ( ModuleName("DBConn.ColUniCode/D"), "retD1 = '" + retD1 + "', retD2 = '" + retD2 + "', retD3 = '" + retD3 + "'", 255 );
+			}
 			return retB1;
       }
       catch (Exception ex)
