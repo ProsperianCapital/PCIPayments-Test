@@ -115,18 +115,21 @@ namespace PCIWebRTR
 
 		private void ProcessAsynch(byte mode)
 		{
-			ProcessStartInfo app = new ProcessStartInfo();
-			app.Arguments        =  "Mode=" + mode.ToString()
-			                     + " Rows=" + maxRows.ToString()
-			                     + " Provider=" + provider;
-			app.FileName         = "bin\\PCIUnattended.exe";
-			app.WindowStyle      = ProcessWindowStyle.Hidden;
-		//	app.WindowStyle      = ProcessWindowStyle.Normal;
-			app.CreateNoWindow   = false;
-		//	int exitCode         = 0;
+			string           binFolder = PCIBusiness.Tools.ConfigValue("BinFolder");
+			ProcessStartInfo app       = new ProcessStartInfo();
 
-			if ( PCIBusiness.Tools.ConfigValue("BinFolder").Length > 0 )
-				app.FileName      = PCIBusiness.Tools.ConfigValue("BinFolder") + "PCIUnattended.exe";
+			app.Arguments      =  "Mode=" + mode.ToString()
+			                   + " Rows=" + maxRows.ToString()
+			                   + " Provider=" + provider;
+			app.WindowStyle    = ProcessWindowStyle.Hidden;
+		//	app.WindowStyle    = ProcessWindowStyle.Normal;
+		//	app.FileName       = "PCIUnattended.exe";
+			app.CreateNoWindow = false;
+
+			if ( binFolder.Length == 0 )
+				binFolder = "bin";
+
+			app.FileName = binFolder + ( binFolder.EndsWith("\\") ? "" : "\\" ) + "PCIUnattended.exe";
 
 			try
 			{
