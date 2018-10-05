@@ -535,6 +535,19 @@ namespace PCIBusiness
 			return "";
 		}
 
+		public int ColNumber(string colName)
+		{
+			try
+			{
+				return dataReader.GetOrdinal(colName);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogException ( ModuleName("DBConn.ColNumber"), "ColName=" + colName, ex );
+			}
+			return -8;
+		}
+
 
 	// Routines for cleaning up
 	// ------------------------
