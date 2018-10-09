@@ -23,6 +23,10 @@ namespace PCIBusiness
 		{
 			return 100;
 		}
+		public static short C_MAXPAYMENTROWS()
+		{
+			return 50;
+		}
 		public enum DBColumnStatus : byte
 		{
 			InvalidColumn = 1,

@@ -432,7 +432,7 @@ namespace PCIBusiness
 
 		public override void LoadData(DBConn dbConn)
 		{
-			dbConn.SourceInfo  = "Payment.LoadData";
+		//	dbConn.SourceInfo  = "Payment.LoadData";
 
 		//	Payment Provider
 			providerKey      = dbConn.ColString ("Safekey");
