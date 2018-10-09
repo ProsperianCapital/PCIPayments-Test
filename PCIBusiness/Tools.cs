@@ -910,6 +910,16 @@ namespace PCIBusiness
 			return ret + str;
 		}
 
+		public static Constants.SystemMode LiveTestOrDev()
+		{
+			string mode = Tools.ConfigValue("SystemMode").ToUpper();
+			if ( mode.StartsWith("LIVE") || mode.StartsWith("PROD") )
+				return Constants.SystemMode.Live;
+			if ( mode.StartsWith("TEST") )
+				return Constants.SystemMode.Test;
+			return Constants.SystemMode.Development;
+		}
+
 		public static string BureauCode(Constants.PaymentProvider providerCode)
 		{
 			return ((short)providerCode).ToString().PadLeft(3,'0');

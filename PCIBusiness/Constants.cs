@@ -73,6 +73,13 @@ namespace PCIBusiness
 			Testing     = 2,
 			Live        = 3
 		}
+
+		public enum SystemMode : byte
+		{
+			Development = 1,
+			Test        = 2,
+			Live        = 3
+		}
 		public enum ProcessMode : int
 		{
 			FullUpdate                 =  0, // Live

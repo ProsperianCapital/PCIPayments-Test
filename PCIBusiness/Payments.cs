@@ -28,13 +28,13 @@ namespace PCIBusiness
 		}
 		public Provider Summary(string bureau)
 		{
-			int      k;
+			int      tok        = 0;
+			int      pay        = 0;
 			Provider provider   = new Provider();
 			provider.BureauCode = bureau;
 
 			try
 			{
-				k   = 0;
     			sql = "exec sp_Get_CardToToken " + Tools.DBString(bureau) + "," + MAX_ROWS.ToString();
 				err = ExecuteSQL(null,false,false);
 				if ( err > 0 )
@@ -42,14 +42,13 @@ namespace PCIBusiness
 				else
 					while ( ! dbConn.EOF )
 					{
-						if ( k == 0 )
+						if ( pay == 0 && tok == 0 )
 							provider.LoadData(dbConn);
-						k++;
+						tok++;
 						dbConn.NextRow();
 					}
-				provider.CardsToBeTokenized = k;
+				provider.CardsToBeTokenized = tok;
 
-				k   = 0;
     			sql = "exec sp_Get_CardPayment " + Tools.DBString(bureau) + "," + MAX_ROWS.ToString();
 				err = ExecuteSQL(null,false,false);
 				if ( err > 0 )
@@ -57,12 +56,12 @@ namespace PCIBusiness
 				else
 					while ( ! dbConn.EOF )
 					{
-						if ( k == 0 )
+						if ( pay == 0 && tok == 0 )
 							provider.LoadData(dbConn);
-						k++;
+						pay++;
 						dbConn.NextRow();
 					}
-				provider.PaymentsToBeProcessed = k;
+				provider.PaymentsToBeProcessed = pay;
 			}
 			catch (Exception ex)
 			{
@@ -141,6 +140,9 @@ namespace PCIBusiness
 							break;
 					}
 					Tools.LogInfo("Payments.ProcessCards/30","Iteration " + iter.ToString() + " (" + rowsDone.ToString() + " " + desc + "s processed)",199);
+//	In case of a runaway loop where failures are not rectified ...
+					if ( fail > 999 )
+						break;
 				}
 			}
 			catch (Exception ex)

@@ -95,8 +95,10 @@ namespace PCIBusiness
 			string url = payment.ProviderURL;
 
 			if ( Tools.NullToString(url).Length == 0 )
-				url = "https://developer.paygenius.co.za/";
-			//	url = "https://www.paygenius.co.za/";
+				if ( Tools.LiveTestOrDev() == Constants.SystemMode.Live )
+					url = "https://www.paygenius.co.za";
+				else
+					url = "https://developer.paygenius.co.za";
 
 			ret = 20;
 
@@ -114,12 +116,13 @@ namespace PCIBusiness
 
 			ret        = 60;
 			strResult  = "";
-			resultCode = "X";
+			resultCode = "9001";
 			resultMsg  = "Internal error connecting to " + url;
 			ret        = 70;
 
 			try
 			{
+				string         sig;
 				byte[]         page               = Encoding.UTF8.GetBytes(xmlSent);
 				HttpWebRequest webRequest         = (HttpWebRequest)WebRequest.Create(url);
 				webRequest.ContentType            = "application/json";
@@ -128,8 +131,15 @@ namespace PCIBusiness
 				ret                               = 60;
 				webRequest.Headers["X-Token"]     = payment.ProviderKey;
 				ret                               = 90;
-				webRequest.Headers["X-Signature"] = GetSignature(payment.ProviderPassword,url,xmlSent);
+				sig                               = GetSignature(payment.ProviderPassword,url,xmlSent);
+				webRequest.Headers["X-Signature"] = sig;
 				ret                               = 100;
+
+				Tools.LogInfo("TransactionPayGenius.CallWebService/10",
+				                "URL=" + url +
+				              ", Token=" + payment.ProviderKey +
+				              ", Password=" + payment.ProviderPassword +
+				              ", Signature=" + sig, 220);
 
 				using (Stream stream = webRequest.GetRequestStream())
 				{
@@ -151,7 +161,7 @@ namespace PCIBusiness
 					if ( strResult.Length == 0 )
 					{
 						ret        = 150;
-						resultCode = "Y";
+						resultCode = "9005";
 						resultMsg  = "No data returned from " + url;
 					}
 					else
