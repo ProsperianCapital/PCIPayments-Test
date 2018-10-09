@@ -158,18 +158,18 @@ namespace PCIWebRTR
 		{
 			try
 			{
-				PCIBusiness.Tools.LogInfo("RTR.Process/5","Started, provider '" + provider + "'",10);
+				PCIBusiness.Tools.LogInfo("RTR.ProcessWeb/1","Started, provider '" + provider + "'",10);
 
 				using (PCIBusiness.Payments payments = new PCIBusiness.Payments())
 				{
 					int k         = payments.ProcessCards(provider,mode,maxRows);
 					lblError.Text = (payments.CountSucceeded+payments.CountFailed).ToString() + " payment(s) completed : " + payments.CountSucceeded.ToString() + " succeeded, " + payments.CountFailed.ToString() + " failed<br />&nbsp;";
 				}
-				PCIBusiness.Tools.LogInfo("RTR.Process/10","Finished",10);
+				PCIBusiness.Tools.LogInfo("RTR.ProcessWeb/2","Finished",10);
 			}
 			catch (Exception ex)
 			{
-				PCIBusiness.Tools.LogException("RTR.Process/15","",ex);
+				PCIBusiness.Tools.LogException("RTR.ProcessWeb/9","",ex);
 			}
 		}
 
@@ -192,7 +192,7 @@ namespace PCIWebRTR
 			}
 			catch (Exception ex)
 			{
-				PCIBusiness.Tools.LogException("RTR.Validate/15","",ex);
+				PCIBusiness.Tools.LogException("RTR.CheckData","",ex);
 			}
 			return 83;
 		}
@@ -298,7 +298,7 @@ namespace PCIWebRTR
 			}
 			catch (Exception ex)
 			{
-				PCIBusiness.Tools.LogException("RTR.btnProcess_Click","",ex);
+				PCIBusiness.Tools.LogException("RTR.btnConfig_Click","",ex);
 			}
 		}
 
