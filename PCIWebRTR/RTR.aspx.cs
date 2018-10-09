@@ -90,8 +90,8 @@ namespace PCIWebRTR
 					lblBureauStatus.Text = provider.BureauStatusName;
 					lblMerchantKey.Text  = provider.MerchantKey;
 					lblMerchantUser.Text = provider.MerchantUserID;
-					lblCards.Text        = provider.CardsToBeTokenized.ToString();
-					lblPayments.Text     = provider.PaymentsToBeProcessed.ToString();
+					lblCards.Text        = provider.CardsToBeTokenized.ToString()    + ( provider.CardsToBeTokenized    >= Constants.C_MAXPAYMENTROWS() ? "+" : "" );
+					lblPayments.Text     = provider.PaymentsToBeProcessed.ToString() + ( provider.PaymentsToBeProcessed >= Constants.C_MAXPAYMENTROWS() ? "+" : "" );
 				}
 		}
 
@@ -177,24 +177,22 @@ namespace PCIWebRTR
 		{
 			try
 			{
-				maxRows  = -7;
-				provider = lstProvider.SelectedValue;
-
-				if ( txtRows.Text.Length > 0 && txtRows.Text.Trim().ToUpper() != "ALL" )
-					maxRows = Tools.StringToInt(txtRows.Text);
-
-				if ( provider.Length < 1 || maxRows == 0 )
-					return 78; // Error
-
-				if ( maxRows < 1 )
+				provider  = lstProvider.SelectedValue.Trim();
+				string rw = txtRows.Text.Trim().ToUpper();
+				if ( rw == "ALL" || rw.Length == 0 )
 					maxRows = 0;
-				return 0;
+				else
+					maxRows = Tools.StringToInt(rw);
 			}
-			catch (Exception ex)
+			catch
 			{
-				PCIBusiness.Tools.LogException("RTR.CheckData","",ex);
+				maxRows = -8;
 			}
-			return 83;
+			if ( string.IsNullOrWhiteSpace(provider) )
+				return 78; // Error
+			if ( maxRows < 0 )
+				return 79; // Error
+			return 0;
 		}
 
 		private void ShowFile(string fileName)
