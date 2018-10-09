@@ -141,6 +141,8 @@ namespace PCIBusiness
 					}
 					Tools.LogInfo("Payments.ProcessCards/30","Iteration " + iter.ToString() + " (" + rowsDone.ToString() + " " + desc + "s processed)",199);
 //	In case of a runaway loop where failures are not rectified ...
+					if ( fail > 99 && success == 0 )
+						break;
 					if ( fail > 999 )
 						break;
 				}

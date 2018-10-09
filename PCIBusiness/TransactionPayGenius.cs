@@ -136,10 +136,10 @@ namespace PCIBusiness
 				ret                               = 100;
 
 				Tools.LogInfo("TransactionPayGenius.CallWebService/10",
-				                "URL=" + url +
-				              ", Token=" + payment.ProviderKey +
-				              ", Password=" + payment.ProviderPassword +
-				              ", Signature=" + sig, 220);
+				              "URL=" + url +
+				            ", Token=" + payment.ProviderKey +
+				            ", Password=" + payment.ProviderPassword +
+				            ", Signature=" + sig, 220);
 
 				using (Stream stream = webRequest.GetRequestStream())
 				{
