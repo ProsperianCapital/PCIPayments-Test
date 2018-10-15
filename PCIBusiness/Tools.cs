@@ -807,7 +807,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("Tool.DeleteFiles","",ex);
+				Tools.LogException("Tools.DeleteFiles","",ex);
 			}
 			return deleted;
 		}

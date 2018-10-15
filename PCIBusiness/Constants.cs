@@ -51,7 +51,8 @@ namespace PCIBusiness
 			Ikajo     = 15,
 			PayU      = 16,
 			PayGate   = 17,
-			PayGenius = 18
+			PayGenius = 18,
+			ECentric  = 19
 //			PayFast   = 19
 		}
 
