@@ -39,8 +39,8 @@ namespace PCIBusiness
 				ret      = 40;
 				if ( Successful && payToken.Length > 0 )
 					ret   = 0;
-				else
-					Tools.LogInfo("TransactionPayGenius.GetToken/50","JSON Sent="+xmlSent+", JSON Received="+XMLResult,199);
+//				else
+//					Tools.LogInfo("TransactionPayGenius.GetToken/50","JSON Sent="+xmlSent+", JSON Received="+XMLResult,199);
 			}
 			catch (Exception ex)
 			{
@@ -73,8 +73,8 @@ namespace PCIBusiness
 				ret     = 40;
 				if ( Successful && payRef.Length > 0 )
 					ret  = 0;
-				else
-					Tools.LogInfo("TransactionPayGenius.ProcessPayment/50","JSON Sent="+xmlSent+", JSON Received="+XMLResult,199);
+//				else
+//					Tools.LogInfo("TransactionPayGenius.ProcessPayment/50","JSON Sent="+xmlSent+", JSON Received="+XMLResult,199);
 			}
 			catch (Exception ex)
 			{
@@ -116,7 +116,7 @@ namespace PCIBusiness
 
 			ret        = 60;
 			strResult  = "";
-			resultCode = "9001";
+			resultCode = "99";
 			resultMsg  = "Internal error connecting to " + url;
 			ret        = 70;
 
@@ -138,7 +138,7 @@ namespace PCIBusiness
 				Tools.LogInfo("TransactionPayGenius.CallWebService/10",
 				              "URL=" + url +
 				            ", Token=" + payment.ProviderKey +
-				            ", Password=" + payment.ProviderPassword +
+				            ", Key=" + payment.ProviderPassword +
 				            ", Signature=" + sig, 220);
 
 				using (Stream stream = webRequest.GetRequestStream())
@@ -161,14 +161,20 @@ namespace PCIBusiness
 					if ( strResult.Length == 0 )
 					{
 						ret        = 150;
-						resultCode = "9005";
 						resultMsg  = "No data returned from " + url;
 					}
 					else
 					{
+						Tools.LogInfo("TransactionPayGenius.CallWebService/20","JSON received=" + strResult,220);
+
 						ret        = 160;
 						resultCode = Tools.JSONValue(strResult,"code");
 						resultMsg  = Tools.JSONValue(strResult,"message");
+
+						if (Successful)
+							resultCode = "00";
+						else if ( Tools.StringToInt(resultCode) == 0 )
+							resultCode = "99";
 					}
 				}
 				ret = 0;
