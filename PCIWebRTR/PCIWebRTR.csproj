@@ -83,6 +83,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppDetails.cs" />
     <Compile Include="Fail.aspx.cs">
       <DependentUpon>Fail.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

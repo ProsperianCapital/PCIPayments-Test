@@ -19,6 +19,8 @@ namespace PCIWebRTR
 		{
 			try
 			{
+
+string x = System.Web.HttpRuntime.AppDomainAppPath;
 				systemStatus = System.Convert.ToByte(Tools.ConfigValue("SystemStatus"));
 			}
 			catch
@@ -115,8 +117,8 @@ namespace PCIWebRTR
 
 		private void ProcessAsynch(byte mode)
 		{
-			string           binFolder = PCIBusiness.Tools.ConfigValue("BinFolder");
-			ProcessStartInfo app       = new ProcessStartInfo();
+			string           path = Tools.ConfigValue("SystemPath");
+			ProcessStartInfo app  = new ProcessStartInfo();
 
 			app.Arguments      =  "Mode=" + mode.ToString()
 			                   + " Rows=" + maxRows.ToString()
@@ -125,11 +127,7 @@ namespace PCIWebRTR
 		//	app.WindowStyle    = ProcessWindowStyle.Normal;
 		//	app.FileName       = "PCIUnattended.exe";
 			app.CreateNoWindow = false;
-
-			if ( binFolder.Length == 0 )
-				binFolder = "bin";
-
-			app.FileName = binFolder + ( binFolder.EndsWith("\\") ? "" : "\\" ) + "PCIUnattended.exe";
+			app.FileName       = path + ( path.EndsWith("\\") ? "" : "\\" ) + "bin\\PCIUnattended.exe";
 
 			try
 			{
@@ -289,7 +287,7 @@ namespace PCIWebRTR
 				               + "- Rows to Process per Iteration = " + PCIBusiness.Tools.ConfigValue("MaximumRows") + "<br />"
 				               + "- Error Logs folder/file = " + PCIBusiness.Tools.ConfigValue("LogFileErrors") + "<br />"
 				               + "- Info Logs folder/file = " + PCIBusiness.Tools.ConfigValue("LogFileInfo") + "<br />"
-				               + "- Bin folder = " + PCIBusiness.Tools.ConfigValue("BinFolder") + "<br />";
+				               + "- System path = " + PCIBusiness.Tools.ConfigValue("SystemPath") + "<br />";
 				System.Configuration.ConnectionStringSettings db  = System.Configuration.ConfigurationManager.ConnectionStrings["DBConn"];
 				folder       = folder + "- DB Connection [DBConn] = " + ( db == null ? "" : db.ConnectionString ) + "<p>&nbsp;</p>";
 				lblTest.Text = folder;
