@@ -196,6 +196,8 @@ namespace PCIBusiness
 				theTime = whatDate.ToString("HH:mm",CultureInfo.InvariantCulture);
 			else if ( timeFormat == 4 )  // at HH:MM
 				theTime = "at " + whatDate.ToString("HH:mm",CultureInfo.InvariantCulture);
+			else if ( timeFormat == 5 )  // HH:MM:SS.999
+				theTime = whatDate.ToString("HH:mm:ss.fff",CultureInfo.InvariantCulture);
 			else if ( timeFormat == 11 )  // 00:00:00
 				theTime = "00:00:00";
 			else if ( timeFormat == 12 )  // 23:59:59
@@ -373,7 +375,15 @@ namespace PCIBusiness
 			{
 				string ret = "";
 				if ( nsPrefix.Length == 0 || nsURL.Length == 0 )
-					ret = xmlDoc.SelectSingleNode("//"+xmlTag).InnerText;
+				{
+					try
+					{	
+						ret = xmlDoc.SelectSingleNode("//"+xmlTag).InnerText.Trim();
+					}
+					catch { }
+					if ( ret == null || ret.Length == 0 )
+						ret = xmlDoc.GetElementsByTagName(xmlTag).Item(0).InnerText.Trim();
+				}
 				else
 				{
 					XmlNamespaceManager nsMgr = new XmlNamespaceManager(xmlDoc.NameTable);

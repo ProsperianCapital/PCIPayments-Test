@@ -52,7 +52,7 @@ namespace PCIBusiness
 			PayU      = 16,
 			PayGate   = 17,
 			PayGenius = 18,
-			ECentric  = 19
+			Ecentric  = 19
 //			PayFast   = 19
 		}
 

@@ -28,7 +28,7 @@ namespace PCIBusiness
 				                                 + Tools.JSONPair("expiryYear" ,payment.CardExpiryYYYY,11)
 				                                 + Tools.JSONPair("expiryMonth",payment.CardExpiryMM,11)
 				                                 + Tools.JSONPair("type"       ,payment.CardType,1)
-				                                 + Tools.JSONPair("cvv"        ,payment.CardCVV,11,"","}")
+				                                 + Tools.JSONPair("cvv"        ,payment.CardCVV,1,"","}") // Changed to STRING from NUMERIC
 				         + "}";
 				ret      = 20;
 //				ret      = TestService(0); // Dev
@@ -139,7 +139,7 @@ namespace PCIBusiness
 				              "URL=" + url +
 				            ", Token=" + payment.ProviderKey +
 				            ", Key=" + payment.ProviderPassword +
-				            ", Signature=" + sig, 220);
+				            ", Signature=" + sig, 10);
 
 				using (Stream stream = webRequest.GetRequestStream())
 				{
@@ -165,7 +165,7 @@ namespace PCIBusiness
 					}
 					else
 					{
-						Tools.LogInfo("TransactionPayGenius.CallWebService/20","JSON received=" + strResult,220);
+						Tools.LogInfo("TransactionPayGenius.CallWebService/20","JSON received=" + strResult,10);
 
 						ret        = 160;
 						resultCode = Tools.JSONValue(strResult,"code");
@@ -218,7 +218,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("TransactionPayGenius.CallWebService/99","",ex);
+				Tools.LogException("TransactionPayGenius.TestService/99","",ex);
 			}
 			return 0;
 		}

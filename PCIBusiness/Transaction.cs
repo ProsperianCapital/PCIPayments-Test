@@ -8,6 +8,7 @@ namespace PCIBusiness
 	{
 		protected string      payRef;
 		protected string      payToken;
+//		protected string      authCode;
 		protected string      resultCode;
 		protected string      resultMsg;
 		protected string      xmlSent;
@@ -19,6 +20,10 @@ namespace PCIBusiness
 		{
 			get { return     Tools.NullToString(payRef); }
 		}
+//		public  string      AuthorizationCode
+//		{
+//			get { return     Tools.NullToString(authCode); }
+//		}
 		public  string      BureauCode
 		{
 			get { return     Tools.NullToString(bureauCode); }
@@ -95,6 +100,7 @@ namespace PCIBusiness
 		{
 			payRef      = "";
 			payToken    = "";
+//			authCode    = "";
 			resultCode  = "";
 			resultMsg   = "";
 			xmlSent     = "";

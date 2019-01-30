@@ -7,7 +7,11 @@ namespace PCIBusiness
 	{
 //		private int      paymentCode;
 //		private int      paymentAuditCode;
-		private string   merchantReference;         // This is Prosperian's reference for THIS transaction
+//	...Ecentric fields, but not needed after all
+//		private string   authorizationCode;         // This is payment provider's auth code (may not be there)
+//		private string   orderNumber;               // This is a Prosperian reference (maybe not unique)
+
+		private string   merchantReference;         // This is Prosperian's unique reference for THIS transaction
 		private string   merchantReferenceOriginal; // This is Prosperian's reference for the original token transaction 
 		private string   transactionID;             // This is payment provider's transaction reference (may not be there)
 		private string   countryCode;
@@ -65,6 +69,8 @@ namespace PCIBusiness
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
 					return "XXXX";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
+					return "XXXX";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
 					return "XXXX";
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
 //					return "XXXX";
@@ -180,6 +186,10 @@ namespace PCIBusiness
 		}
 
 //		payment stuff
+//		public string    OrderNumber
+//		{
+//			get { return  Tools.NullToString(orderNumber); }
+//		}
 		public string    MerchantReference
 		{
 			get { return  Tools.NullToString(merchantReference); }
@@ -190,8 +200,17 @@ namespace PCIBusiness
 		}
 		public string    TransactionID
 		{
-			get { return  Tools.NullToString(transactionID); }
+			get
+			{
+				if ( Tools.NullToString(transactionID).Length < 1 )
+					transactionID = (Guid.NewGuid()).ToString();
+				return Tools.NullToString(transactionID);
+			}
 		}
+//		public string    AuthorizationCode
+//		{
+//			get { return  Tools.NullToString(authorizationCode); }
+//		}
 		public string    CurrencyCode
 		{
 			get { return  Tools.NullToString(currencyCode); }
@@ -349,6 +368,8 @@ namespace PCIBusiness
 					transaction = new TransactionPayGate();
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
 					transaction = new TransactionPayGenius();
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
+					transaction = new TransactionEcentric();
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
 //					transaction = new TransactionPayFast();
 				else
@@ -394,6 +415,8 @@ namespace PCIBusiness
 					transaction = new TransactionPayGate();
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
 					transaction = new TransactionPayGenius();
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
+					transaction = new TransactionEcentric();
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
 //					transaction = new TransactionPayFast();
 				else
