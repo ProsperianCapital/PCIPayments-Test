@@ -71,6 +71,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Certificates\ECentricCert.pfx" />
     <Content Include="Images\Busy.gif" />
     <Content Include="Images\LogoProsperian.png" />
     <Content Include="Payment.css" />
