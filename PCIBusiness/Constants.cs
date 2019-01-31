@@ -46,14 +46,18 @@ namespace PCIBusiness
 
 		public enum PaymentProvider : int
 		{
-			MyGate    =  2,
-			T24       =  6,
-			Ikajo     = 15,
-			PayU      = 16,
-			PayGate   = 17,
-			PayGenius = 18,
-			Ecentric  = 19
-//			PayFast   = 19
+			MyGate     =  2,
+			T24        =  6,
+			Ikajo      = 15,
+			PayU       = 16,
+			PayGate    = 17,
+			PayGenius  = 18,
+			Ecentric   = 19
+
+//	Not implemented yet
+//			eNETS      = 20
+//			DinersClub = 21
+//			PayFast    = 22
 		}
 
 		public enum CreditCardType : byte
