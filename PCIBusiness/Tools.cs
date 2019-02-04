@@ -866,6 +866,19 @@ namespace PCIBusiness
 			return ( folder.EndsWith("\\") ? folder : folder + "\\" );
 		}
 
+		public static string SystemFolder(string subFolder)
+		{
+			string folder = ConfigValue("SystemPath");
+			subFolder     = NullToString(subFolder);
+			if ( folder.Length > 0 && subFolder.Length > 0 )
+				return folder + ( folder.EndsWith("\\") ? "" : "\\" ) + subFolder + ( subFolder.EndsWith("\\") ? "" : "\\" );
+			if ( folder.Length > 0 )
+				return folder + ( folder.EndsWith("\\") ? "" : "\\" );
+			if ( subFolder.Length > 0 )
+				return folder + ( subFolder.EndsWith("\\") ? "" : "\\" );
+			return "";
+		}
+
 		public static string ConciseName(string theName)
 		{
 			string ret;

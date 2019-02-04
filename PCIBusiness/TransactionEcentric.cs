@@ -13,10 +13,11 @@ namespace PCIBusiness
 	//	private X509Certificate            cert2;
 		private X509Certificate2Collection certs;
 		private string                     xmlHeader;
+		private string                     tranStatus;
 
 		public  bool Successful
 		{
-			get { return Tools.NullToString(resultCode) == "SUCCESS"; }
+			get { return Tools.NullToString(tranStatus) == "SUCCESS"; }
 		}
 
 		private int GetTokenV1(Payment payment,int doNotUse) // Version 1, not used
@@ -122,10 +123,10 @@ namespace PCIBusiness
 				         + "</s:Body>"
 				         + "</s:Envelope>";
 
-				Tools.LogInfo("TransactionEcentric.GetToken/20","XML Sent=" + xmlSent,199);
+				Tools.LogInfo("TransactionEcentric.GetToken/20","XML Sent=" + xmlSent,10);
 				ret      = CallWebService(payment.ProviderURL,"AddCard");
 				payToken = Tools.XMLNode(xmlResult,"Token");
-				Tools.LogInfo("TransactionEcentric.GetToken/30","XML Received=" + XMLResult,199);
+				Tools.LogInfo("TransactionEcentric.GetToken/30","XML Received=" + XMLResult,10);
 
 				if ( ! Successful || payToken.Length < 1 )
 				{
@@ -175,10 +176,10 @@ namespace PCIBusiness
 				        + "</s:Body>"
 				        + "</s:Envelope>";
 
-				Tools.LogInfo("TransactionEcentric.ProcessPayment/20","XML Sent=" + xmlSent,199);
+				Tools.LogInfo("TransactionEcentric.ProcessPayment/20","XML Sent=" + xmlSent,10);
 				ret     = CallWebService(payment.ProviderURL,"Payment");
 				payRef  = Tools.XMLNode(xmlResult,"ReconID");
-				Tools.LogInfo("TransactionEcentric.ProcessPayment/30","XML Received=" + XMLResult,199);
+				Tools.LogInfo("TransactionEcentric.ProcessPayment/30","XML Received=" + XMLResult,10);
 
 				if ( ! Successful || payRef.Length < 1 )
 				{
@@ -242,7 +243,10 @@ namespace PCIBusiness
 				xmlResult  = new XmlDocument();
 				xmlResult.LoadXml(strResult);
 				ret        = 160;
-				resultCode = Tools.XMLNode(xmlResult,"TransactionStatus").ToUpper();
+				tranStatus = Tools.XMLNode(xmlResult,"TransactionStatus").ToUpper();
+				ret        = 170;
+				resultCode = Tools.XMLNode(xmlResult,"Code").ToUpper();
+				resultMsg  = Tools.XMLNode(xmlResult,"Description");
 				ret        = 0;
 			}
 			catch (Exception ex)
@@ -261,13 +265,15 @@ namespace PCIBusiness
 
 			try
 			{
-				string path     = Tools.ConfigValue("SystemPath");
+//				string path     = Tools.ConfigValue("SystemPath");
 				string certName = Tools.ConfigValue("ECentric/CertName");
 				string certPwd  = Tools.ConfigValue("ECentric/CertPassword");
 
 				certs           = new X509Certificate2Collection();
 				bureauCode      = Tools.BureauCode(Constants.PaymentProvider.Ecentric);
-				certName        = path + ( path.EndsWith("\\") ? "" : "\\" ) + "Certificates\\" + certName;
+				certName        = Tools.SystemFolder("Certificates") + certName;
+				tranStatus      = "";
+//				certName        = path + ( path.EndsWith("\\") ? "" : "\\" ) + "Certificates\\" + certName;
 
 				certs.Import(certName, certPwd, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
 
