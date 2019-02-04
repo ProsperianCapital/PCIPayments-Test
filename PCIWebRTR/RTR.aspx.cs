@@ -117,7 +117,7 @@ string x = System.Web.HttpRuntime.AppDomainAppPath;
 
 		private void ProcessAsynch(byte mode)
 		{
-			string           path = Tools.ConfigValue("SystemPath");
+		//	string           path = Tools.ConfigValue("SystemPath");
 			ProcessStartInfo app  = new ProcessStartInfo();
 
 			app.Arguments      =  "Mode=" + mode.ToString()
@@ -127,7 +127,8 @@ string x = System.Web.HttpRuntime.AppDomainAppPath;
 		//	app.WindowStyle    = ProcessWindowStyle.Normal;
 		//	app.FileName       = "PCIUnattended.exe";
 			app.CreateNoWindow = false;
-			app.FileName       = path + ( path.EndsWith("\\") ? "" : "\\" ) + "bin\\PCIUnattended.exe";
+			app.FileName       = Tools.SystemFolder("Bin") + "PCIUnattended.exe";
+		//	app.FileName       = path + ( path.EndsWith("\\") ? "" : "\\" ) + "bin\\PCIUnattended.exe";
 
 			try
 			{
