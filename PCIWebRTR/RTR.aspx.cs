@@ -114,14 +114,14 @@ namespace PCIWebRTR
 					lblMerchantUser.Text = provider.MerchantUserID;
 					lblCards.Text        = provider.CardsToBeTokenized.ToString()    + ( provider.CardsToBeTokenized    >= Constants.C_MAXPAYMENTROWS() ? "+" : "" );
 					lblPayments.Text     = provider.PaymentsToBeProcessed.ToString() + ( provider.PaymentsToBeProcessed >= Constants.C_MAXPAYMENTROWS() ? "+" : "" );
-					if ( provider.PaymentType == (byte)Constants.TransactionType.TokenPayment ) // Means no tokens, card payments only
+					if ( provider.PaymentType == (byte)Constants.TransactionType.TokenPayment )
 					{
 						btnProcess1.Text            = "Get Tokens";
 						btnProcess1.Enabled         = true;
 						btnProcess1.CommandArgument = ((byte)Constants.TransactionType.GetToken).ToString();
 						btnProcess2.CommandArgument = ((byte)Constants.TransactionType.TokenPayment).ToString();
 					}
-					else if ( provider.PaymentType == (byte)Constants.TransactionType.CardPayment )
+					else if ( provider.PaymentType == (byte)Constants.TransactionType.CardPayment ) // Means no tokens, card payments only
 					{
 						btnProcess1.Text            = "N/A";
 						btnProcess1.Enabled         = false;
