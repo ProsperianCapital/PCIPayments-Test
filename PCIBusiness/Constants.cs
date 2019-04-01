@@ -52,10 +52,10 @@ namespace PCIBusiness
 			PayU       = 16,
 			PayGate    = 17,
 			PayGenius  = 18,
-			Ecentric   = 19
+			Ecentric   = 19,
+			eNETS      = 20
 
 //	Not implemented yet
-//			eNETS      = 20
 //			DinersClub = 21
 //			PayFast    = 22
 		}
@@ -98,5 +98,17 @@ namespace PCIBusiness
 			UpdatePaymentStep1AndStep2 = 23,
 			NoUpdate                   = 99
 		}
+		public enum TransactionType : byte
+		{
+			GetToken     = 1,
+			TokenPayment = 2,
+			CardPayment  = 3
+		}
+//		public enum PaymentType : byte
+//		{
+//			Tokens      = 10,
+//			CardNumbers = 20,
+//			Vault       = 30
+//		}
 	}
 }

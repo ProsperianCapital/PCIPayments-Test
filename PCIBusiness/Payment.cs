@@ -266,7 +266,22 @@ namespace PCIBusiness
 		{
 			get { return  Tools.NullToString(ccNumber); }
 		}
-		public  string   CardExpiryMM
+		public  byte     CardExpiryMonth
+		{
+			get
+			{
+				try
+				{
+					byte x = Convert.ToByte(ccExpiryMonth);
+					if ( x > 0 && x < 13 )
+						return x;
+				}
+				catch
+				{ }
+				return 0;
+			}
+		}
+		public  string   CardExpiryMM // Pad with zeroes, eg. 07
 		{
 			get { return  Tools.NullToString(ccExpiryMonth).PadLeft(2,'0'); }
 		}
@@ -370,8 +385,8 @@ namespace PCIBusiness
 					transaction = new TransactionPayGenius();
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
 					transaction = new TransactionEcentric();
-//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
-//					transaction = new TransactionPayFast();
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+					return ret; // eNETS does not have tokenization ... yet
 				else
 					return ret;
 			}
@@ -417,6 +432,8 @@ namespace PCIBusiness
 					transaction = new TransactionPayGenius();
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
 					transaction = new TransactionEcentric();
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+					transaction = new TransactionENets();
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
 //					transaction = new TransactionPayFast();
 				else

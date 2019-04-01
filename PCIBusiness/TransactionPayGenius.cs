@@ -3,7 +3,6 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
-//	using System.Web.Script.Serialization;
 
 namespace PCIBusiness
 {
@@ -26,7 +25,7 @@ namespace PCIBusiness
 				xmlSent  = "{ \"creditCard\" : " + Tools.JSONPair("number"     ,payment.CardNumber,1,"{")
 				                                 + Tools.JSONPair("cardHolder" ,payment.CardName,1)
 				                                 + Tools.JSONPair("expiryYear" ,payment.CardExpiryYYYY,11)
-				                                 + Tools.JSONPair("expiryMonth",payment.CardExpiryMM,11)
+				                                 + Tools.JSONPair("expiryMonth",payment.CardExpiryMonth.ToString(),11) // Not padded, so 7 not 07
 				                                 + Tools.JSONPair("type"       ,payment.CardType,1)
 				                                 + Tools.JSONPair("cvv"        ,payment.CardCVV,1,"","}") // Changed to STRING from NUMERIC
 				         + "}";
@@ -82,11 +81,6 @@ namespace PCIBusiness
 				Tools.LogException("TransactionPayGenius.ProcessPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex);
 			}
 			return ret;
-		}
-
-		private string SetUpXML(Payment payment,byte section)
-		{
-			return "";
 		}
 
 		private int CallWebService(Payment payment,string urlDetail)
@@ -189,6 +183,7 @@ namespace PCIBusiness
 
 		private int TestService(byte live=0)
       {
+//			Testing only!
 			try
 			{
 				string         url        = ( live == 0 ? "https://developer.paygenius.co.za/pg/api/v2/util/validate" : "https://www.paygenius.co.za/pg/api/v2/util/validate" );

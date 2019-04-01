@@ -31,19 +31,29 @@ namespace PCIBusiness
 		}
 		public  byte    BureauStatusCode
 		{
-			get { return bureauStatus; }
-		}
-		public  string  BureauStatusName
-		{
-			get 
+			get
 			{
+				bureauStatus = 1; // Development
 				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU)      ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24)       ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)    ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)   ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
+					bureauStatus = 3; // Live
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+					bureauStatus = 2; // Disabled
+				return bureauStatus;
+			}
+		}
+		public  string  BureauStatusName
+		{
+			get 
+			{
+				if ( BureauStatusCode == 3 )
 					return "Live";
+				if ( BureauStatusCode == 2 )
+					return "Disabled";
 				return "In development";
 			}
 		}
@@ -58,6 +68,16 @@ namespace PCIBusiness
 		public  string  MerchantUserID
 		{
 			get { return Tools.NullToString(userID); }
+		}
+
+		public byte PaymentType
+		{
+			get
+			{
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+					return (byte)Constants.TransactionType.CardPayment;
+				return (byte)Constants.TransactionType.TokenPayment;
+			}
 		}
 
 		public int CardsToBeTokenized
