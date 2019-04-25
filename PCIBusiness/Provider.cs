@@ -41,8 +41,8 @@ namespace PCIBusiness
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)   ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
 					bureauStatus = 3; // Live
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-					bureauStatus = 2; // Disabled
+//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+//					bureauStatus = 2; // Disabled
 				return bureauStatus;
 			}
 		}

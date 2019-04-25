@@ -3,7 +3,6 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
-//	using System.Web.Script.Serialization;
 
 namespace PCIBusiness
 {
@@ -11,7 +10,7 @@ namespace PCIBusiness
 	{
 		public  bool Successful
 		{
-			get { return Tools.JSONValue(strResult,"netsTxnStatus").ToUpper() == "TRUE"; }
+			get { return Tools.JSONValue(strResult,"netsTxnStatus").ToUpper() == "0"; }
 		}
 
 //		Not used by eNETS
@@ -93,9 +92,10 @@ namespace PCIBusiness
 
 				Tools.LogInfo("TransactionENets.CallWebService/10",
 				              "URL=" + url +
-				            ", Token=" + payment.ProviderKey +
-				            ", Key=" + payment.ProviderPassword +
-				            ", Signature=" + sig, 10);
+				            ", MID=" + payment.ProviderAccount +
+				            ", KeyId=" + payment.ProviderKey +
+				            ", SecretKey=" + payment.ProviderPassword +
+				            ", Signature=" + sig, 199);
 
 				using (Stream stream = webRequest.GetRequestStream())
 				{
@@ -121,7 +121,7 @@ namespace PCIBusiness
 					}
 					else
 					{
-						Tools.LogInfo("TransactionENets.CallWebService/20","JSON received=" + strResult,10);
+						Tools.LogInfo("TransactionENets.CallWebService/20","JSON received=" + strResult,199);
 
 						ret        = 160;
 						resultCode = Tools.JSONValue(strResult,"netsTxnStatus");
@@ -129,8 +129,14 @@ namespace PCIBusiness
 
 						if (Successful)
 							resultCode = "00";
-						else if ( Tools.StringToInt(resultCode) == 0 )
-							resultCode = "99";
+						else
+						{
+							if ( Tools.StringToInt(resultCode) == 0 )
+								resultCode = "99";
+							string x = Tools.JSONValue(strResult,"stageRespCode");
+							if ( x.Trim().Length > 0 )
+								resultMsg = "(" + x + ") " + resultMsg;
+						}
 					}
 				}
 				ret = 0;
@@ -145,19 +151,20 @@ namespace PCIBusiness
 
 		private string GetSignature(string txnReq,string secretKey)
 		{
-			HMACSHA256 hmac = new HMACSHA256 (Encoding.Default.GetBytes(secretKey));
-			byte[]     hash = hmac.ComputeHash (Encoding.Default.GetBytes(txnReq+secretKey));
-			string     sig  = "";
-
-			for (int k = 0; k < hash.Length; k++)
-				sig = sig + hash[k].ToString("X2"); // Hexadecimal
-
-			return sig.ToLower();
+			using (SHA256 sha256Hash = SHA256.Create())
+			{
+				byte[] hash = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(txnReq+secretKey));
+				return System.Convert.ToBase64String(hash);
+			}
 		}
 
 		public TransactionENets() : base()
 		{
 			bureauCode = Tools.BureauCode(Constants.PaymentProvider.PayGenius);
+
+		//	Force TLS 1.2
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
 		}
 	}
 }
