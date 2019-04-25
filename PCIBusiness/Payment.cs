@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 
 namespace PCIBusiness
 {
@@ -66,14 +65,16 @@ namespace PCIBusiness
 					return "6861-finaidhk";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
 					return "MY014473";
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
-					return "XXXX";
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
-					return "XXXX";
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
-					return "XXXX";
+
+//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
+//					return "XXXX";
+//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
+//					return "XXXX";
+//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
+//					return "XXXX";
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
 //					return "XXXX";
+
 				return "";
 			}
 		}

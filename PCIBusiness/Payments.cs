@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 
 namespace PCIBusiness
 {
@@ -51,8 +50,8 @@ namespace PCIBusiness
 						}
 					provider.CardsToBeTokenized = tok;
 
-//					sql = "exec sp_Get_TokenPayment " + Tools.DBString(bureau) + "," + Constants.C_MAXPAYMENTROWS().ToString();
-					sql = "exec sp_Get_CardPayment "  + Tools.DBString(bureau) + "," + Constants.C_MAXPAYMENTROWS().ToString();
+					sql = "exec sp_Get_TokenPayment " + Tools.DBString(bureau) + "," + Constants.C_MAXPAYMENTROWS().ToString();
+//					sql = "exec sp_Get_CardPayment "  + Tools.DBString(bureau) + "," + Constants.C_MAXPAYMENTROWS().ToString();
 					err = ExecuteSQL(null,false,false);
 					if ( err > 0 )
 						Tools.LogException("Payments.Summary/20",sql + " failed, return code " + err.ToString());
@@ -127,8 +126,8 @@ namespace PCIBusiness
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
     		{
-			//	sql  = "exec sp_Get_TokenPayment "  + Tools.DBString(bureauCode);
-				sql  = "exec sp_Get_CardPayment "   + Tools.DBString(bureauCode);
+				sql  = "exec sp_Get_TokenPayment "  + Tools.DBString(bureauCode);
+			//	sql  = "exec sp_Get_CardPayment "   + Tools.DBString(bureauCode);
 				desc = "Token Payment";
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.CardPayment )

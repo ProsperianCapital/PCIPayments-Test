@@ -223,6 +223,7 @@ namespace PCIBusiness
 			HMACSHA256 hmac = new HMACSHA256 (Encoding.Default.GetBytes(secretKey));
 			byte[]     hash = hmac.ComputeHash (Encoding.Default.GetBytes(endPoint + "\n" + jsonData));
 			string     sig  = "";
+			hmac            = null;
 
 			for (int k = 0; k < hash.Length; k++)
 				sig = sig + hash[k].ToString("X2"); // Hexadecimal
