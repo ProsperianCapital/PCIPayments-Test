@@ -639,10 +639,13 @@ namespace PCIBusiness
 		public static void LogException(string component, string msg, Exception ex=null)
 		{
 		// Use this routine to log error messages
+			msg = ( msg.Length == 0 ? "" : " (" + msg + ")" );
 			if ( ex == null )
-				msg = "Non-exception error" + ( msg.Length == 0 ? "" : " ("+msg+")" );
+				msg = "Non-exception error" + msg;
+			else if ( ex.GetType() == typeof(System.IndexOutOfRangeException) )
+				msg = "SQL column not found" + msg;
 			else
-				msg = ex.Message + ( msg.Length == 0 ? "" : " ("+msg+")" ) + " : [" + ex.ToString() + "]";
+				msg = ex.Message + msg + " : [" + ex.ToString() + "]";
 			LogWrite("LogFileErrors",component,msg);
 		}
 

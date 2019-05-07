@@ -95,8 +95,8 @@
 			dbConn.SourceInfo = "Provider.LoadData";
 			merchantKey       = dbConn.ColString("Safekey");
 			providerURL       = dbConn.ColString("url");
-			userID            = dbConn.ColString("MerchantUserId");
-			userPassword      = dbConn.ColString("MerchantUserPassword");
+			userID            = dbConn.ColString("MerchantUserId",0);
+			userPassword      = dbConn.ColString("MerchantUserPassword",0);
 			bureauName        = "";
 			bureauStatus      = 0;
 		}

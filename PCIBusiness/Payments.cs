@@ -126,13 +126,13 @@ namespace PCIBusiness
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
     		{
-				sql  = "exec sp_Get_TokenPayment "  + Tools.DBString(bureauCode);
-			//	sql  = "exec sp_Get_CardPayment "   + Tools.DBString(bureauCode);
+				sql  = "exec sp_Get_TokenPayment " + Tools.DBString(bureauCode);
+			//	sql  = "exec sp_Get_CardPayment "  + Tools.DBString(bureauCode);
 				desc = "Token Payment";
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
     		{
-				sql  = "exec sp_Get_CardPayment "  + Tools.DBString(bureauCode);
+				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
 				desc = "Card Payment";
 			}
 			else
@@ -156,7 +156,7 @@ namespace PCIBusiness
 			{
 				while ( rowsToProcess < 1 || rowsToProcess > success + fail )
 				{
-					if ( LoadDataFromSQL(maxRows,"Payments.ProcessCards/"+desc+"/"+bureauCode) < 1 )
+					if ( LoadDataFromSQL(maxRows,"Payments.ProcessCards ("+desc+", "+bureauCode+")") < 1 )
 						break;
 					Tools.CloseDB(ref dbConn);
 					int rowsDone = 0;

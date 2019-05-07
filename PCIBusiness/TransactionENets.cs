@@ -124,19 +124,42 @@ namespace PCIBusiness
 						Tools.LogInfo("TransactionENets.CallWebService/20","JSON received=" + strResult,199);
 
 						ret        = 160;
-						resultCode = Tools.JSONValue(strResult,"netsTxnStatus");
 						resultMsg  = Tools.JSONValue(strResult,"netsTxnMsg");
+						resultCode = Tools.JSONValue(strResult,"stageRespCode");
 
-						if (Successful)
-							resultCode = "00";
-						else
-						{
-							if ( Tools.StringToInt(resultCode) == 0 )
-								resultCode = "99";
-							string x = Tools.JSONValue(strResult,"stageRespCode");
-							if ( x.Trim().Length > 0 )
-								resultMsg = "(" + x + ") " + resultMsg;
-						}
+						if ( resultCode.Length > 0 )
+							try
+							{
+								ret        = 170;
+								string rex = resultCode.Trim().ToUpper();
+								int    k   = rex.IndexOf("-");
+								if ( k >= 0 && k < rex.Length-1 )
+									rex = rex.Substring(k+1);
+								else if ( k >= 0 )
+									rex = rex.Substring(0,k);
+								ret        = 180;
+								resultCode = rex;
+							}
+							catch
+							{ }
+
+						ret = 190;
+						if ( ! Successful || resultMsg.Length > 0 )
+							resultMsg = resultMsg + " (netsTxnStatus=" + Tools.JSONValue(strResult,"netsTxnStatus") + ")";
+
+//						resultCode = Tools.JSONValue(strResult,"netsTxnStatus");
+//
+//						if (Successful)
+//							resultCode = "00";
+//						else
+//						{
+//							if ( Tools.StringToInt(resultCode) == 0 )
+//								resultCode = "99";
+//							string x = Tools.JSONValue(strResult,"stageRespCode");
+//							if ( x.Trim().Length > 0 )
+//								resultMsg = "(" + x + ") " + resultMsg;
+//						}
+
 					}
 				}
 				ret = 0;

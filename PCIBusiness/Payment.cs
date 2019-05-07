@@ -45,7 +45,7 @@ namespace PCIBusiness
 		private string   providerPassword;
 		private string   providerURL;
 
-		private Provider    provider;
+//		private Provider    provider;
 		private Transaction transaction;
 
 
@@ -353,10 +353,10 @@ namespace PCIBusiness
 		{
 			get { return  Tools.NullToString(ccCVV); }
 		}
-		public Provider  Provider
-		{
-			get { return  provider; }
-		}
+//		public Provider  Provider
+//		{
+//			get { return  provider; }
+//		}
 
 		public int GetToken()
 		{
@@ -473,20 +473,18 @@ namespace PCIBusiness
 
 		public override void LoadData(DBConn dbConn)
 		{
-		//	dbConn.SourceInfo  = "Payment.LoadData";
-
 		//	Payment Provider
 			providerKey      = dbConn.ColString ("Safekey");
 			providerURL      = dbConn.ColString ("url");
 			providerAccount  = dbConn.ColString ("MerchantAccount",0);
-			providerUserID   = dbConn.ColString ("MerchantUserId");
-			providerPassword = dbConn.ColString ("MerchantUserPassword");
+			providerUserID   = dbConn.ColString ("MerchantUserId",0);
+			providerPassword = dbConn.ColString ("MerchantUserPassword",0);
 
 		//	Customer
-			firstName        = dbConn.ColUniCode("firstName");
-			lastName         = dbConn.ColUniCode("lastName");
-			email            = dbConn.ColString ("email");
-			phoneCell        = dbConn.ColString ("mobile");
+			firstName        = dbConn.ColUniCode("firstName",0);
+			lastName         = dbConn.ColUniCode("lastName",0);
+			email            = dbConn.ColString ("email",0);
+			phoneCell        = dbConn.ColString ("mobile",0);
 			regionalId       = dbConn.ColString ("regionalId",0);
 			address1         = dbConn.ColString ("address1",0);
 			address2         = dbConn.ColString ("city",0);
@@ -500,7 +498,7 @@ namespace PCIBusiness
 			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0); // Only really for Ikajo, don't log error
 			paymentAmount             = dbConn.ColLong  ("amountInCents");
 			currencyCode              = dbConn.ColString("currencyCode");
-			paymentDescription        = dbConn.ColString("description");
+			paymentDescription        = dbConn.ColString("description",0);
 
 		//	Card/token/transaction details, not always present, don't log errors
 			ccName        = dbConn.ColString("nameOnCard",0);
@@ -516,7 +514,7 @@ namespace PCIBusiness
 
 		public override void CleanUp()
 		{
-			provider    = null;
+//			provider    = null;
 			transaction = null;
 		}
 
