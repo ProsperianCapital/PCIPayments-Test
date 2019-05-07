@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Configuration;
 using System.Diagnostics;
-using System.Text;
 using System.Web.UI.WebControls;
 using PCIBusiness;
 
