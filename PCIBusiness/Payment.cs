@@ -227,7 +227,6 @@ namespace PCIBusiness
 		public  int      PaymentAmount
 		{
 //	Cents
-//			get { return (paymentAmount > 0 ? paymentAmount : 0); }
 			get { return  paymentAmount; }
 		}
 		public  string   PaymentAmountDecimal
@@ -481,17 +480,20 @@ namespace PCIBusiness
 			providerPassword = dbConn.ColString ("MerchantUserPassword",0);
 
 		//	Customer
-			firstName        = dbConn.ColUniCode("firstName",0);
-			lastName         = dbConn.ColUniCode("lastName",0);
-			email            = dbConn.ColString ("email",0);
-			phoneCell        = dbConn.ColString ("mobile",0);
-			regionalId       = dbConn.ColString ("regionalId",0);
-			address1         = dbConn.ColString ("address1",0);
-			address2         = dbConn.ColString ("city",0);
-			postalCode       = dbConn.ColString ("zip_code",0);
-			provinceCode     = dbConn.ColString ("State",0);
-			countryCode      = dbConn.ColString ("CountryCode");
-			ipAddress        = dbConn.ColString ("IPAddress",0);
+			if ( dbConn.ColStatus("lastName") == Constants.DBColumnStatus.ColumnOK )
+			{
+				firstName     = dbConn.ColUniCode("firstName");
+				lastName      = dbConn.ColUniCode("lastName");
+				email         = dbConn.ColString ("email");
+				phoneCell     = dbConn.ColString ("mobile");
+				regionalId    = dbConn.ColString ("regionalId");
+				address1      = dbConn.ColString ("address1");
+				address2      = dbConn.ColString ("city");
+				postalCode    = dbConn.ColString ("zip_code");
+				provinceCode  = dbConn.ColString ("State");
+				countryCode   = dbConn.ColString ("CountryCode");
+				ipAddress     = dbConn.ColString ("IPAddress");
+			}
 
 		//	Payment
 			merchantReference         = dbConn.ColString("merchantReference");

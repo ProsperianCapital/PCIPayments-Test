@@ -10,7 +10,11 @@ namespace PCIBusiness
 	{
 		public  bool Successful
 		{
-			get { return Tools.JSONValue(strResult,"netsTxnStatus").ToUpper() == "0"; }
+			get
+			{
+				string h = Tools.JSONValue(strResult,"netsTxnStatus");
+				return ( h == "0" || h == "00" || h == "000" );
+			}
 		}
 
 //		Not used by eNETS
@@ -24,7 +28,7 @@ namespace PCIBusiness
 			int ret = 10;
 			payRef  = "";
 
-			Tools.LogInfo("TransactionENets.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionENets.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
@@ -49,8 +53,6 @@ namespace PCIBusiness
 				ret     = 40;
 				if ( Successful && payRef.Length > 0 )
 					ret  = 0;
-//				else
-//					Tools.LogInfo("TransactionPayGenius.ProcessPayment/50","JSON Sent="+xmlSent+", JSON Received="+XMLResult,199);
 			}
 			catch (Exception ex)
 			{
@@ -71,7 +73,7 @@ namespace PCIBusiness
 
 			ret        = 30;
 			strResult  = "";
-			resultCode = "99";
+			resultCode = "99999";
 			resultMsg  = "Internal error connecting to " + url;
 			ret        = 50;
 
@@ -80,6 +82,7 @@ namespace PCIBusiness
 				string         sig;
 				byte[]         page         = Encoding.UTF8.GetBytes(xmlSent);
 				HttpWebRequest webRequest   = (HttpWebRequest)WebRequest.Create(url);
+				ret                         = 60;
 				webRequest.ContentType      = "application/json";
 				webRequest.Accept           = "application/json";
 				webRequest.Method           = "POST";
@@ -95,7 +98,8 @@ namespace PCIBusiness
 				            ", MID=" + payment.ProviderAccount +
 				            ", KeyId=" + payment.ProviderKey +
 				            ", SecretKey=" + payment.ProviderPassword +
-				            ", Signature=" + sig, 199);
+				            ", Signature=" + sig +
+				            ", JSON Sent=" + xmlSent, 199);
 
 				using (Stream stream = webRequest.GetRequestStream())
 				{
@@ -114,14 +118,15 @@ namespace PCIBusiness
 						ret        = 140;
 						strResult  = rd.ReadToEnd();
 					}
-					if ( strResult.Length == 0 )
+					if ( strResult.Trim().Length == 0 )
 					{
 						ret        = 150;
 						resultMsg  = "No data returned from " + url;
+						Tools.LogInfo("TransactionENets.CallWebService/20","JSON Received=(blank)",199);
 					}
 					else
 					{
-						Tools.LogInfo("TransactionENets.CallWebService/20","JSON received=" + strResult,199);
+						Tools.LogInfo("TransactionENets.CallWebService/30","JSON Received=" + strResult,199);
 
 						ret        = 160;
 						resultMsg  = Tools.JSONValue(strResult,"netsTxnMsg");
@@ -134,9 +139,9 @@ namespace PCIBusiness
 								string rex = resultCode.Trim().ToUpper();
 								int    k   = rex.IndexOf("-");
 								if ( k >= 0 && k < rex.Length-1 )
-									rex = rex.Substring(k+1);
+									rex  = rex.Substring(k+1);
 								else if ( k >= 0 )
-									rex = rex.Substring(0,k);
+									rex  = rex.Substring(0,k);
 								ret        = 180;
 								resultCode = rex;
 							}
