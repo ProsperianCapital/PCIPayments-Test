@@ -24,7 +24,7 @@ namespace PCIBusiness
 
 		public override int GetToken(Payment payment)
 		{
-			string url = "http://www.paulkilfoil.co.za/Prosperian/PaymentSucceed.aspx";
+			string url = Tools.ConfigValue("SystemURL") + "/Succeed.aspx";
 			int    ret = 300;
 
 			Tools.LogInfo("TransactionIkajo.GetToken/10","Sale, Merchant Ref=" + payment.MerchantReference,199);

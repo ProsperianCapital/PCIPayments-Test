@@ -35,6 +35,8 @@ namespace PCIBusiness
 				xmlSent = "{ \"ss\"  : \"1\","
 				        +  " \"msg\" : { " + Tools.JSONPair("txnAmount"      ,payment.PaymentAmount.ToString(),1)
 				        +                    Tools.JSONPair("merchantTxnRef" ,payment.MerchantReference,1)
+				        +                    Tools.JSONPair("b2sTxnEndURL"   ,Tools.ConfigValue("SystemURL")+"/Succeed.aspx",1)
+				        +                    Tools.JSONPair("s2sTxnEndURL"   ,Tools.ConfigValue("SystemURL")+"/Succeed.aspx",1)
 				        +                    Tools.JSONPair("netsMid"        ,payment.ProviderAccount,1)
 				        +                    Tools.JSONPair("merchantTxnDtm" ,Tools.DateToString(DateTime.Now,5,5),1)
 				        +                    Tools.JSONPair("cardHolderName" ,payment.CardName,1)
