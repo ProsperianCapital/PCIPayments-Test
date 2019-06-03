@@ -121,7 +121,7 @@ namespace PCIBusiness
 					}
 				}
 
-				Tools.LogInfo("TransactionPayU.SendXML/50","XML Received=" + xmlReceived,10);
+				Tools.LogInfo("TransactionPayU.SendXML/50","XML Rec=" + xmlReceived,10);
 
 			// Create an empty soap result object
 				ret       = 70;
@@ -139,7 +139,7 @@ namespace PCIBusiness
 				if ( Successful )
 					return 0;
 
-				Tools.LogInfo("TransactionPayU.SendXML/80","URL=" + url + ", XML Sent=" + xmlSent+", XML Received="+xmlReceived,220);
+				Tools.LogInfo("TransactionPayU.SendXML/80","URL=" + url + ", XML Sent=" + xmlSent+", XML Rec="+xmlReceived,220);
 			}
 			catch (Exception ex)
 			{

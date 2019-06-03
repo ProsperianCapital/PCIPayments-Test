@@ -100,9 +100,10 @@ namespace PCIBusiness
 		}
 		public enum TransactionType : byte
 		{
-			GetToken     = 1,
-			TokenPayment = 2,
-			CardPayment  = 3
+			GetToken       =  1,
+			TokenPayment   =  2,
+			CardPayment    =  3,
+			ManualPayment  = 73
 		}
 //		public enum PaymentType : byte
 //		{

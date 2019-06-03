@@ -8,12 +8,14 @@ namespace PCIBusiness
 {
 	public class TransactionENets : Transaction
 	{
+		string txnStatus;
+
 		public  bool Successful
 		{
 			get
 			{
 				string h = Tools.JSONValue(strResult,"netsTxnStatus");
-				return ( h == "0" || h == "00" || h == "000" );
+				return ( h == "5" || h == "0" || h == "00" || h == "000" ); // '5' means 3d Secure required
 			}
 		}
 
@@ -74,6 +76,8 @@ namespace PCIBusiness
 					url = "https://uat-api.nets.com.sg:9065/GW2/TxnReqListener";
 
 			ret        = 30;
+			acsUrl     = "";
+			txnStatus  = "";
 			strResult  = "";
 			resultCode = "99999";
 			resultMsg  = "Internal error connecting to " + url;
@@ -124,13 +128,14 @@ namespace PCIBusiness
 					{
 						ret        = 150;
 						resultMsg  = "No data returned from " + url;
-						Tools.LogInfo("TransactionENets.CallWebService/20","JSON Received=(blank)",199);
+						Tools.LogInfo("TransactionENets.CallWebService/20","JSON Rec=(blank)",199);
 					}
 					else
 					{
-						Tools.LogInfo("TransactionENets.CallWebService/30","JSON Received=" + strResult,199);
+						Tools.LogInfo("TransactionENets.CallWebService/30","JSON Rec=" + strResult,199);
 
 						ret        = 160;
+						txnStatus  = Tools.JSONValue(strResult,"netsTxnStatus");
 						resultMsg  = Tools.JSONValue(strResult,"netsTxnMsg");
 						resultCode = Tools.JSONValue(strResult,"stageRespCode");
 
@@ -152,21 +157,17 @@ namespace PCIBusiness
 
 						ret = 190;
 						if ( ! Successful || resultMsg.Length > 0 )
-							resultMsg = resultMsg + " (netsTxnStatus=" + Tools.JSONValue(strResult,"netsTxnStatus") + ")";
+							resultMsg = resultMsg + " (netsTxnStatus=" + txnStatus + ")";
 
-//						resultCode = Tools.JSONValue(strResult,"netsTxnStatus");
-//
-//						if (Successful)
-//							resultCode = "00";
-//						else
-//						{
-//							if ( Tools.StringToInt(resultCode) == 0 )
-//								resultCode = "99";
-//							string x = Tools.JSONValue(strResult,"stageRespCode");
-//							if ( x.Trim().Length > 0 )
-//								resultMsg = "(" + x + ") " + resultMsg;
-//						}
-
+						if ( payment.PaymentMode == (byte)Constants.TransactionType.ManualPayment )
+							if ( txnStatus == "5" ) // 3d Secure
+							{
+								eci     = Tools.JSONValue(strResult,"eci");
+								paReq   = Tools.JSONValue(strResult,"pareq");
+								termUrl = Tools.JSONValue(strResult,"termUrl");
+								md      = Tools.JSONValue(strResult,"md");
+								acsUrl  = Tools.JSONValue(strResult,"acsUrl");
+							}
 					}
 				}
 				ret = 0;

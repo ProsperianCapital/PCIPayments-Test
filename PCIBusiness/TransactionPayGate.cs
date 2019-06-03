@@ -224,7 +224,7 @@ namespace PCIBusiness
 				payToken = Tools.XMLNode(xmlResult,"VaultId",nsPrefix,nsURL);
 
 				if ( ! Successful || payToken.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.GetToken/20","XML Sent="+xmlSent+", XML Received="+XMLResult,199);
+					Tools.LogInfo("TransactionPayGate.GetToken/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 			}
 			catch (Exception ex)
 			{
@@ -256,7 +256,7 @@ namespace PCIBusiness
 				payRef = Tools.XMLNode(xmlResult,"PayRequestId",nsPrefix,nsURL);
 
 				if ( ! Successful || payRef.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.ProcessPayment/20","XML Sent="+xmlSent+", XML Received="+XMLResult,199);
+					Tools.LogInfo("TransactionPayGate.ProcessPayment/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 			}
 			catch (Exception ex)
 			{
@@ -334,7 +334,7 @@ namespace PCIBusiness
 //					payRef     = Tools.XMLNode(xmlResult,"PayRequestId"     ,nsPrefix,nsURL);
 					ret        = 50;
 
-					Tools.LogInfo("TransactionPayGate.CallWebService/50","XML Received="+xmlOut,10);
+					Tools.LogInfo("TransactionPayGate.CallWebService/50","XML Rec="+xmlOut,10);
 
 					if ( Successful )
 						ret = 0;

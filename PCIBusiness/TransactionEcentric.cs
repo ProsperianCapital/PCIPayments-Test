@@ -127,12 +127,12 @@ namespace PCIBusiness
 				Tools.LogInfo("TransactionEcentric.GetToken/20","XML Sent=" + xmlSent,10);
 				ret      = CallWebService(payment.ProviderURL,"AddCard");
 				payToken = Tools.XMLNode(xmlResult,"Token");
-				Tools.LogInfo("TransactionEcentric.GetToken/30","XML Received=" + XMLResult,10);
+				Tools.LogInfo("TransactionEcentric.GetToken/30","XML Rec=" + XMLResult,10);
 
 				if ( ! Successful || payToken.Length < 1 )
 				{
 					ret = ( ret > 0 ? ret : 330 );
-					Tools.LogInfo("TransactionEcentric.GetToken/60","XML Sent="+xmlSent+", XML Received="+XMLResult,199);
+					Tools.LogInfo("TransactionEcentric.GetToken/60","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 				}
 			}
 			catch (Exception ex)
@@ -180,12 +180,12 @@ namespace PCIBusiness
 				Tools.LogInfo("TransactionEcentric.ProcessPayment/20","XML Sent=" + xmlSent,10);
 				ret     = CallWebService(payment.ProviderURL,"Payment");
 				payRef  = Tools.XMLNode(xmlResult,"ReconID");
-				Tools.LogInfo("TransactionEcentric.ProcessPayment/30","XML Received=" + XMLResult,10);
+				Tools.LogInfo("TransactionEcentric.ProcessPayment/30","XML Rec=" + XMLResult,10);
 
 				if ( ! Successful || payRef.Length < 1 )
 				{
 					ret = ( ret > 0 ? ret : 630 );
-					Tools.LogInfo("TransactionEcentric.ProcessPayment/60","XML Sent="+xmlSent+", XML Received="+XMLResult,199);
+					Tools.LogInfo("TransactionEcentric.ProcessPayment/60","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 				}
 			}
 			catch (Exception ex)
