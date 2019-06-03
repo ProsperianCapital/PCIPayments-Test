@@ -29,6 +29,7 @@ namespace PCIWebRTR
 			btnProcess2.Enabled = ( systemStatus == 0 );
 			lblTest.Text        = "";
 			lblError.Text       = "";
+			lblError2.Text      = "";
 			lblJS.Text          = "";
 
 			if ( ! Page.IsPostBack )
@@ -215,8 +216,8 @@ namespace PCIWebRTR
 					payment.MerchantReference = txtReference.Text;
 					payment.CardExpiryMM      = lstCCMonth.SelectedValue;
 					payment.CardExpiryYYYY    = lstCCYear.SelectedValue;
-					payment.PaymentAmount     = PCIBusiness.Tools.StringToInt(txtAmount.Text);
-					payment.PaymentMode       = (byte)PCIBusiness.Constants.TransactionType.ManualPayment;
+					payment.PaymentAmount     = Tools.StringToInt(txtAmount.Text);
+					payment.PaymentMode       = (byte)Constants.TransactionType.ManualPayment;
 					int  k = payment.ProcessPayment();
 					if ( k == 0 && payment.ThreeDForm.Length > 0 )
 						try
@@ -228,7 +229,14 @@ namespace PCIWebRTR
 						}
 						catch
 						{ }
-//					lblError.Text = (payments.CountSucceeded+payments.CountFailed).ToString() + " payment(s) completed : " + payments.CountSucceeded.ToString() + " succeeded, " + payments.CountFailed.ToString() + " failed<br />&nbsp;";
+					else
+					{
+						lblJS.Text = "<script type='text/javascript'>PaySingle(8);</script>";
+						if ( payment.Message.Length > 0 )
+							lblError2.Text = "<br />" + payment.Message;
+						else
+							lblError2.Text = "<br />Transaction failed";
+					}
 				}
 				Tools.LogInfo("RTR.ProcessPayment/2","Finished",10);
 			}

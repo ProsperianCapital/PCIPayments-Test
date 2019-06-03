@@ -16,6 +16,8 @@ function PaySingle(mode)
 	{
 		ShowElt('divCard',1);
 		GetElt('txtCCName').focus();
+		if ( mode == 33 )
+			SetEltValue('lblError2','');
 	}
 	else
 		ShowElt('divCard',0);
@@ -56,7 +58,7 @@ function PaySingle(mode)
 		<td>
 			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoWeb" />Synchronous (this web page)<br />
 			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoAsynch" />Asynchronous (a separate EXE)<br />
-			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoCard" onclick="JavaScript:PaySingle(3)" />Single card payment (in development)</td></tr>
+			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoCard" onclick="JavaScript:PaySingle(33)" />Single card payment (in development)</td></tr>
 	<tr>
 		<td colspan="2"><hr /></td></tr>
 	<tr>
@@ -168,6 +170,7 @@ function PaySingle(mode)
 	<hr />
 	<asp:Button runat="server" ID="btnPay" CssClass="Button" Text="Pay" OnClick="btnPay_Click" />
 	<input type="button" class="Button" value="Cancel" onclick="JavaScript:PaySingle(0)" />
+	<asp:Label runat="server" ID="lblError2" CssClass="Error"></asp:Label>
 	</div>
 
 </form>
