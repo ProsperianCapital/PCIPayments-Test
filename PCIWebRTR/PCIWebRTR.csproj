@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Certificates\ECentricCert.pfx" />
+    <Content Include="JS\Utils.js" />
     <Content Include="Images\Busy.gif" />
     <Content Include="Images\LogoProsperian.png" />
     <Content Include="Payment.css" />
@@ -81,7 +82,9 @@
     <Content Include="RTR.aspx" />
     <Content Include="Succeed.aspx" />
     <Content Include="Fail.aspx" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDetails.cs" />
