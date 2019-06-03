@@ -27,6 +27,12 @@ namespace PCIBusiness
 //		11  HH:mm:ss                  Hard-code to 00:00:00
 //		12  HH:mm:ss                  Hard-code to 23:59:59
 
+		public static bool SystemIsLive()
+		{
+			string mode = ConfigValue("SystemMode").ToUpper();
+			return ( mode.Length >= 4 && ( mode.Contains("PRODUCTION") || mode.Contains("LIVE") ) );
+		}
+
 		public static string DecimalToString(decimal theValue,byte decimalPlaces=2)
 		{
 			return System.Math.Round(theValue,decimalPlaces).ToString();
