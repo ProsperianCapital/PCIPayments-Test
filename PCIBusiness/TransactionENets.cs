@@ -24,9 +24,17 @@ namespace PCIBusiness
 //		{
 //			return 0;
 //		}
+      public override bool EnabledFor3d(byte paymentMode)
+		{
+			return true;
+		}
+
 
 		public override int ProcessPayment(Payment payment)
 		{
+			if ( ! EnabledFor3d(payment.PaymentMode) )
+				return 590;
+
 			int ret = 10;
 			payRef  = "";
 

@@ -124,6 +124,16 @@ namespace PCIBusiness
 			return 0;
 		}
 
+      public virtual bool EnabledFor3d(byte paymentMode)
+		{
+			if ( paymentMode != (byte)Constants.TransactionType.ManualPayment )
+				return true;
+
+			resultCode = "99999";
+			resultMsg  = "3D Secure payments are not supported for this provider";
+			return false;
+		}
+
       public override void Close()
 		{
 			xmlResult = null;

@@ -109,6 +109,9 @@ namespace PCIBusiness
 
 		public override int ProcessPayment(Payment payment)
 		{
+			if ( ! EnabledFor3d(payment.PaymentMode) )
+				return 590;
+
 			int ret = 300;
 
 			Tools.LogInfo("TransactionIkajo.ProcessPayment/10","Sale, Merchant Ref=" + payment.MerchantReference,199);

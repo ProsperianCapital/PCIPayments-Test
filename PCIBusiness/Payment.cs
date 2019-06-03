@@ -58,7 +58,14 @@ namespace PCIBusiness
 		{
 			get 
 			{
-				if ( Tools.NullToString(providerAccount).Length > 0 )
+				if ( Tools.SystemIsLive() )
+				{
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+						return "UMID_858445001";
+					return "";
+				}
+
+				else if ( Tools.NullToString(providerAccount).Length > 0 )
 					return providerAccount;
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
 					return "2237055";
@@ -70,6 +77,7 @@ namespace PCIBusiness
 					return "MY014473";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
 					return "UMID_858445001";
+
 				return "";
 			}
 		}
@@ -85,9 +93,16 @@ namespace PCIBusiness
 			{
 				if ( Tools.NullToString(providerKey).Length > 0 )
 					return providerKey;
+
+				else if ( Tools.SystemIsLive() )
+				{
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+						return "27ededae-4ba3-486a-a243-8da1e4c1a067";
+					return "";
+				}
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-				//	return "154eb31c-0f72-45bb-9249-84a1036fd1ca";
 					return "27ededae-4ba3-486a-a243-8da1e4c1a067";
+
 				return "";
 			}
 		}
@@ -105,9 +120,16 @@ namespace PCIBusiness
 			{
 				if ( Tools.NullToString(providerPassword).Length > 0 )
 					return providerPassword;
+
+				else if ( Tools.SystemIsLive() )
+				{
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+						return "27ededae-4ba3-486a-a243-8da1e4c1a067";
+					return "";
+				}
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-				//	return "38a4b473-0295-439d-92e1-ad26a8c60279";
 					return "70f4046b-542f-41c8-b928-dffabfb0650c";
+
 				return "";
 			}
 		}
@@ -117,18 +139,26 @@ namespace PCIBusiness
 			{
 				if ( Tools.NullToString(providerURL).Length > 0 )
 					return providerURL;
+
+				else if ( Tools.SystemIsLive() )
+				{
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+						return "https://uat-api.nets.com.sg:9065/GW2/TxnReqListener";
+					return "";
+				}
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24) )
+					return "https://payment.ccp.boarding.transact24.com/PaymentCard";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
+					return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
+					return "https://secure.paygate.co.za/payhost/process.trans";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
+					return "https://developer.paygenius.co.za";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
 					return "https://uat-api.nets.com.sg:9065/GW2/TxnReqListener";
+
 				return "";
 			}
-
-//		Testing ...
-
-//			get { return "https://payment.ccp.boarding.transact24.com/PaymentCard";           } T24
-//			get { return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl"; } MyGate
-//			get { return "https://secure.paygate.co.za/payhost/process.trans";                } PayGate
-//			get { return "https://developer.paygenius.co.za";                                 } PayGenius
-//			get { return "https://uat-api.nets.com.sg:9065/GW2/TxnReqListener";               } eNETS
 		}
 
 //		public string    MerchantUserId
@@ -421,6 +451,7 @@ namespace PCIBusiness
 
 		public int ProcessPayment()
 		{
+			returnMessage   = "Invalid payment provider";
 			int processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
 			int ret         = 37020;
 			int k;
@@ -466,8 +497,9 @@ namespace PCIBusiness
 			else
 				Tools.LogInfo("Payment.ProcessPayment/50","SQL 1 skipped",20);
 
-			threeDForm = "";
-			ret        = transaction.ProcessPayment(this);
+			ret           = transaction.ProcessPayment(this);
+			threeDForm    = "";
+			returnMessage = transaction.ResultMessage;
 
 			if ( paymentMode == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
 			{
