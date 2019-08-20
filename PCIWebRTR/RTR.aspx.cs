@@ -376,15 +376,19 @@ namespace PCIWebRTR
 				               + "- Available Memory = " + Environment.WorkingSet.ToString() + " bytes<br />"
 				               + "- Operating System = " + Environment.OSVersion.ToString() + "<br />"
 				               + "- Microsoft .NET Runtime = " + Environment.Version.ToString() + "<br />"
+				               + "- User Domain = " + Environment.UserDomainName + "<br />"
 				               + "- User Name = " + Environment.UserName + "<hr />"
 				               + "<u>Internal</u><br />"
+				               + "- Server.MachineName = " + Server.MachineName + "<br />"
 				               + "- Server.MapPath = " + Server.MapPath("") + "<br />"
 				               + "- Request.Url.AbsoluteUri = " + Request.Url.AbsoluteUri + "<br />"
 				               + "- Request.Url.AbsolutePath = " + Request.Url.AbsolutePath + "<br />"
 				               + "- Request.Url.LocalPath = " + Request.Url.LocalPath + "<br />"
 				               + "- Request.Url.PathAndQuery = " + Request.Url.PathAndQuery + "<br />"
 				               + "- Request.RawUrl = " + Request.RawUrl + "<br />"
-				               + "- Request.PhysicalApplicationPath = " + Request.PhysicalApplicationPath + "<hr />"
+				               + "- Request.PhysicalApplicationPath = " + Request.PhysicalApplicationPath + "<br />"
+				               + "- Environment.SystemDirectory = " + Environment.SystemDirectory + "<br />"
+				               + "- Environment.CurrentDirectory = " + Environment.CurrentDirectory + "<hr />"
 				               + "<u>ECentric</u><br />"
 				               + "- Certificate File = " + Tools.SystemFolder("Certificates") + Tools.ConfigValue("ECentric/CertName") + "<br />"
 				               + "- Certificate Password = " + Tools.ConfigValue("ECentric/CertPassword") + "<hr />"
@@ -401,18 +405,33 @@ namespace PCIWebRTR
 				               + "- Fail page = " + Tools.ConfigValue("SystemURL") + "/Fail.aspx<hr />"
 				               + "<u>Database</u><br />"
 				               + "- DB Connection [DBConn] = ";
-				ConnectionStringSettings db = ConfigurationManager.ConnectionStrings["DBConn"];
+
+				ConnectionStringSettings db   = ConfigurationManager.ConnectionStrings["DBConn"];
+				DBConn                   conn = null;
+
 				if ( db != null )
 				{
-					string conn = db.ConnectionString.Trim();
-					int    k    = conn.ToUpper().IndexOf("PWD=");
-					int    j    = conn.ToUpper().IndexOf(";",k+1);
-					if ( j > k )
-						conn = conn.Substring(0,k+4) + "******" + conn.Substring(j);
-					else
-						conn = conn.Substring(0,k+4) + "******";
-					folder  = folder + conn;
+					string connStr = db.ConnectionString.Trim();
+					int    k       = connStr.ToUpper().IndexOf("PWD=");
+					int    j       = connStr.ToUpper().IndexOf(";",k+1);
+					if ( k >= 0 )
+						connStr     = connStr.Substring(0,k+4) + "******" + ( j > k ? connStr.Substring(j) : "" );
+					folder         = folder + connStr;
 				}
+				try
+				{
+					Tools.OpenDB(ref conn);
+					if ( conn.Execute("select @@VERSION as SysVer,@@SERVERNAME as SrvName,getdate() as SrvDate") )
+						folder = folder + "<br />- Server Name = " + conn.ColString("SrvName")
+						                + "<br />- Server Date = " + conn.ColDate("SrvDate").ToString()
+						                + "<br />- SQL Version = " + conn.ColString("SysVer");
+				}
+				finally
+				{
+					Tools.CloseDB(ref conn);
+				}
+				db           = null;
+				conn         = null;
 				lblTest.Text = folder + "<p>&nbsp;</p>";
 			}
 			catch (Exception ex)
