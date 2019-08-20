@@ -223,7 +223,7 @@ namespace PCIBusiness
 				        + "</soapenv:Envelope>"; 
 				ret     = CallWebService(payment.ProviderURL);
 
-//				if ( ! Successful )
+				if ( ! Successful )
 					Tools.LogInfo("TransactionPayGate.DeleteToken/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 			}
 			catch (Exception ex)
