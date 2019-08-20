@@ -202,6 +202,15 @@ namespace PCIWebRTR {
         protected global::System.Web.UI.WebControls.Button btnProcess2;
         
         /// <summary>
+        /// btnProcess3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnProcess3;
+        
+        /// <summary>
         /// btnConfig control.
         /// </summary>
         /// <remarks>

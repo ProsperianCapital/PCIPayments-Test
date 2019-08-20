@@ -23,11 +23,12 @@ function PaySingle(mode)
 		ShowElt('divCard',0);
 }
 </script>
-<a href="http://prosperian.mu" target="P"><img src="Images/LogoProsperian.png" title="Prosperian Capital" /></a>
 <form runat="server" id="frmRTR">
-	<div class="Header">
-	Prosperian Capital : RTR Payments
-	</div>
+	<table>
+		<tr>
+			<td class="Header">Prosperian Capital : RTR Payments</td>
+			<td style="width:1%"><a href="http://prosperian.mu" target="P"><img src="Images/LogoProsperian.png" title="Prosperian Capital" /></a></td></tr>
+	</table>
 	<hr />
 	<table class="BoxRight">
 	<tr>
@@ -58,7 +59,7 @@ function PaySingle(mode)
 		<td>
 			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoWeb" />Synchronous (this web page)<br />
 			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoAsynch" />Asynchronous (a separate EXE)<br />
-			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoCard" onclick="JavaScript:PaySingle(33)" />Single card payment (in development)</td></tr>
+			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoCard" onclick="JavaScript:PaySingle(33)" />Single card payment (not all providers)</td></tr>
 	<tr>
 		<td colspan="2"><hr /></td></tr>
 	<tr>
@@ -86,6 +87,7 @@ function PaySingle(mode)
 	<div class="ButtonRow">
 		<asp:Button  runat="server" ID="btnProcess1" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Getting tokens ... please be patient')" onclick="btnProcess1_Click" Text="Get Tokens" />
 		<asp:Button  runat="server" ID="btnProcess2" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess2_Click" Text="Process Payments" />
+		<asp:Button  runat="server" ID="btnProcess3" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Deleting tokens ... please be patient')" onclick="btnProcess3_Click" Text="Delete Tokens" />
 		<asp:Button  runat="server" ID="btnConfig"   CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnConfig_Click" Text="Config" />
 		<input type="button" class="Button" onclick="JavaScript:ShowElt('divLogs',1)" value="Logs" />
 		<asp:Button  runat="server" ID="btnSQL"      CssClass="Button" OnClientClick="JavaScript:Busy(1,'Executing SQL ...')" onclick="btnSQL_Click" Text="Test SQL ..." />
