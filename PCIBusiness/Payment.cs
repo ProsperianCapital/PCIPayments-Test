@@ -431,7 +431,7 @@ namespace PCIBusiness
 			{
 				sql = "exec sp_Upd_TokenToDelete @PaymentBureauCode = " + Tools.DBString(BureauCode)
 			                                + ",@Token = "             + Tools.DBString(CardToken)
-			                                + ",@StatusName = "        + Tools.DBString(transaction.ResultCode);
+			                                + ",@StatusName = "        + Tools.DBString(transaction.ResultStatus);
 				Tools.LogInfo("Payment.DeleteToken/20","SQL=" + sql,220);
 				int k = ExecuteSQLUpdate();
 			}

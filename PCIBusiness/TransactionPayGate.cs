@@ -1,9 +1,6 @@
 using System;
-using System.Text;
 using System.Xml;
 using System.Net;
-using System.Net.Http;
-using System.IO;
 using PCIBusiness.PayGateVault;
 
 namespace PCIBusiness
@@ -17,8 +14,9 @@ namespace PCIBusiness
 		{
 			get
 			{
-				resultCode = Tools.NullToString(resultCode);
-				if ( resultCode == "990017" || resultCode.ToUpper() == "COMPLETED" )
+				resultCode   = Tools.NullToString(resultCode);
+				resultStatus = Tools.NullToString(resultStatus);
+				if ( resultCode == "990017" || resultStatus.ToUpper() == "COMPLETED" )
 					return true;
 				return false;
 			}
@@ -334,8 +332,7 @@ namespace PCIBusiness
 					ret          = 40;
 					resultCode   = Tools.XMLNode(xmlResult,"ResultCode"       ,nsPrefix,nsURL);
 					resultMsg    = Tools.XMLNode(xmlResult,"ResultDescription",nsPrefix,nsURL);
-//					if ( resultMsg.Length < 1 )
-//						resultMsg = Tools.XMLNode(xmlResult,"StatusName"       ,nsPrefix,nsURL); // For token deletion
+					resultStatus = Tools.XMLNode(xmlResult,"StatusName"       ,nsPrefix,nsURL);
 					ret          = 50;
 
 					Tools.LogInfo("TransactionPayGate.CallWebService/50","XML Rec="+xmlOut,10);
@@ -356,7 +353,7 @@ namespace PCIBusiness
 							if ( resultCode.ToUpper().Substring(0,8) == "COMPLETE" )
 							{
 								ret        = 0;
-							//	resultCode = "990017";
+								resultCode = "990017";
 							}
 						}
 					}

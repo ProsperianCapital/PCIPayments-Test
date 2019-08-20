@@ -10,6 +10,7 @@ namespace PCIBusiness
 		protected string      payToken;
 //		protected string      authCode;
 		protected string      resultCode;
+		protected string      resultStatus;
 		protected string      resultMsg;
 		protected string      xmlSent;
 		protected string      bureauCode;
@@ -42,6 +43,10 @@ namespace PCIBusiness
 		public  string      ResultCode
 		{
 			get { return     Tools.NullToString(resultCode); }
+		}
+		public  string      ResultStatus
+		{
+			get { return     Tools.NullToString(resultStatus); }
 		}
 		public  string      ResultMessage
 		{
