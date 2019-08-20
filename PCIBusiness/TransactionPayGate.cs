@@ -15,7 +15,13 @@ namespace PCIBusiness
 
 		public  bool Successful
 		{
-			get { return Tools.NullToString(resultCode) == "990017"; }
+			get
+			{
+				resultCode = Tools.NullToString(resultCode);
+				if ( resultCode == "990017" || resultCode.ToUpper() == "COMPLETED" )
+					return true;
+				return false;
+			}
 		}
 
 		public int GetTokenV1(Payment payment) // NOT USED
@@ -70,48 +76,6 @@ namespace PCIBusiness
 
 			try
 			{
-			/*
-				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
-						  +                  " xmlns:putCard='urn:paygate.payvault'>"
-						  + "<soapenv:Header />"
-						  + "<soapenv:Body>"
-						  +   "<putCard:vaultData>"
-						  +     "<putCard:cardNo>" + Tools.XMLSafe(payment.CardNumber) + "</cardNo>"
-						  +     "<putCard:expMonth>" + Tools.XMLSafe(payment.CardExpiryMM) + "</expMonth>"
-						  +     "<putCard:expYear>" + Tools.XMLSafe(payment.CardExpiryYYYY) + "</expYear>"
-						  +   "</putCard:vaultData>"
-						  + "</soapenv:Body>"
-						  + "</soapenv:Envelope>";
-
-				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>"
-						  + "<soapenv:Header>"
-						  +   "<login>" + Tools.XMLSafe(payment.ProviderUserID) + "</login>"
-						  +   "<password>" + Tools.XMLSafe(payment.ProviderPassword) + "</password>"
-						  + "</soapenv:Header>"
-						  + "<soapenv:Body>"
-						  +   "<putCard xmlns='urn:paygate.payvault'>"
-						  +   "<vaultData>"
-						  +     "<cardNo>" + Tools.XMLSafe(payment.CardNumber) + "</cardNo>"
-						  +     "<expMonth>" + Tools.XMLSafe(payment.CardExpiryMM) + "</expMonth>"
-						  +     "<expYear>" + Tools.XMLSafe(payment.CardExpiryYYYY) + "</expYear>"
-						  +   "</vaultData>"
-						  +   "</putCard>"
-						  + "</soapenv:Body>"
-						  + "</soapenv:Envelope>";
-
-				xmlSent = "<Envelope xmlns='http://schemas.xmlsoap.org/soap/envelope/'>"
-						  + "<Body>"
-						  +   "<putCard xmlns='urn:paygate.payvault'>"
-						  +   "<vaultData>"
-						  +     "<cardNo>" + Tools.XMLSafe(payment.CardNumber) + "</cardNo>"
-						  +     "<expMonth>" + Tools.XMLSafe(payment.CardExpiryMM) + "</expMonth>"
-						  +     "<expYear>" + Tools.XMLSafe(payment.CardExpiryYYYY) + "</expYear>"
-						  +   "</vaultData>"
-						  +   "</putCard>"
-						  + "</Body>"
-						  + "</Envelope>";
-			*/
-
 				xmlSent = "<Envelope xmlns='http://schemas.xmlsoap.org/soap/envelope/'>"
 						  + "<Body>"
 						  +   "<putCard xmlns='urn:paygate.payvault'>"
@@ -234,6 +198,42 @@ namespace PCIBusiness
 			return ret;
 		}
 
+		public override int DeleteToken(Payment payment)
+		{
+			int ret = 300;
+
+			try
+			{
+				Tools.LogInfo("TransactionPayGate.DeleteToken/10","Merchant Ref=" + payment.MerchantReference,199);
+
+				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
+				        +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
+				        + "<soapenv:Header />"
+				        + "<soapenv:Body>"
+				        + "<pay:SingleVaultRequest>"
+				        +	"<pay:DeleteVaultRequest>"
+				        +		"<pay:Account>"
+				        +			"<pay:PayGateId>" + Tools.XMLSafe(payment.ProviderUserID) + "</pay:PayGateId>"
+				        +			"<pay:Password>" + Tools.XMLSafe(payment.ProviderPassword) + "</pay:Password>"
+				        +		"</pay:Account>"
+				        +		"<pay:VaultId>" + Tools.XMLSafe(payment.CardToken) + "</pay:VaultId>"
+				        +	"</pay:DeleteVaultRequest>"
+				        + "</pay:SingleVaultRequest>"
+				        + "</soapenv:Body>"
+				        + "</soapenv:Envelope>"; 
+				ret     = CallWebService(payment.ProviderURL);
+
+//				if ( ! Successful )
+					Tools.LogInfo("TransactionPayGate.DeleteToken/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo("TransactionPayGate.DeleteToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionPayGate.DeleteToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+			}
+			return ret;
+		}
+
 		public override int ProcessPayment(Payment payment)
 		{
 			if ( ! EnabledFor3d(payment.PaymentMode) )
@@ -328,14 +328,15 @@ namespace PCIBusiness
 				//    retString = retString.Remove(0, _byteOrderMarkUtf8.Length)
 				//	End If
 
-					ret        = 30;
-					xmlResult  = new XmlDocument();
+					ret          = 30;
+					xmlResult    = new XmlDocument();
 					xmlResult.LoadXml(xmlOut);
-					ret        = 40;
-					resultCode = Tools.XMLNode(xmlResult,"ResultCode"       ,nsPrefix,nsURL);
-					resultMsg  = Tools.XMLNode(xmlResult,"ResultDescription",nsPrefix,nsURL);
-//					payRef     = Tools.XMLNode(xmlResult,"PayRequestId"     ,nsPrefix,nsURL);
-					ret        = 50;
+					ret          = 40;
+					resultCode   = Tools.XMLNode(xmlResult,"ResultCode"       ,nsPrefix,nsURL);
+					resultMsg    = Tools.XMLNode(xmlResult,"ResultDescription",nsPrefix,nsURL);
+//					if ( resultMsg.Length < 1 )
+//						resultMsg = Tools.XMLNode(xmlResult,"StatusName"       ,nsPrefix,nsURL); // For token deletion
+					ret          = 50;
 
 					Tools.LogInfo("TransactionPayGate.CallWebService/50","XML Rec="+xmlOut,10);
 
@@ -355,7 +356,7 @@ namespace PCIBusiness
 							if ( resultCode.ToUpper().Substring(0,8) == "COMPLETE" )
 							{
 								ret        = 0;
-								resultCode = "990017";
+							//	resultCode = "990017";
 							}
 						}
 					}

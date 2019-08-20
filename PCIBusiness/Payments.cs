@@ -119,6 +119,7 @@ namespace PCIBusiness
 
 			if ( bureauCode.Length < 1 )
 				return 0;
+
 			else if ( transactionType == (byte)Constants.TransactionType.GetToken )
     		{
 				sql  = "exec sp_Get_CardToToken " + Tools.DBString(bureauCode);
@@ -134,6 +135,11 @@ namespace PCIBusiness
     		{
 				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
 				desc = "Card Payment";
+			}
+			else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
+    		{
+				sql  = "exec sp_Get_TokenToDelete " + Tools.DBString(bureauCode);
+				desc = "Delete Token";
 			}
 			else
 				return 0;
@@ -166,8 +172,10 @@ namespace PCIBusiness
 						payment.BureauCode = bureauCode;
 						if ( transactionType == (byte)Constants.TransactionType.GetToken )
 							err = payment.GetToken();
-						else
+						else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
 							err = payment.ProcessPayment();
+						else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
+							err = payment.DeleteToken();
 						if ( err == 0 )
 							success++;
 						else

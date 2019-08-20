@@ -119,6 +119,11 @@ namespace PCIBusiness
 			return 0;
 		}
 
+		public virtual int DeleteToken(Payment payment)
+		{
+			return 0;
+		}
+
 		public virtual int ProcessPayment(Payment payment)
 		{
 			return 0;

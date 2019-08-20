@@ -36,6 +36,7 @@
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)    ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)   ||
+				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)     ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
 					bureauStatus = 3; // Live
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )

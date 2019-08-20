@@ -60,11 +60,12 @@ namespace PCIBusiness
 			{
 				if ( Tools.SystemIsLive() )
 				{
-					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-						return "UMID_858445001";
+				//	if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+				//		return "UMID_858445001";
 					return "";
 				}
 
+//	Testing
 				else if ( Tools.NullToString(providerAccount).Length > 0 )
 					return providerAccount;
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
@@ -96,10 +97,12 @@ namespace PCIBusiness
 
 				else if ( Tools.SystemIsLive() )
 				{
-					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-						return "27ededae-4ba3-486a-a243-8da1e4c1a067";
+				//	if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+				//		return "27ededae-4ba3-486a-a243-8da1e4c1a067";
 					return "";
 				}
+
+//	Testing
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
 					return "27ededae-4ba3-486a-a243-8da1e4c1a067";
 
@@ -123,10 +126,12 @@ namespace PCIBusiness
 
 				else if ( Tools.SystemIsLive() )
 				{
-					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-						return "27ededae-4ba3-486a-a243-8da1e4c1a067";
+				//	if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+				//		return "27ededae-4ba3-486a-a243-8da1e4c1a067";
 					return "";
 				}
+
+//	Testing
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
 					return "70f4046b-542f-41c8-b928-dffabfb0650c";
 
@@ -143,15 +148,17 @@ namespace PCIBusiness
 				else if ( Tools.SystemIsLive() )
 				{
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-						return "https://uat-api.nets.com.sg:9065/GW2/TxnReqListener";
+						return "https://api.nets.com.sg/GW2/TxnReqListener";
+					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
+						return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl";
+					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
+						return "https://secure.paygate.co.za/payhost/process.trans";
 					return "";
 				}
+
+//	Testing
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24) )
 					return "https://payment.ccp.boarding.transact24.com/PaymentCard";
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
-					return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl";
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
-					return "https://secure.paygate.co.za/payhost/process.trans";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
 					return "https://developer.paygenius.co.za";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
@@ -402,6 +409,36 @@ namespace PCIBusiness
 //			get { return  provider; }
 //		}
 
+		public int DeleteToken()
+		{
+			int processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
+			int ret         = 59020;
+			sql             = "";
+			Tools.LogInfo("Payment.DeleteToken/10","Merchant Ref=" + merchantReference,10);
+
+			if ( transaction == null || transaction.BureauCode != bureauCode )
+			{
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
+					transaction = new TransactionPayGate();
+				else
+					return ret;
+			}
+
+			ret = transaction.DeleteToken(this);
+
+			if ( processMode == (int)Constants.ProcessMode.FullUpdate ||
+			     processMode == (int)Constants.ProcessMode.DeleteToken )
+			{
+				sql = "exec sp_Upd_TokenToDelete @PaymentBureauCode = " + Tools.DBString(BureauCode)
+			                                + ",@Token = "             + Tools.DBString(CardToken)
+			                                + ",@StatusName = "        + Tools.DBString(transaction.ResultCode);
+				Tools.LogInfo("Payment.DeleteToken/20","SQL=" + sql,20);
+				int k = ExecuteSQLUpdate();
+			}
+			Tools.LogInfo("Payment.DeleteToken/90","Ret=" + ret.ToString(),20);
+			return ret;
+		}
+
 		public int GetToken()
 		{
 			int processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
@@ -554,10 +591,10 @@ namespace PCIBusiness
 			}
 
 		//	Payment
-			merchantReference         = dbConn.ColString("merchantReference");
+			merchantReference         = dbConn.ColString("merchantReference",0);
 			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0); // Only really for Ikajo, don't log error
-			paymentAmount             = dbConn.ColLong  ("amountInCents");
-			currencyCode              = dbConn.ColString("currencyCode");
+			paymentAmount             = dbConn.ColLong  ("amountInCents",0);
+			currencyCode              = dbConn.ColString("currencyCode",0);
 			paymentDescription        = dbConn.ColString("description",0);
 
 		//	Card/token/transaction details, not always present, don't log errors

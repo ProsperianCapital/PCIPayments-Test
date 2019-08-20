@@ -93,6 +93,7 @@ namespace PCIBusiness
 		{
 			FullUpdate                 =  0, // Live
 			UpdateToken                = 10,
+			DeleteToken                = 11,
 			UpdatePaymentStep1         = 21,
 			UpdatePaymentStep2         = 22,
 			UpdatePaymentStep1AndStep2 = 23,
@@ -103,6 +104,7 @@ namespace PCIBusiness
 			GetToken       =  1,
 			TokenPayment   =  2,
 			CardPayment    =  3,
+			DeleteToken    =  4,
 			ManualPayment  = 73
 		}
 //		public enum PaymentType : byte
