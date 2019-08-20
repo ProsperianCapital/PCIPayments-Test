@@ -78,7 +78,7 @@ namespace PCIBusiness
 				saleReq.returnUrl            = Tools.XMLSafe(url);
 				saleReq.signature            = md5Signature;
 
-				Tools.LogInfo("TransactionIkajo.GetToken/20","",199);
+				Tools.LogInfo("TransactionIkajo.GetToken/20","",10);
 
 				if ( ikajo == null )
 					ikajo    = new PtCardService();
@@ -89,7 +89,7 @@ namespace PCIBusiness
 				                                                     + " | TransactionError=" + result.transactionError
 				                                                     + " | RecurringToken=" + result.recurringToken;
 
-				Tools.LogInfo("TransactionIkajo.GetToken/30",x,199);
+				Tools.LogInfo("TransactionIkajo.GetToken/30",x,10);
 
 				payToken   = result.recurringToken;
 				payRef     = result.orderReference;
@@ -137,7 +137,7 @@ namespace PCIBusiness
 				rebillReq.recurringToken         = Tools.XMLSafe(payment.CardToken);
 				rebillReq.signature              = md5Signature;
 
-				Tools.LogInfo("TransactionIkajo.ProcessPayment/20","",199);
+				Tools.LogInfo("TransactionIkajo.ProcessPayment/20","",10);
 
 				if ( ikajo == null )
 					ikajo    = new PtCardService();
@@ -147,7 +147,7 @@ namespace PCIBusiness
 				                                                          + " | TransactionStatus=" + result.transactionStatus
 				                                                          + " | TransactionError=" + result.transactionError;
 
-				Tools.LogInfo("TransactionIkajo.ProcessPayment/30",x,199);
+				Tools.LogInfo("TransactionIkajo.ProcessPayment/30",x,10);
 
 				payRef     = result.orderReference;
 				resultCode = result.transactionStatus;

@@ -38,7 +38,7 @@ namespace PCIBusiness
 			int ret = 10;
 			payRef  = "";
 
-			Tools.LogInfo("TransactionENets.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,10);
+			Tools.LogInfo("TransactionENets.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,199);
 
 			try
 			{
@@ -113,7 +113,7 @@ namespace PCIBusiness
 				            ", KeyId=" + payment.ProviderKey +
 				            ", SecretKey=" + payment.ProviderPassword +
 				            ", Signature=" + sig +
-				            ", JSON Sent=" + xmlSent, 199);
+				            ", JSON Sent=" + xmlSent, 10);
 
 				using (Stream stream = webRequest.GetRequestStream())
 				{
@@ -140,7 +140,7 @@ namespace PCIBusiness
 					}
 					else
 					{
-						Tools.LogInfo("TransactionENets.CallWebService/30","JSON Rec=" + strResult,199);
+						Tools.LogInfo("TransactionENets.CallWebService/30","JSON Rec=" + strResult,10);
 
 						ret        = 160;
 						txnStatus  = Tools.JSONValue(strResult,"netsTxnStatus");

@@ -70,7 +70,7 @@ namespace PCIBusiness
 				                     + ", '" + payment.CardPIN + "'"
 				                     + ", '" + payment.MerchantReference + "' )";
 
-				Tools.LogInfo("TransactionMyGate.GetToken/10",xmlSent,203);
+				Tools.LogInfo("TransactionMyGate.GetToken/10",xmlSent,10);
 
 				ret     = 315;
 				results = myGateToken.fLoadPinCC ( payment.ProviderUserID,
@@ -111,7 +111,7 @@ namespace PCIBusiness
 				ret        = 380;
 				resultMsg  = resultLine[3] + ( resultLine[4].Length > 0 ? " (" + resultLine[4] + ")" : "" );
 
-				Tools.LogInfo("TransactionMyGate.GetToken/20","ResultCode=" + resultCode + ", Message=" + resultMsg,220);
+				Tools.LogInfo("TransactionMyGate.GetToken/20","ResultCode=" + resultCode + ", Message=" + resultMsg,10);
 			}
 			catch (Exception ex)
 			{
@@ -171,12 +171,12 @@ namespace PCIBusiness
 				xmlResult = null;
 				strResult = "";
 
-				Tools.LogInfo("TransactionMyGate.ProcessPayment/20","uploadDebitFile(\"" + xmlSent + "\")",203);
+				Tools.LogInfo("TransactionMyGate.ProcessPayment/20","uploadDebitFile(\"" + xmlSent + "\")",10);
 
 				ret       = 630;
 				strResult = myGatePay.uploadDebitFile (xmlSent);
 
-				Tools.LogInfo("TransactionMyGate.ProcessPayment/30","Result=" + strResult,230);
+				Tools.LogInfo("TransactionMyGate.ProcessPayment/30","Result=" + strResult,10);
 			}
 			catch (Exception ex)
 			{

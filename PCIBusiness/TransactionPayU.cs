@@ -154,7 +154,7 @@ namespace PCIBusiness
 			int ret = 300;
 			xmlSent = "";
 
-			Tools.LogInfo("TransactionPayU.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,10);
+			Tools.LogInfo("TransactionPayU.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,199);
 
 			try
 			{
@@ -234,7 +234,7 @@ namespace PCIBusiness
 			int ret = 600;
 			xmlSent = "";
 
-			Tools.LogInfo("TransactionPayU.ProcessPayment/10","PAYMENT, Merchant Ref=" + payment.MerchantReference,10);
+			Tools.LogInfo("TransactionPayU.ProcessPayment/10","PAYMENT, Merchant Ref=" + payment.MerchantReference,199);
 
 //		   +   "<secure3d>false</secure3d>"
 //       +   "<storePaymentMethod>true</storePaymentMethod>"

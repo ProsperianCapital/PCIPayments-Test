@@ -49,8 +49,8 @@ namespace PCIBusiness
 
 				if ( ret == 0 ) // Success
 					payToken = Tools.XMLNode(xmlResult,"VaultId",nsPrefix,nsURL);
-
-				Tools.LogInfo("TransactionPayGate.GetToken/720","ResultCode="+ResultCode,199);
+				else
+					Tools.LogInfo("TransactionPayGate.GetToken/720","ResultCode="+ResultCode,199);
 			}
 			catch (Exception ex)
 			{

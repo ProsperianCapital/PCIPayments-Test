@@ -157,7 +157,7 @@ namespace PCIBusiness
 				            ", Token=" + payment.ProviderKey +
 				            ", Key=" + payment.ProviderPassword +
 				            ", Signature=" + sig +
-				            ", JSON Sent=" + xmlSent, 199);
+				            ", JSON Sent=" + xmlSent, 10);
 
 				using (Stream stream = webRequest.GetRequestStream())
 				{
@@ -192,7 +192,7 @@ namespace PCIBusiness
 						{
 							ret        = 170;
 							resultCode = "00";
-							Tools.LogInfo("TransactionPayGenius.CallWebService/40","Successful, JSON Rec=" + strResult,199);
+							Tools.LogInfo("TransactionPayGenius.CallWebService/40","Successful, JSON Rec=" + strResult,10);
 						}
 						else
 						{
