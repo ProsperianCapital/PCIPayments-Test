@@ -23,6 +23,7 @@ namespace PCIBusiness
 		protected string      termUrl;
 		protected string      md;
 		protected string      acsUrl;
+		protected string      keyValuePairs;
 
 		public  string      PaymentReference
 		{
@@ -117,6 +118,10 @@ namespace PCIBusiness
 		{
 			get { return   Tools.NullToString(md); }
 		}
+		public  string    ThreeDKeyValuePairs
+		{
+			get { return   Tools.NullToString(keyValuePairs); }
+		}
 
 
 		public virtual int GetToken(Payment payment)
@@ -151,20 +156,21 @@ namespace PCIBusiness
 
 		public Transaction()
 		{
-			payRef      = "";
-			payToken    = "";
-//			authCode    = "";
-			resultCode  = "";
-			resultMsg   = "";
-			xmlSent     = "";
-			bureauCode  = "";
-			strResult   = "";
-			eci         = "";
-			paReq       = "";
-			termUrl     = "";
-			md          = "";
-			acsUrl      = "";
-			xmlResult   = null;
+			payRef        = "";
+			payToken      = "";
+//			authCode      = "";
+			resultCode    = "";
+			resultMsg     = "";
+			xmlSent       = "";
+			bureauCode    = "";
+			strResult     = "";
+			eci           = "";
+			paReq         = "";
+			termUrl       = "";
+			md            = "";
+			acsUrl        = "";
+			keyValuePairs = "";
+			xmlResult     = null;
 		}
 	}
 }

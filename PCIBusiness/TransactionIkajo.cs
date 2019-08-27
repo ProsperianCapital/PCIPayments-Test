@@ -24,7 +24,7 @@ namespace PCIBusiness
 
 		public override int GetToken(Payment payment)
 		{
-			string url = Tools.ConfigValue("SystemURL") + "/Succeed.aspx";
+			string url = Tools.ConfigValue("SystemURL") + "/Succeed.aspx?TransRef=" + Tools.XMLSafe(payment.MerchantReference);
 			int    ret = 300;
 
 			Tools.LogInfo("TransactionIkajo.GetToken/10","Sale, Merchant Ref=" + payment.MerchantReference,199);
@@ -204,6 +204,7 @@ namespace PCIBusiness
 			ikajo     = null;
 			saleReq   = null;
 			rebillReq = null;
+			base.Close();
 		}
 	}
 }

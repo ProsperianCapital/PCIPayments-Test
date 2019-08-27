@@ -128,7 +128,6 @@ namespace PCIBusiness
 			else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
     		{
 				sql  = "exec sp_Get_TokenPayment " + Tools.DBString(bureauCode);
-			//	sql  = "exec sp_Get_CardPayment "  + Tools.DBString(bureauCode);
 				desc = "Token Payment";
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.CardPayment )

@@ -192,6 +192,7 @@ namespace PCIBusiness
 			myGatePay   = null;
 			results     = null;
 			resultLine  = null;
+			base.Close();
 		}
 	}
 }

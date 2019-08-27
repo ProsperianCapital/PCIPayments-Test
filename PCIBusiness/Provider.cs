@@ -1,4 +1,6 @@
-﻿namespace PCIBusiness
+﻿using System;
+
+namespace PCIBusiness
 {
 	public class Provider : BaseData
 	{
@@ -12,6 +14,8 @@
 		private string  userPassword;
 		private int     cardCount;
 		private int     paymentCount;
+
+		private Transaction transaction;
 
 		public  string  BureauCode
 		{
@@ -68,6 +72,34 @@
 			get { return Tools.NullToString(userID); }
 		}
 
+		public Transaction Transaction
+		{
+			get
+			{
+				if ( transaction == null )
+					if      ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU)      ) transaction = new TransactionPayU();
+				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24)       ) transaction = new TransactionT24();
+				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)    ) transaction = new TransactionMyGate();
+				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) ) transaction = new TransactionPayGenius();
+				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)   ) transaction = new TransactionPayGate();
+				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)     ) transaction = new TransactionENets();
+				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)  ) transaction = new TransactionEcentric();
+				return transaction;
+			}
+		}
+
+		public bool ThreeDEnabled
+		{
+			get
+			{
+			//	Type classType  = (System.Reflection.Assembly.Load("PCIBusiness")).GetType("PCIBusiness.TransactionPayGate");
+			//	Transaction x = (Transaction)Activator.CreateInstance(classType);
+				if ( Transaction != null )
+					return Transaction.EnabledFor3d((byte)Constants.TransactionType.ManualPayment);
+				return false;
+			}
+		}
+
 		public byte PaymentType
 		{
 		//	Change as required for each payment provider
@@ -101,11 +133,16 @@
 			bureauName        = "";
 			bureauStatus      = 0;
 		}
+      public override void CleanUp()
+		{
+			transaction = null;
+		}
 
 		public Provider() : base()
 		{
 			cardCount    = 0;
 			paymentCount = 0;
+			transaction  = null;
 		}
 	}
 }

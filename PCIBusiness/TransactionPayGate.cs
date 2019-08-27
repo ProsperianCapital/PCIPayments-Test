@@ -16,10 +16,14 @@ namespace PCIBusiness
 			{
 				resultCode   = Tools.NullToString(resultCode);
 				resultStatus = Tools.NullToString(resultStatus);
-				if ( resultCode == "990017" || resultStatus.ToUpper() == "COMPLETED" )
+				if ( resultCode == "990017" || resultCode == "990088" || resultStatus.ToUpper().StartsWith("COMPLETE") )
 					return true;
 				return false;
 			}
+		}
+      public override bool EnabledFor3d(byte paymentMode)
+		{
+			return true;
 		}
 
 		public int GetTokenV1(Payment payment) // NOT USED
@@ -45,7 +49,7 @@ namespace PCIBusiness
 			//	ret = SendXML(payment.ProviderURL);
 
 			//	Version 2
-				ret = CallWebService(payment.ProviderURL);
+				ret = CallWebService(payment); // payment.ProviderURL);
 
 				if ( ret == 0 ) // Success
 					payToken = Tools.XMLNode(xmlResult,"VaultId",nsPrefix,nsURL);
@@ -87,10 +91,10 @@ namespace PCIBusiness
 						  + "</Envelope>";
 
 			//	Version 1
-			//	ret = SendXML(payment.ProviderURL);
+			//	ret = SendXML(payment);
 
 			//	Version 2
-			//	ret = CallWebService(payment.ProviderURL);
+			//	ret = CallWebService(payment);
 
 			//	Version 3
 				ret = 310;
@@ -182,7 +186,7 @@ namespace PCIBusiness
 				        + "</soapenv:Body>"
 				        + "</soapenv:Envelope>"; 
 
-				ret      = CallWebService(payment.ProviderURL);
+				ret      = CallWebService(payment);
 				payToken = Tools.XMLNode(xmlResult,"VaultId",nsPrefix,nsURL);
 
 				if ( ! Successful || payToken.Length < 1 )
@@ -219,7 +223,7 @@ namespace PCIBusiness
 				        + "</pay:SingleVaultRequest>"
 				        + "</soapenv:Body>"
 				        + "</soapenv:Envelope>"; 
-				ret     = CallWebService(payment.ProviderURL);
+				ret     = CallWebService(payment);
 
 				if ( ! Successful )
 					Tools.LogInfo("TransactionPayGate.DeleteToken/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
@@ -240,24 +244,69 @@ namespace PCIBusiness
 			int ret = 600;
 			payRef  = "";
 
-			Tools.LogInfo("TransactionPayGate.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionPayGate.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
-				xmlSent = SetUpXML(payment,1)
-				        + "<pay:VaultId>" + Tools.XMLSafe(payment.CardToken) + "</pay:VaultId>"
-				        + "<pay:CVV>" + Tools.XMLSafe(payment.CardCVV) + "</pay:CVV>"
-				        + SetUpXML(payment,2);
+				if ( payment.PaymentMode == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
+					xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
+					        +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
+					        + "<soapenv:Header />"
+					        + "<soapenv:Body>"
+					        + "<pay:SinglePaymentRequest>"
+					        + "<pay:CardPaymentRequest>"
+					        +   "<pay:Account>"
+					        +     "<pay:PayGateId>" + Tools.XMLSafe(payment.ProviderUserID) + "</pay:PayGateId>"
+					        +     "<pay:Password>" + Tools.XMLSafe(payment.ProviderPassword) + "</pay:Password>"
+					        +   "</pay:Account>"
+					        +   "<pay:Customer>"
+					        +     "<pay:FirstName>" + Tools.XMLSafe(payment.FirstName) + "</pay:FirstName>"
+					        +     "<pay:LastName>" + Tools.XMLSafe(payment.LastName) + "</pay:LastName>"
+				           +     "<pay:Email>Test@Prosperian.mu</pay:Email>"
+					        +   "</pay:Customer>"
+					        +   "<pay:CardNumber>" + Tools.XMLSafe(payment.CardNumber) + "</pay:CardNumber>"
+					        +   "<pay:CardExpiryDate>" + Tools.XMLSafe(payment.CardExpiryMM) + Tools.XMLSafe(payment.CardExpiryYYYY) + "</pay:CardExpiryDate>"
+					        +   "<pay:CVV>" + Tools.XMLSafe(payment.CardCVV) + "</pay:CVV>"
+					        +   "<pay:Redirect>"
+					        +     "<pay:NotifyUrl>" + Tools.ConfigValue("SystemURL")+"/Succeed.aspx?TransRef=" + Tools.XMLSafe(payment.MerchantReference) + "</pay:NotifyUrl>"
+					        +     "<pay:ReturnUrl>" + Tools.ConfigValue("SystemURL")+"/Succeed.aspx?TransRef=" + Tools.XMLSafe(payment.MerchantReference) + "</pay:ReturnUrl>"
+					        +   "</pay:Redirect>"
+					        +   "<pay:Order>"
+					        +     "<pay:MerchantOrderId>" + Tools.XMLSafe(payment.MerchantReference) + "</pay:MerchantOrderId>"
+					        +     "<pay:Currency>" + Tools.XMLSafe(payment.CurrencyCode) + "</pay:Currency>"
+					        +     "<pay:Amount>" + payment.PaymentAmount.ToString() + "</pay:Amount>"
+					        +   "</pay:Order>"
+					        + "</pay:CardPaymentRequest>"
+					        + "</pay:SinglePaymentRequest>"
+					        + "</soapenv:Body>"
+					        + "</soapenv:Envelope>";
 
-			//	Version 1
-			//	ret = SendXML(payment.ProviderURL);
+//	Not needed
+//					        +   "<pay:ThreeDSecure>"
+//					        +     "<pay:BillingDescriptor>Prosperian Capital</pay:BillingDescriptor>"
+//					        +     "<pay:Enrolled>Y</pay:Enrolled>"
+//					        +   "</pay:ThreeDSecure>"
+//					        +   "<pay:Redirect>"
+//					        +     "<pay:NotifyUrl>http://www.paulkilfoil.co.za</pay:NotifyUrl>"
+//					        +     "<pay:ReturnUrl>http://www.paulkilfoil.co.za</pay:ReturnUrl>"
+//					        +   "</pay:Redirect>"
+				else
+					xmlSent = SetUpXML(payment,1)
+					        + "<pay:VaultId>" + Tools.XMLSafe(payment.CardToken) + "</pay:VaultId>"
+					        + "<pay:CVV>" + Tools.XMLSafe(payment.CardCVV) + "</pay:CVV>"
+					        + SetUpXML(payment,2);
 
-			//	Version 2
-				ret    = CallWebService(payment.ProviderURL);
+				ret    = CallWebService(payment);
 				payRef = Tools.XMLNode(xmlResult,"PayRequestId",nsPrefix,nsURL);
 
-				if ( ! Successful || payRef.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.ProcessPayment/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+				if ( ! Successful )
+					Tools.LogInfo("TransactionPayGate.ProcessPayment/21","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+				else if ( payment.PaymentMode == (byte)Constants.TransactionType.CardPayment && payRef.Length < 1 )
+					Tools.LogInfo("TransactionPayGate.ProcessPayment/22","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+				else if ( payment.PaymentMode == (byte)Constants.TransactionType.TokenPayment && payRef.Length < 1 )
+					Tools.LogInfo("TransactionPayGate.ProcessPayment/23","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+				else if ( payment.PaymentMode == (byte)Constants.TransactionType.ManualPayment && keyValuePairs.Length < 1 )
+					Tools.LogInfo("TransactionPayGate.ProcessPayment/24","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 			}
 			catch (Exception ex)
 			{
@@ -299,9 +348,11 @@ namespace PCIBusiness
 				     + "</soapenv:Envelope>";
 		}
 
-		private int CallWebService(string url)
+		private int CallWebService(Payment payment) // string url)
       {
-			int ret = 10;
+			int    ret    = 10;
+			string url    = payment.ProviderURL;
+			keyValuePairs = "";
 
 			if ( Tools.NullToString(url).Length == 0 )
 //				PayGate use the same URL for live and test
@@ -335,19 +386,48 @@ namespace PCIBusiness
 					resultStatus = Tools.XMLNode(xmlResult,"StatusName"       ,nsPrefix,nsURL);
 					ret          = 50;
 
-					Tools.LogInfo("TransactionPayGate.CallWebService/50","XML Rec="+xmlOut,10);
+					if ( payment.PaymentMode == (byte)Constants.TransactionType.ManualPayment )
+						Tools.LogInfo("TransactionPayGate.CallWebService/51","Manual Payment (3d), XML Rec="+xmlOut,199);
+					else
+						Tools.LogInfo("TransactionPayGate.CallWebService/52","XML Rec="+xmlOut,10);
 
-					if ( Successful )
+					if ( payment.PaymentMode == (byte)Constants.TransactionType.ManualPayment &&
+					     resultStatus.ToUpper() == ("ThreeDSecureRedirectRequired").ToUpper() )
+					{
+						string              key;
+						string              value;
+						XmlNodeList         keyValues;
+						XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlResult.NameTable);
+						ret                       = 60;
+						nsmgr.AddNamespace(nsPrefix,nsURL);
+						keyValues                 = xmlResult.SelectNodes("//"+nsPrefix+":UrlParams",nsmgr);
+						acsUrl                    = Tools.XMLNode(xmlResult,"RedirectUrl",nsPrefix,nsURL);
+
+						foreach ( XmlNode keyValue in keyValues )
+						{
+							ret           = 70;
+							key           = keyValue.SelectSingleNode(nsPrefix+":key"  ,nsmgr).InnerText;
+							value         = keyValue.SelectSingleNode(nsPrefix+":value",nsmgr).InnerText;
+// Template ...		keyValuePairs = keyValuePairs + "<input type='hidden' name='key' value='value' />";
+							keyValuePairs = keyValuePairs + "<input type='hidden' name='" + Tools.XMLSafe(key) + "'"
+							                              +                    " value='" + Tools.XMLSafe(value) + "' />";
+						}
+						nsmgr      = null;
+						ret        = 0;
+						resultCode = "990088";
+					}
+
+					else if ( Successful )
 						ret = 0;
 
 					else if ( resultCode.Length == 0 && resultMsg.Length == 0 )
 					{
-						ret        = 60;
+						ret        = 80;
 						resultCode = Tools.XMLNode(xmlResult,"faultcode"); // Namespace not needed
 						resultMsg  = Tools.XMLNode(xmlResult,"faultstring");
 						if ( resultCode.Length == 0 && resultMsg.Length == 0 )
 						{
-							ret        = 70;
+							ret        = 90;
 							resultCode = Tools.XMLNode(xmlResult,"StatusName"  ,nsPrefix,nsURL);
 							resultMsg  = Tools.XMLNode(xmlResult,"StatusDetail",nsPrefix,nsURL);
 							if ( resultCode.ToUpper().Substring(0,8) == "COMPLETE" )
