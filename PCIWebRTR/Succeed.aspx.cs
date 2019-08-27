@@ -11,12 +11,20 @@ namespace PCIWebRTR
 
 			if ( ! Page.IsPostBack )
 			{
-				lblVersion.Text = "Version " + SystemDetails.AppVersion;
-				string hmac     = Request["hmac"];
-				string msg      = Request["message"];
+				lblVersion.Text  = "Version " + SystemDetails.AppVersion;
+				string transRef  = Tools.NullToString(Request["TransRef"]);
+				string hmac      = Tools.NullToString(Request["hmac"]);
+				string msg       = Tools.NullToString(Request["message"]);
+//				string notifyURL = Tools.NullToString(Request["NotifyUrl"]);
+//				string returnURL = Tools.NullToString(Request["ReturnUrl"]);
 
-				Tools.LogInfo("Succeed.Page_Load/20","hmac="+hmac,199);
-				Tools.LogInfo("Succeed.Page_Load/30","message="+msg,199);
+				Tools.LogInfo("Succeed.Page_Load/20","transRef=" +transRef
+				                                 + ", hmac="     +hmac
+				                                 + ", msg="      +msg,199);
+
+				lblTransRef.Text = transRef;
+//				lblNotify.Text   = notifyURL;
+//				lblReturn.Text   = returnURL;
 
 				if ( msg.Length > 0 )
 				{
@@ -25,9 +33,9 @@ namespace PCIWebRTR
 					string txnStatus  = Tools.JSONValue(msg,"netsTxnStatus");
 					string resultMsg  = Tools.JSONValue(msg,"netsTxnMsg");
 					string resultCode = Tools.JSONValue(msg,"stageRespCode");
-					Tools.LogInfo("Succeed.Page_Load/40","netsTxnStatus="+txnStatus,199);
-					Tools.LogInfo("Succeed.Page_Load/50","netsTxnMsg="+resultMsg,199);
-					Tools.LogInfo("Succeed.Page_Load/60","stageRespCode="+resultCode,199);
+					Tools.LogInfo("Succeed.Page_Load/40","(eNETS) netsTxnStatus="+txnStatus,199);
+					Tools.LogInfo("Succeed.Page_Load/50","(eNETS) netsTxnMsg="+resultMsg,199);
+					Tools.LogInfo("Succeed.Page_Load/60","(eNETS) stageRespCode="+resultCode,199);
 				}
 			}
 		}

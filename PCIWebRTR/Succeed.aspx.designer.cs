@@ -22,6 +22,15 @@ namespace PCIWebRTR {
         protected global::System.Web.UI.HtmlControls.HtmlForm frmSucceed;
         
         /// <summary>
+        /// lblTransRef control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal lblTransRef;
+        
+        /// <summary>
         /// lblHmac control.
         /// </summary>
         /// <remarks>

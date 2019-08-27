@@ -86,11 +86,22 @@ namespace PCIWebRTR
 
 		private void ProviderDetails()
 		{
-			string   bureau      = lstProvider.SelectedValue.Trim();
+			string   bureauCode  = lstProvider.SelectedValue.Trim();
 			Provider provider    = new Provider();
-			provider.BureauCode  = bureau;
+			provider.BureauCode  = bureauCode;
 			lblBureauCode.Text   = provider.BureauCode;
+			lblBureauName.Text   = lstProvider.SelectedItem.Text;
 			lblBureauStatus.Text = provider.BureauStatusName;
+			rdoCard.Enabled      = provider.ThreeDEnabled;
+			btnPay.Visible       = true;
+			if ( provider.ThreeDEnabled )
+				rdoCard.Text      = "Single card payment";
+			else
+			{
+				rdoCard.Text      = "Single card payment (disabled)";
+				rdoCard.Checked   = false;
+				btnPay.Visible    = false;
+			}
 
 			if ( provider.BureauStatusCode == 2 ) // Disabled
 			{
@@ -118,10 +129,10 @@ namespace PCIWebRTR
 //			btnProcess2.CommandArgument = ((byte)Constants.TransactionType.TokenPayment).ToString();
 //			btnProcess3.CommandArgument = ((byte)Constants.TransactionType.DeleteToken).ToString();
 
-			if ( bureau.Length > 0 )
+			if ( bureauCode.Length > 0 )
 				using (Payments payments = new Payments())
 				{
-					provider             = payments.Summary(bureau);
+					provider             = payments.Summary(bureauCode);
 					lblBureauURL.Text    = provider.BureauURL;
 					lblMerchantKey.Text  = provider.MerchantKey;
 					lblMerchantUser.Text = provider.MerchantUserID;
@@ -214,6 +225,8 @@ namespace PCIWebRTR
 
 		private void ProcessPayment()
 		{
+			int ret = 0;
+
 			try
 			{
 				Tools.LogInfo("RTR.ProcessPayment/1","Started, provider '" + provider + "'",10);
@@ -221,7 +234,7 @@ namespace PCIWebRTR
 				using (Payment payment = new Payment(provider))
 				{
 					payment.CardNumber        = txtCCNumber.Text;
-					payment.CardName          = txtCCName.Text;
+					payment.CardName          = txtFName.Text + " " + txtLName.Text;
 					payment.CardCVV           = txtCCCVV.Text;
 					payment.CurrencyCode      = txtCurrency.Text;
 					payment.MerchantReference = txtReference.Text;
@@ -229,11 +242,24 @@ namespace PCIWebRTR
 					payment.CardExpiryYYYY    = lstCCYear.SelectedValue;
 					payment.PaymentAmount     = Tools.StringToInt(txtAmount.Text);
 					payment.PaymentMode       = (byte)Constants.TransactionType.ManualPayment;
-					int  k = payment.ProcessPayment();
-					if ( k == 0 && payment.ThreeDForm.Length > 0 )
+					payment.FirstName         = txtFName.Text;
+					payment.LastName          = txtLName.Text;
+//					int k = payment.CardName.IndexOf(" ");
+//					if ( k > 0 )
+//					{
+//						payment.FirstName = payment.CardName.Substring(0,k).Trim();
+//						payment.LastName  = payment.CardName.Substring(k).Trim();
+//					}
+//					else
+//						payment.LastName  = payment.CardName;
+
+					ret = payment.ProcessPayment();
+					if ( ret == 0 && payment.ThreeDForm.Length > 0 )
 						try
 						{
 						//	Busy();
+							ret = 987654;
+						//	This always throws a "thread aborted" exception ... ignore it
 							System.Web.HttpContext.Current.Response.Clear();
 							System.Web.HttpContext.Current.Response.Write(payment.ThreeDForm);
 							System.Web.HttpContext.Current.Response.End();
@@ -244,16 +270,19 @@ namespace PCIWebRTR
 					{
 						lblJS.Text = "<script type='text/javascript'>PaySingle(8);</script>";
 						if ( payment.Message.Length > 0 )
-							lblError2.Text = "<br />" + payment.Message;
+							lblError2.Text = payment.Message;
+						//	lblError2.Text = "<br />" + payment.Message;
 						else
-							lblError2.Text = "<br />Transaction failed";
+							lblError2.Text = "Transaction failed";
+						//	lblError2.Text = "<br />Transaction failed";
 					}
 				}
 				Tools.LogInfo("RTR.ProcessPayment/2","Finished",10);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("RTR.ProcessPayment/9","",ex);
+				if ( ret != 987654 )
+					Tools.LogException("RTR.ProcessPayment/9","",ex);
 			}
 		}
 

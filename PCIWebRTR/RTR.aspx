@@ -15,7 +15,7 @@ function PaySingle(mode)
 	if ( mode > 0 )
 	{
 		ShowElt('divCard',1);
-		GetElt('txtCCName').focus();
+		GetElt('txtFName').focus();
 		if ( mode == 33 )
 			SetEltValue('lblError2','');
 	}
@@ -57,9 +57,9 @@ function PaySingle(mode)
 	<tr>
 		<td>Process via</td>
 		<td>
-			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoWeb" />Synchronous (this web page)<br />
-			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoAsynch" />Asynchronous (a separate EXE)<br />
-			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoCard" onclick="JavaScript:PaySingle(33)" />Single card payment (not all providers)</td></tr>
+			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoWeb" Text="Synchronous (this web page)" /><br />
+			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoAsynch" Text="Asynchronous (a separate EXE)" /><br />
+			<asp:RadioButton runat="server" GroupName="rdoP" ID="rdoCard" onclick="JavaScript:PaySingle(33)" Text="Single card payment" /></td></tr>
 	<tr>
 		<td colspan="2"><hr /></td></tr>
 	<tr>
@@ -116,12 +116,16 @@ function PaySingle(mode)
 	</div>
 
 	<div id="divCard" class="PopupBox" style="visibility:hidden;display:none">
-	<div style="background-color:hotpink;padding:5px;font-size:18px;font-weight:bold">Single Card Payment</div>
+	<div style="background-color:hotpink;padding:5px;font-size:18px;font-weight:bold">Single Card Payment : <asp:Literal runat="server" ID="lblBureauName" /></div>
 	<table class="Detail">
 	<tr>
-		<td>Name on Card</td>
+		<td>First Name</td>
 		<td colspan="2">
-			<asp:TextBox runat="server" id="txtCCName" Width="300px"></asp:TextBox></td></tr>
+			<asp:TextBox runat="server" id="txtFName" Width="300px"></asp:TextBox></td></tr>
+	<tr>
+		<td>Last Name</td>
+		<td colspan="2">
+			<asp:TextBox runat="server" id="txtLName" Width="300px"></asp:TextBox></td></tr>
 	<tr>
 		<td>Card Number</td>
 		<td colspan="2">

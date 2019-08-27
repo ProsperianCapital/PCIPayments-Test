@@ -17,11 +17,15 @@
 	<b>Thank you!</b>
 	<br /><br />
 	Your payment has been <span class="Red">successfully processed</span>.
-	</p>
-	<p>
-	<u>Server response</u><br />
+	</p><p>
+	Prosperian Transaction Reference : <asp:Literal runat="server" ID="lblTransRef"></asp:Literal>
+	</p><p>
+	<u>eNETS Server response</u><br />
 	Hmac : <asp:Literal runat="server" ID="lblHmac"></asp:Literal><br />
 	Message : <asp:Literal runat="server" ID="lblMessage"></asp:Literal>
+	</p><p>
+	<u>PayGate Server response</u><br />
+	N/A
 	</p>
 	<p class="ButtonRow">
 	<input type="button" value="Home" class="Button" onclick="JavaScript:location.href='RTR.aspx'" />
