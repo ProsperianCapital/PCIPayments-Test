@@ -212,6 +212,7 @@ namespace PCIBusiness
 		public string    EMail
 		{
 			get { return  Tools.NullToString(email); }
+			set { email = value.Trim(); }
 		}
 		public string    PhoneCell
 		{
@@ -410,6 +411,18 @@ namespace PCIBusiness
 		{
 			get { return  paymentMode; }
 			set { paymentMode = value; }
+		}
+		public  string   PaymentModeName
+		{
+			get
+			{
+				if ( paymentMode == (byte)Constants.TransactionType.CardPayment   ) return "Card Payment";
+				if ( paymentMode == (byte)Constants.TransactionType.DeleteToken   ) return "Delete Token";
+				if ( paymentMode == (byte)Constants.TransactionType.GetToken      ) return "Get Token";
+				if ( paymentMode == (byte)Constants.TransactionType.ManualPayment ) return "Manual Payment (3d)";
+				if ( paymentMode == (byte)Constants.TransactionType.TokenPayment  ) return "Token Payment";
+				return "Unknown (paymentMode=" + paymentMode.ToString() + ")";
+			}
 		}
 //		public Provider  Provider
 //		{
