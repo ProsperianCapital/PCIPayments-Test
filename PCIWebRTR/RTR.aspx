@@ -127,6 +127,10 @@ function PaySingle(mode)
 		<td colspan="2">
 			<asp:TextBox runat="server" id="txtLName" Width="300px"></asp:TextBox></td></tr>
 	<tr>
+		<td>EMail</td>
+		<td colspan="2">
+			<asp:TextBox runat="server" id="txtEMail" Width="300px"></asp:TextBox></td></tr>
+	<tr>
 		<td>Card Number</td>
 		<td colspan="2">
 			<asp:TextBox runat="server" id="txtCCNumber" Width="160px" MaxLength="20"></asp:TextBox></td></tr>

@@ -236,12 +236,13 @@ namespace PCIWebRTR
 					payment.CardNumber        = txtCCNumber.Text;
 					payment.CardName          = txtFName.Text + " " + txtLName.Text;
 					payment.CardCVV           = txtCCCVV.Text;
+					payment.EMail             = txtEMail.Text;
 					payment.CurrencyCode      = txtCurrency.Text;
 					payment.MerchantReference = txtReference.Text;
 					payment.CardExpiryMM      = lstCCMonth.SelectedValue;
 					payment.CardExpiryYYYY    = lstCCYear.SelectedValue;
 					payment.PaymentAmount     = Tools.StringToInt(txtAmount.Text);
-					payment.PaymentMode       = (byte)Constants.TransactionType.ManualPayment;
+					payment.TransactionType   = (byte)Constants.TransactionType.ManualPayment;
 					payment.FirstName         = txtFName.Text;
 					payment.LastName          = txtLName.Text;
 //					int k = payment.CardName.IndexOf(" ");
