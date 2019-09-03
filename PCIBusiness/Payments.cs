@@ -168,7 +168,8 @@ namespace PCIBusiness
 					iter++;
 					foreach (Payment payment in objList)
 					{
-						payment.BureauCode = bureauCode;
+						payment.BureauCode      = bureauCode;
+						payment.TransactionType = transactionType;
 						if ( transactionType == (byte)Constants.TransactionType.GetToken )
 							err = payment.GetToken();
 						else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )

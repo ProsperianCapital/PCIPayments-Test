@@ -660,6 +660,11 @@ namespace PCIBusiness
 		// Use this routine to log debugging/info messages
 		//	To decide which messages to write, adjust the severity below
 		//	Calling routines must supply a severity between 0-255 (default 10)
+		//	If severity == 255 then do NOT log for LIVE
+
+			if ( severity == 255 )
+				if ( LiveTestOrDev() == Constants.SystemMode.Live )
+					return;
 			if ( severity > 100 )
 				LogWrite("LogFileInfo",component,msg);
 		}

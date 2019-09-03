@@ -121,7 +121,7 @@ namespace PCIBusiness
 					}
 				}
 
-				Tools.LogInfo("TransactionPayU.SendXML/50","XML Rec=" + xmlReceived,10);
+				Tools.LogInfo("TransactionPayU.SendXML/50","XML Rec=" + xmlReceived,255);
 
 			// Create an empty soap result object
 				ret       = 70;
@@ -228,7 +228,7 @@ namespace PCIBusiness
 
 		public override int ProcessPayment(Payment payment)
 		{
-			if ( ! EnabledFor3d(payment.PaymentMode) )
+			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
 
 			int ret = 600;

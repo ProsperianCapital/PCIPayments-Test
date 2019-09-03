@@ -46,7 +46,7 @@ namespace PCIBusiness
 		private string   providerURL;
 
 		private int      processMode;
-		private byte     paymentMode; // This indicates MANUAL (73) or AUTO
+		private byte     transactionType;
 		private string   threeDForm;
 
 		private Transaction transaction;
@@ -407,21 +407,21 @@ namespace PCIBusiness
 			get { return  Tools.NullToString(ccCVV); }
 			set { ccCVV = value.Trim(); }
 		}
-		public  byte     PaymentMode
+		public  byte     TransactionType
 		{
-			get { return  paymentMode; }
-			set { paymentMode = value; }
+			get { return  transactionType; }
+			set { transactionType = value; }
 		}
-		public  string   PaymentModeName
+		public  string   TransactionTypeName
 		{
 			get
 			{
-				if ( paymentMode == (byte)Constants.TransactionType.CardPayment   ) return "Card Payment";
-				if ( paymentMode == (byte)Constants.TransactionType.DeleteToken   ) return "Delete Token";
-				if ( paymentMode == (byte)Constants.TransactionType.GetToken      ) return "Get Token";
-				if ( paymentMode == (byte)Constants.TransactionType.ManualPayment ) return "Manual Payment (3d)";
-				if ( paymentMode == (byte)Constants.TransactionType.TokenPayment  ) return "Token Payment";
-				return "Unknown (paymentMode=" + paymentMode.ToString() + ")";
+				if ( transactionType == (byte)Constants.TransactionType.CardPayment   ) return "Card Payment";
+				if ( transactionType == (byte)Constants.TransactionType.DeleteToken   ) return "Delete Token";
+				if ( transactionType == (byte)Constants.TransactionType.GetToken      ) return "Get Token";
+				if ( transactionType == (byte)Constants.TransactionType.ManualPayment ) return "Manual Payment (3d)";
+				if ( transactionType == (byte)Constants.TransactionType.TokenPayment  ) return "Token Payment";
+				return "Unknown (transactionType=" + transactionType.ToString() + ")";
 			}
 		}
 //		public Provider  Provider
@@ -541,7 +541,7 @@ namespace PCIBusiness
 					return retProc;
 			}
 
-			if ( paymentMode == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
+			if ( transactionType == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
 				Tools.LogInfo("Payment.ProcessPayment/20","Manual card payment",20);
 
 			else if ( processMode == (int)Constants.ProcessMode.FullUpdate         ||
@@ -561,7 +561,7 @@ namespace PCIBusiness
 			threeDForm    = "";
 			returnMessage = transaction.ResultMessage;
 
-			if ( paymentMode == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
+			if ( transactionType == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
 			{
 				Tools.LogInfo("Payment.ProcessPayment/60","Manual card payment, retProc=" + retProc.ToString() + ", acsUrl=" + transaction.ThreeDacsUrl,199);
 				if ( transaction.ThreeDRequired )
@@ -640,24 +640,24 @@ namespace PCIBusiness
 
 		public override void CleanUp()
 		{
-			transaction = null;
-			paymentMode = 0;
+			transaction     = null;
+			transactionType = 0;
 		}
 
 		public Payment(string bureau) : base()
 		{
-			processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
-			bureauCode  = Tools.NullToString(bureau);
-			threeDForm  = "";
-			paymentMode = 0;
+			processMode     = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
+			bureauCode      = Tools.NullToString(bureau);
+			threeDForm      = "";
+			transactionType = 0;
 		}
 
 		public Payment() : base()
 		{
-			processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
-			bureauCode  = "";
-			threeDForm  = "";
-			paymentMode = 0;
+			processMode     = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
+			bureauCode      = "";
+			threeDForm      = "";
+			transactionType = 0;
 		}
 	}
 }

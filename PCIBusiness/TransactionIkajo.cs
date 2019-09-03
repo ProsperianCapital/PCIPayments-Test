@@ -109,7 +109,7 @@ namespace PCIBusiness
 
 		public override int ProcessPayment(Payment payment)
 		{
-			if ( ! EnabledFor3d(payment.PaymentMode) )
+			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
 
 			int ret = 300;

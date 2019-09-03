@@ -145,7 +145,7 @@ namespace PCIBusiness
 
 		public override int ProcessPayment(Payment payment)
 		{
-			if ( ! EnabledFor3d(payment.PaymentMode) )
+			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
 
 			int ret  = 600;
@@ -242,6 +242,8 @@ namespace PCIBusiness
 						strResult = rd.ReadToEnd();
 					}
 				}
+
+				Tools.LogInfo("TransactionEcentric.CallWebService/50","XML Rec="+strResult,255);
 
 				ret        = 150;
 				xmlResult  = new XmlDocument();

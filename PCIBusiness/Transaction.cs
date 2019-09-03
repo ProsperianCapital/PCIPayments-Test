@@ -139,9 +139,9 @@ namespace PCIBusiness
 			return 0;
 		}
 
-      public virtual bool EnabledFor3d(byte paymentMode)
+      public virtual bool EnabledFor3d(byte transactionType)
 		{
-			if ( paymentMode != (byte)Constants.TransactionType.ManualPayment )
+			if ( transactionType != (byte)Constants.TransactionType.ManualPayment )
 				return true;
 
 			resultCode = "99999";

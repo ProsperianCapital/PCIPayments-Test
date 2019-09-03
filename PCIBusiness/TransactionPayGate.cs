@@ -16,12 +16,12 @@ namespace PCIBusiness
 			{
 				resultCode   = Tools.NullToString(resultCode);
 				resultStatus = Tools.NullToString(resultStatus);
-				if ( resultCode == "990017" || resultCode == "990088" || resultStatus.ToUpper().StartsWith("COMPLETE") )
+				if ( resultCode == "990017" || resultCode == "190988" ) // || resultStatus.ToUpper().StartsWith("COMPLETE") )
 					return true;
 				return false;
 			}
 		}
-      public override bool EnabledFor3d(byte paymentMode)
+      public override bool EnabledFor3d(byte transactionType)
 		{
 			return true;
 		}
@@ -116,7 +116,7 @@ namespace PCIBusiness
 
 		public override int ProcessPayment(Payment payment)
 		{
-			if ( ! EnabledFor3d(payment.PaymentMode) )
+			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
 
 			int ret = 600;
@@ -126,7 +126,7 @@ namespace PCIBusiness
 
 			try
 			{
-				if ( payment.PaymentMode == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
+				if ( payment.TransactionType == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
 					xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
 					        +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
 					        + "<soapenv:Header />"
@@ -179,11 +179,11 @@ namespace PCIBusiness
 
 				if ( ! Successful )
 					Tools.LogInfo("TransactionPayGate.ProcessPayment/21","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
-				else if ( payment.PaymentMode == (byte)Constants.TransactionType.CardPayment && payRef.Length < 1 )
+				else if ( payment.TransactionType == (byte)Constants.TransactionType.CardPayment && payRef.Length < 1 )
 					Tools.LogInfo("TransactionPayGate.ProcessPayment/22","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
-				else if ( payment.PaymentMode == (byte)Constants.TransactionType.TokenPayment && payRef.Length < 1 )
+				else if ( payment.TransactionType == (byte)Constants.TransactionType.TokenPayment && payRef.Length < 1 )
 					Tools.LogInfo("TransactionPayGate.ProcessPayment/23","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
-				else if ( payment.PaymentMode == (byte)Constants.TransactionType.ManualPayment && keyValuePairs.Length < 1 )
+				else if ( payment.TransactionType == (byte)Constants.TransactionType.ManualPayment && keyValuePairs.Length < 1 )
 					Tools.LogInfo("TransactionPayGate.ProcessPayment/24","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 			}
 			catch (Exception ex)
@@ -240,7 +240,7 @@ namespace PCIBusiness
 			{
 				using ( WebClient wc = new WebClient() )
 				{
-					Tools.LogInfo("TransactionPayGate.CallWebService/10","XML Sent="+xmlSent,10);
+					Tools.LogInfo("TransactionPayGate.CallWebService/10",payment.TransactionTypeName+", XML Sent="+xmlSent,10);
 
 					ret           = 20;
 					wc.Encoding   = System.Text.Encoding.UTF8;
@@ -261,9 +261,9 @@ namespace PCIBusiness
 					resultStatus = Tools.XMLNode(xmlResult,"StatusName"       ,nsPrefix,nsURL);
 					ret          = 50;
 
-					Tools.LogInfo("TransactionPayGate.CallWebService/50",payment.PaymentModeName+", XML Rec="+xmlOut,205);
+					Tools.LogInfo("TransactionPayGate.CallWebService/50",payment.TransactionTypeName+", XML Rec="+xmlOut,255);
 
-					if ( payment.PaymentMode == (byte)Constants.TransactionType.ManualPayment &&
+					if ( payment.TransactionType == (byte)Constants.TransactionType.ManualPayment &&
 					     resultStatus.ToUpper() == ("ThreeDSecureRedirectRequired").ToUpper() )
 					{
 						string              key;
@@ -286,7 +286,7 @@ namespace PCIBusiness
 						}
 						nsmgr      = null;
 						ret        = 0;
-						resultCode = "990088";
+						resultCode = "190988";
 					}
 
 					else if ( Successful )

@@ -52,7 +52,7 @@ namespace PCIBusiness
 
 		public override int ProcessPayment(Payment payment)
 		{
-			if ( ! EnabledFor3d(payment.PaymentMode) )
+			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
 
 			int ret = 10;
@@ -192,7 +192,7 @@ namespace PCIBusiness
 						{
 							ret        = 170;
 							resultCode = "00";
-							Tools.LogInfo("TransactionPayGenius.CallWebService/40","Successful, JSON Rec=" + strResult,10);
+							Tools.LogInfo("TransactionPayGenius.CallWebService/40","Successful, JSON Rec=" + strResult,255);
 						}
 						else
 						{
