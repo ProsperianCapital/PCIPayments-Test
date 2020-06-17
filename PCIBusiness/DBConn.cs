@@ -47,6 +47,7 @@ namespace PCIBusiness
 		private SqlDataReader dataReader;
 		private bool          isEOF;
 		private int           colNo;
+		private int           returnValue;
 		private string        sourceInfo;
 
 		public string SourceInfo
@@ -57,6 +58,11 @@ namespace PCIBusiness
 				if ( string.IsNullOrWhiteSpace(sourceInfo) && ! string.IsNullOrWhiteSpace(value) )
 					sourceInfo = value.Trim();
 			}
+		}
+
+		public int ReturnValue
+		{
+			get { return returnValue; }
 		}
 
 		private string ModuleName(string from)
@@ -142,10 +148,11 @@ namespace PCIBusiness
 			return true;
 		}
 
-		public bool Execute ( string sql, bool autoClose=true, object[][] parms=null, int timeOut=0 )
+		public bool Execute ( string sql, bool autoClose=true, object[][] parms=null, byte execMode=0, int timeOut=0 )
 		{
-			isEOF = true;
-			sql   = sql.Trim();
+			isEOF       = true;
+			sql         = sql.Trim();
+			returnValue = 0;
 
 			try
 			{
@@ -167,8 +174,9 @@ namespace PCIBusiness
 					}
 					catch { }
 
-				sqlCmd.CommandText = sql;
-				sqlCmd.CommandType = System.Data.CommandType.Text;
+				sqlCmd.CommandText      = sql;
+				sqlCmd.CommandType      = System.Data.CommandType.Text;
+				SqlParameter returnParm = null;
 
 				if ( parms != null )
 					for ( int k = 0; k < parms.Length; k++ )
@@ -176,12 +184,23 @@ namespace PCIBusiness
 						sqlCmd.Parameters.Add ( "@"+k.ToString(), (SqlDbType) parms[k][0] );
 						sqlCmd.Parameters[k].Value = parms[k][1];
 					}
+	
+				if ( execMode == 2 ) // SQL "return" value, MUST be a stored procedure
+				{
+					returnParm           = new SqlParameter("@ReturnValue", System.Data.SqlDbType.Int);
+					returnParm.Direction = System.Data.ParameterDirection.ReturnValue;
+					sqlCmd.CommandType   = CommandType.StoredProcedure;
+					sqlCmd.Parameters.Add(returnParm);
+				}
 
 				if (autoClose)
 					dataReader = sqlCmd.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
 				else
 					dataReader = sqlCmd.ExecuteReader();
-          
+ 
+				if ( execMode == 2 ) // SQL "return" value
+					returnValue = System.Convert.ToInt32(returnParm.Value);
+         
 				if ( dataReader != null )
 					if ( dataReader.HasRows )
 						isEOF = ! dataReader.Read();
@@ -232,7 +251,7 @@ namespace PCIBusiness
 			}
 		}
  
-   public Constants.DBColumnStatus ColStatus(string colName,int colNo=999999999)
+   public Constants.DBColumnStatus ColStatus(string colName,int colNo=999999)
    {
       try
 		{
@@ -261,15 +280,15 @@ namespace PCIBusiness
    {
       try
       {
-			if ( colName.Length < 1 && colNumber >= 0 && colNumber <= 99999 )
-				colNo = colNumber;
-			else
+			if ( colName.Length > 0 )
 				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
          return dataReader.GetDataTypeName(colNo);
       }
       catch (Exception ex)
       {
-         Tools.LogException ( ModuleName("DBConn.ColDataType"), colName, ex );
+         Tools.LogException ( ModuleName("DBConn.ColDataType"), "ColName=" + colName + ", ColNo=" + colNumber.ToString(), ex );
       }
       return "";
    }
@@ -285,70 +304,48 @@ namespace PCIBusiness
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColByte"), colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColByte"), "ColName=" + colName, ex );
       }
       return 0;
    }
 
-   public short ColShort(string colName,byte errorMode=1)
+   public short ColShort(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
-         colNo = dataReader.GetOrdinal(colName);
+			if ( colName.Length > 0 )
+				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
          if ( ! dataReader.IsDBNull(colNo) ) 
             return dataReader.GetInt16(colNo);
       }
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColShort/1"), colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColShort"), "ColName=" + colName + ", ColNo=" + colNumber.ToString(), ex );
       }
       return 0;
    }
 
-	public short ColShort(int colNumber)
-	{
-      try
-      {
-         if ( ! dataReader.IsDBNull(colNumber) ) 
-            return dataReader.GetInt16(colNumber);
-      }
-      catch (Exception ex)
-      {
-			Tools.LogException ( ModuleName("DBConn.ColShort/2"), "ColNo=" + colNumber.ToString(), ex );
-      }
-		return 0;
-	}
-
-   public int ColLong(string colName,byte errorMode=1)
+   public int ColLong(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
-         colNo = dataReader.GetOrdinal(colName);
+			if ( colName.Length > 0 )
+				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
          if ( ! dataReader.IsDBNull(colNo) ) 
             return dataReader.GetInt32(colNo);
       }
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColLong/1"), colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColLong/1"), "ColName=" + colName + ", ColNo=" + colNumber.ToString(), ex );
       }
       return 0;
    }
-
-	public int ColLong(int colNumber)
-	{
-      try
-      {
-         if ( ! dataReader.IsDBNull(colNumber) ) 
-            return dataReader.GetInt32(colNumber);
-      }
-      catch (Exception ex)
-      {
-			Tools.LogException ( ModuleName("DBConn.ColLong/2"), "ColNo=" + colNumber.ToString(), ex );
-      }
-		return 0;
-	}
 
    public long ColBig(string colName,byte errorMode=1)
    {
@@ -361,23 +358,26 @@ namespace PCIBusiness
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColBig"), colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColBig"), "ColName=" + colName, ex );
       }
       return 0;
    }
 
-   public decimal ColDecimal(string colName,byte errorMode=1)
+   public decimal ColDecimal(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
-         colNo = dataReader.GetOrdinal(colName);
+			if ( colName.Length > 0 )
+				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
          if ( ! dataReader.IsDBNull(colNo) ) 
             return dataReader.GetDecimal(colNo);
       }
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColDecimal"), colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColDecimal"), "ColName=" + colName + ", ColNo=" + colNo.ToString(), ex );
       }
       return 0;
    }
@@ -406,21 +406,21 @@ namespace PCIBusiness
      }
       catch (Exception ex)
       {
-			if ( errorMode > 0 )
-				Tools.LogException ( ModuleName("DBConn.ColString"), colName, ex );
+			if ( errorMode == 1 )
+				Tools.LogException ( ModuleName("DBConn.ColString"), "ColName=" + colName, ex );
       }
       return "";
    }
 
 
-   public string ColUniCode(string colName,byte errorMode=1,int colNumber=99999)
+   public string ColUniCode(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
-			if ( colNumber >= 0 && colNumber <= 88888 )
-				colNo = colNumber;
-			else
+			if ( colName.Length > 0 )
 				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
 
 			if ( dataReader.IsDBNull(colNo) )
 				return "";
@@ -486,24 +486,27 @@ namespace PCIBusiness
       }
       catch (Exception ex)
       {
-			if ( errorMode > 0 )
-				Tools.LogException ( ModuleName("DBConn.ColUniCode"), colName, ex );
+			if ( errorMode == 1 )
+				Tools.LogException ( ModuleName("DBConn.ColUniCode"), "ColName=" + colName + ", ColNo=" + colNo.ToString(), ex );
       }
       return "";
    }
 
-   public DateTime ColDate(string colName,byte errorMode=1)
+   public DateTime ColDate(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
-         colNo = dataReader.GetOrdinal(colName);
+			if ( colName.Length > 0 )
+				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
          if ( ! dataReader.IsDBNull(colNo) ) 
             return dataReader.GetDateTime(colNo);
       }
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColDate"), colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColDate"), "ColName=" + colName + ", ColNo=" + colNo.ToString(), ex );
       }
       return Constants.C_NULLDATE();
    } 
@@ -535,7 +538,7 @@ namespace PCIBusiness
 			return "";
 		}
 
-		public int ColNumber(string colName)
+		public int ColNumber(string colName,byte errorMode=1)
 		{
 			try
 			{
@@ -543,7 +546,8 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException ( ModuleName("DBConn.ColNumber"), "ColName=" + colName, ex );
+				if ( errorMode == 1 )
+					Tools.LogException ( ModuleName("DBConn.ColNumber"), "ColName=" + colName, ex );
 			}
 			return -8;
 		}
@@ -565,8 +569,9 @@ namespace PCIBusiness
 
 		public DBConn() : base()
 		{
-			isEOF      = true;
-			sourceInfo = "";
+			isEOF       = true;
+			sourceInfo  = "";
+			returnValue = 0;
 		}
 
 		~DBConn()

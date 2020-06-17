@@ -41,7 +41,6 @@ namespace PCIBusiness
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)   ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)     ||
-//				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)     ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
 					bureauStatus = 3; // Live
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
@@ -83,9 +82,8 @@ namespace PCIBusiness
 				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)    ) transaction = new TransactionMyGate();
 				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) ) transaction = new TransactionPayGenius();
 				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)   ) transaction = new TransactionPayGate();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)  ) transaction = new TransactionEcentric();
 				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)     ) transaction = new TransactionENets();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)     ) transaction = new TransactionPeach();
+				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)  ) transaction = new TransactionEcentric();
 				return transaction;
 			}
 		}

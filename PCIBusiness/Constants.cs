@@ -15,13 +15,13 @@ namespace PCIBusiness
 		{
 			return "<br />";
 		}
-		public static string C_TEXTBREAK()
-		{
-			return Environment.NewLine; // "\n";
-		}
+//		public static string C_TEXTBREAK()
+//		{
+//			return Environment.NewLine; // "\n";
+//		}
 		public static short C_MAXSQLROWS()
 		{
-			return 100;
+			return 1000;
 		}
 		public static short C_MAXPAYMENTROWS()
 		{
@@ -53,11 +53,12 @@ namespace PCIBusiness
 			PayGate    = 17,
 			PayGenius  = 18,
 			Ecentric   = 19,
-			eNETS      = 20
+			eNETS      = 20,
+			Peach      = 21
 
 //	Not implemented yet
-//			DinersClub = 21
-//			PayFast    = 22
+//			DinersClub = 22
+//			PayFast    = 23
 		}
 
 		public enum CreditCardType : byte
@@ -107,6 +108,48 @@ namespace PCIBusiness
 			DeleteToken    =  4,
 			ManualPayment  = 73
 		}
+
+//	iTextSharp stuff
+
+		public enum PdfFontSize : int
+		{
+			HugeHeading      = 40,
+			MajorHeading     = 32,
+			MinorHeading     = 20,
+			SubHeading       = 16,
+			TableHeading     = 12,
+			TableCell        = 10,
+			ParagraphSpacing = 10,
+			ParagraphPadding =  5
+		}
+
+		public enum PdfAlign : int // These must match iTextSharp.Element.ALIGN_LEFT, etc values
+		{
+			Left   = 0,
+			Right  = 2,
+			Centre = 1,
+			Middle = 5
+		}
+
+		public enum TickerType : int
+		{
+			IBStockPrices          =  1,
+			IBExchangeRates        =  2,
+			IBPortfolio            =  3,
+			IBOrders               =  4,
+			IBExchangeCandles      =  5,
+			FinnHubStockPrices     = 21,
+			FinnHubStockHistory    = 22,
+			FinnHubExchangeRates   = 23,
+			FinnHubExchangeCandles = 24 // Not implemented yet
+		}
+
+		public enum DataFormat : int
+		{
+			CSV = 31,
+			PDF = 32			
+		}
+
 //		public enum PaymentType : byte
 //		{
 //			Tokens      = 10,

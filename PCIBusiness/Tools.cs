@@ -3,6 +3,8 @@ using System.IO;
 using System.Xml;
 using System.Globalization;
 using System.Text;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 
 namespace PCIBusiness
 {
@@ -27,10 +29,12 @@ namespace PCIBusiness
 //		11  HH:mm:ss                  Hard-code to 00:00:00
 //		12  HH:mm:ss                  Hard-code to 23:59:59
 
+		static byte logSeverity;
+
 		public static bool SystemIsLive()
 		{
 			string mode = ConfigValue("SystemMode").ToUpper();
-			return ( mode.Length >= 4 && ( mode.Contains("PRODUCTION") || mode.Contains("LIVE") ) );
+			return ( mode.Length >= 4 && ( mode.Contains("PROD") || mode.Contains("LIVE") ) );
 		}
 
 		public static string DecimalToString(decimal theValue,byte decimalPlaces=2)
@@ -63,25 +67,40 @@ namespace PCIBusiness
 			return theValue.ToString().Trim().Replace("<","").Replace(">","");
 		}
 
-		public static string NullToString(string theValue)
+		public static string NullToString(string theValue,string defaultValue="")
 		{
-			if ( string.IsNullOrWhiteSpace(theValue) ) return "";
+			if ( string.IsNullOrWhiteSpace(theValue) ) return defaultValue;
 			return theValue.Trim();
 		}
 
 		public static string CompressedString(string theValue)
 		{
 			if ( string.IsNullOrWhiteSpace(theValue) ) return "";
-				theValue = theValue.Trim();
+			theValue = theValue.Trim();
 			while ( theValue.Contains("  ") )
 				theValue = theValue.Replace("  "," ");
 			return theValue;
 		}
 
-		public static int StringToInt(string theValue)
+		public static decimal StringToDecimal(string theValue)
 		{
 			try
 			{
+				decimal ret = System.Convert.ToDecimal(theValue);
+				return  ret;
+			}
+			catch
+			{ }
+			return 0;
+		}
+
+		public static int StringToInt(string theValue,bool allowDecimals=false)
+		{
+			try
+			{
+				theValue = NullToString(theValue);
+				if ( allowDecimals && theValue.Contains(".") )
+					theValue = theValue.Substring(0,theValue.IndexOf("."));
 				int ret = System.Convert.ToInt32(theValue);
 				return ret;
 			}
@@ -122,7 +141,7 @@ namespace PCIBusiness
 				mm = theDate.Substring(3,2);	
 				yy = theDate.Substring(6,4);	
 			}
-			else if ( dateFormat == 2 && theDate.Length == 10 )
+			else if ( ( dateFormat == 2 || dateFormat == 7 ) && theDate.Length == 10 )
 			{
 				dd = theDate.Substring(8,2);	
 				mm = theDate.Substring(5,2);	
@@ -190,7 +209,7 @@ namespace PCIBusiness
 			else if  ( dateFormat ==  9 ) // yyMMdd
 				theDate = whatDate.ToString("yyMMdd",CultureInfo.InvariantCulture);
 			else if  ( dateFormat == 19 ) // YYYY/MM/DD (for SQL)
-				theDate = whatDate.ToString("yyyy/MM/dd",CultureInfo.InvariantCulture);
+				theDate = whatDate.ToString("yyyy-MM-dd",CultureInfo.InvariantCulture);
 
 			if ( timeFormat == 1 && ( dateFormat == 6 || dateFormat == 8 ) )
 				theTime = "at " + whatDate.ToString("HH:mm:ss",CultureInfo.InvariantCulture);
@@ -263,15 +282,6 @@ namespace PCIBusiness
 			}
 			return str;
 		}
-
-//		public static string JSONPair(string name,string value,byte dataType=1,bool firstPair=false,bool lastPair=false)
-//		{
-//			string quote = "\"";
-//			return ( firstPair ? "{" : "" )
-//			     + quote + name.Trim().Replace(quote,"'") + quote + " : "
-//			     + ( dataType<10 ? quote : "" ) + value.Trim().Replace(quote,"'") + ( dataType<10 ? quote : "" )
-//			     + ( lastPair  ? "}" : "," );
-//		}
 
 		public static string JSONPair(string name,string value,byte dataType=1,string prefix="",string suffix=",")
 		{
@@ -375,6 +385,16 @@ namespace PCIBusiness
 			return "";
 		}
 
+		public static string XMLCell(string tagName,string tagData,int maxLength=0)
+		{
+			string p = XMLSafe(tagData);
+			if ( p.Length < 1 )
+				p = " ";
+			else if ( maxLength > 0 && p.Length > maxLength )
+				p = p.Substring(0,maxLength);
+			return "<" + tagName + ">" + p + "</" + tagName + ">";
+		}
+
 		public static string XMLNode(XmlDocument xmlDoc,string xmlTag,string nsPrefix="",string nsURL="")
 		{
 			try
@@ -401,6 +421,15 @@ namespace PCIBusiness
 			catch
 			{ }
 			return "";
+		}
+
+		public static string HTMLSafe(string str)
+		{
+      // Converts a string to safe format for HTML:
+    
+			if ( string.IsNullOrWhiteSpace(str) )
+				return "";
+         return str.Replace("<","&lt;").Replace(">","&gt;").Replace("'","&#39;").Replace(Environment.NewLine,"<br />");
 		}
 
 		public static string XMLSafe(string str,byte encoding=0)
@@ -513,20 +542,6 @@ namespace PCIBusiness
          return str;
 		}
 
-		public static string XMLString(string str)
-		{
-      // Converts an XML string for use in an SQL statement:
-      // (1) Removes leading and trailing spaces
-      // (2) Replaces each single quote with a \"
-      // (3) Puts a single quote at front and back
-    
-			if ( string.IsNullOrWhiteSpace(str) )
-				return "''";
-			str = str.Trim();
-         str = "'" + str.Replace("'","\"") + "'";
-         return str;
-		}
-
 		public static string URLString(string str)
 		{
 			if ( string.IsNullOrWhiteSpace(str) )
@@ -553,8 +568,12 @@ namespace PCIBusiness
 				str = str.Replace("<","").Replace(">","");
 			if ( maxLength > 0 && maxLength < str.Length )
 				str = str.Substring(0,maxLength);
-
-         str = "'" + str.Replace("'","''") + "'";
+			if ( mode == 63 ) // It is actually as numeric so no quotes on each side
+				str = str.Replace("'"," ");
+			else
+				str = "'" + str.Replace("'","''") + "'";
+			if ( mode == 47 ) // Unicode
+				return "N" + str;
          return str;
 		}
 
@@ -598,60 +617,101 @@ namespace PCIBusiness
 		private static void LogWrite(string settingName, string component, string msg)
 		{
 		// Use this routine to log internal errors ...
-			int          k;
-			string       fName   = "";
-			FileStream   fHandle = null;
-			StreamWriter fOut    = null;
+			int    k      = 0;
+			string fName1 = "";
 
 			try
 			{
-				fName = Tools.ConfigValue(settingName);
-				if ( fName == null )
-					fName = "";
-				else
-					fName = fName.Trim();
-				if ( fName.Length < 1 )
-					fName = "C:\\Temp\\PCILogFile.txt";
+				fName1 = Tools.ConfigValue(settingName);
+				if ( fName1.Length < 1 )
+				{
+					fName1 = SystemFolder("");
+					if ( fName1.Length > 0 )
+						fName1 = fName1 + "Logs";
+					else
+						fName1 = "C:\\Temp";
+					fName1 = fName1 + "\\PCILogFile.txt";
+				}
 
-				k = fName.LastIndexOf(".");
+				k = fName1.LastIndexOf(".");
 				if ( k < 1 )
 				{
-					fName = fName + ".txt";
-					k     = fName.LastIndexOf(".");
+					fName1 = fName1 + ".txt";
+					k     = fName1.LastIndexOf(".");
 				}
-				fName = fName.Substring(0,k) + "-" + DateToString(System.DateTime.Now,7) + fName.Substring(k);
+				fName1 = fName1.Substring(0,k) + "-" + DateToString(System.DateTime.Now,7) + "(x)" + fName1.Substring(k);
 
-				if ( File.Exists(fName) )
-					fHandle = File.Open(fName, FileMode.Append);
-				else
-					fHandle = File.Open(fName, FileMode.Create);
-				fOut = new StreamWriter(fHandle,System.Text.Encoding.Default);
-				fOut.WriteLine( "[v" + SystemDetails.AppVersion + ", " + Tools.DateToString(System.DateTime.Now,1,1,false) + "] " + component + " : " + msg);
+				for ( k = 1 ; k < 10 ; k++ )
+				{
+					FileStream   fHandle = null;
+					StreamWriter fOut    = null;
+					try
+					{
+						string fName2 = fName1.Replace("(x)","(" + System.Convert.ToChar(k+64) + ")");
+						if ( File.Exists(fName2) )
+							fHandle = File.Open(fName2, FileMode.Append);
+						else
+							fHandle = File.Open(fName2, FileMode.Create);
+						fOut = new StreamWriter(fHandle,System.Text.Encoding.Default);
+						fOut.WriteLine( "[v" + SystemDetails.AppVersion + ", " + Tools.DateToString(System.DateTime.Now,1,1,false) + "] " + component + " : " + msg);
+						break;
+					}
+					catch (Exception ex1)
+					{ }
+					finally
+					{
+						if ( fOut != null )
+							try
+							{
+								fOut.Close();
+							}
+							catch { }
+						if ( fHandle != null )
+							try
+							{
+								fHandle.Close();
+							}
+							catch { }
+						fOut    = null;
+						fHandle = null;
+					}
+				}
 			}
-			catch (Exception ex)
+			catch (System.Threading.ThreadAbortException)
+			{
+			//	Ignore
+			}
+			catch (Exception ex2)
 			{
 				if ( settingName.Length > 0 ) // To prevent recursion ...
-					LogWrite("","Tools.LogWrite","fName = '" + fName + "', Error = " + ex.Message);
-			}
-			finally
-			{
-				if ( fOut != null )
-					fOut.Close();
-				fOut    = null;
-			 	fHandle = null;
+					LogWrite("","Tools.LogWrite","fName = '" + fName1 + "', k = " + k.ToString() + ", Error = " + ex2.Message);
 			}
 		}
 
+//		public static void LogException(string component, string msg, Exception ex=null)
+//		{
+//		// Use this routine to log error messages
+//			msg = ( msg.Length == 0 ? "" : " (" + msg + ")" );
+//			if ( ex == null )
+//				msg = "Non-exception error" + msg;
+//			else if ( ex.GetType() == typeof(System.IndexOutOfRangeException) )
+//				msg = "SQL column not found" + msg;
+//			else
+//				msg = ex.Message + msg + " : [" + ex.ToString() + "]";
+//			LogWrite("LogFileErrors",component,msg);
+//		}
+
 		public static void LogException(string component, string msg, Exception ex=null)
 		{
-		// Use this routine to log error messages
-			msg = ( msg.Length == 0 ? "" : " (" + msg + ")" );
-			if ( ex == null )
-				msg = "Non-exception error" + msg;
-			else if ( ex.GetType() == typeof(System.IndexOutOfRangeException) )
-				msg = "SQL column not found" + msg;
-			else
-				msg = ex.Message + msg + " : [" + ex.ToString() + "]";
+			if ( ex != null )
+			{
+				if ( msg.Length > 0 )
+					msg = " (" + msg + ")";
+				if ( ex.GetType() == typeof(System.IndexOutOfRangeException) )
+					msg = "SQL column not found" + msg;
+				else
+					msg = ex.Message + msg + " : [" + ex.ToString() + "]";
+			}
 			LogWrite("LogFileErrors",component,msg);
 		}
 
@@ -665,17 +725,40 @@ namespace PCIBusiness
 			if ( severity == 255 )
 				if ( LiveTestOrDev() == Constants.SystemMode.Live )
 					return;
-			if ( severity > 100 )
+
+			if ( logSeverity < 1 )
+			{
+				int h = Tools.StringToInt(Tools.ConfigValue("LogSeverity"));
+				if ( h > 0 && h < byte.MaxValue )
+					logSeverity = (byte)h;
+				else
+					logSeverity = 100;
+			}
+
+			if ( severity >= logSeverity )
 				LogWrite("LogFileInfo",component,msg);
 		}
 
-		public static bool CheckEMail(string email)
+		public static bool CheckEMail(string email,byte mode=2)
 		{
-		//	Simple, quick check ...
+		//	Mode = 1. Exactly 1 address allowed (ie. no commas, semi-colons or spaces).
+		//	Mode = 2. 1 or more (multiple) addresses allowed, but not blank.
+		//	Mode = 3. 0 or more (multiple) addresses allowed, OR blank (no addresses).
+
 			email = NullToString(email);
-			if ( email.Length < 6 || email.Contains("(") || email.Contains(")") || email.Contains("<") || email.Contains(">") || email.Contains(" ") )
+
+			if ( email.Length < 1 )
+				return ( mode == 3 );
+
+			if ( email.Length < 6 || email.Contains("(") || email.Contains(")") || email.Contains("<") || email.Contains(">") )
 				return false;
-			return email.Contains("@") && email.Contains(".");
+		
+			if ( mode == 1 && ( email.Contains(",") || email.Contains(";") || email.Contains(" ") ) ) 
+				return false;
+
+			int at  = email.IndexOf("@");
+			int dot = email.LastIndexOf(".");
+			return ( at > 0 && dot > at );
 		}
 
 		/*
@@ -788,7 +871,7 @@ namespace PCIBusiness
 		{
 			try
 			{
-				string ret = System.Configuration.ConfigurationManager.AppSettings[configName.Trim()].ToString();
+				string ret = System.Configuration.ConfigurationManager.AppSettings[configName.Trim()].ToString().Trim();
 				return ret;
 			}
 			catch
@@ -796,85 +879,89 @@ namespace PCIBusiness
 			return "";
 		}
 
-//		public static int DeleteFiles(string fileSpec,short ageDays=0,short beforeHour=0,short afterHour=0)
-//		{
-//			int deleted = 0;
-//
-//			try
-//			{
-//				if ( beforeHour > 0 && beforeHour < 24 && System.DateTime.Now.Hour >= beforeHour )
-//					return -5;
-//				if ( afterHour  > 0 && afterHour  < 24 && System.DateTime.Now.Hour <  afterHour )
-//					return -10;
-//
-//				string folder = Tools.ConfigValue("ReportFolder");
-//
-//				if ( ! Directory.Exists(folder) )
-//					return -15;
-//				string[] files = Directory.GetFiles(folder,fileSpec);
-//				if ( files.Length < 1 )
-//					return -20;
-//
-//				if ( ageDays < 1 )
-//					ageDays = 7;
-//
-//				foreach ( string fileName in files )
-//					if ( File.GetLastWriteTime(fileName).AddDays(ageDays) < DateTime.Now ) // More "x" days old
-//					{
-//						try
-//						{
-//							File.Delete(fileName);
-//							deleted++;
-//						}
-//						catch { }
-//					}
-//			}
-//			catch (Exception ex)
-//			{
-//				Tools.LogException("Tools.DeleteFiles","",ex);
-//			}
-//			return deleted;
-//		}
+		public static int DeleteFiles(string fileSpec,short ageDays=0,short beforeHour=0,short afterHour=0)
+		{
+			int deleted = 0;
 
-//		public static string CreateFile(int userCode,ref StreamWriter fileStream,string fileExtension="csv")
-//		{
-//			FileStream fileHandle;
-//			string     fileName      = "";
-//			string     fileNameFixed = "";
-//
-//			if ( NullToString(fileExtension).Length < 1 )
-//				fileExtension = ".csv";
-//			else if ( ! fileExtension.StartsWith(".") )
-//				fileExtension = "." + fileExtension;
-//
-//			try
-//			{
-//				fileStream    = null;
-//				fileNameFixed = Tools.FixFolderName(ConfigValue("ReportFolder"));
-//				fileNameFixed = fileNameFixed + userCode.ToString() + "-" + DateToString(DateTime.Now,5) + "-";
-//
-//				for ( int k = 1 ; k < 999999 ; k++ )
-//				{
-//					fileName = fileNameFixed + k.ToString().PadLeft(6,'0') + fileExtension;
-//					if ( ! File.Exists(fileName) )
-//						break;
-//				}
-//				fileHandle = File.Open(fileName, FileMode.Create);
-//				fileStream = new StreamWriter(fileHandle,System.Text.Encoding.Default);
-//				return fileName;
-//			}
-//			catch (Exception ex)
-//			{
-//				LogException("Tools.CreateFile","UserCode=" + userCode.ToString(),ex);
-//			}
-//			return "";
-//		}
+			try
+			{
+				if ( beforeHour > 0 && beforeHour < 24 && System.DateTime.Now.Hour >= beforeHour )
+					return -5;
+				if ( afterHour  > 0 && afterHour  < 24 && System.DateTime.Now.Hour <  afterHour )
+					return -10;
+
+				string folder = Tools.SystemFolder("TempFiles");
+
+				if ( ! Directory.Exists(folder) )
+					return -15;
+				string[] files = Directory.GetFiles(folder,fileSpec);
+				if ( files.Length < 1 )
+					return -20;
+
+				if ( ageDays < 1 )
+					ageDays = 7;
+
+				foreach ( string fileName in files )
+					if ( File.GetLastWriteTime(fileName).AddDays(ageDays) < DateTime.Now ) // More "x" days old
+					{
+						try
+						{
+							File.Delete(fileName);
+							deleted++;
+						}
+						catch { }
+					}
+			}
+			catch (Exception ex)
+			{
+				Tools.LogException("Tools.DeleteFiles","",ex);
+			}
+			return deleted;
+		}
+
+		public static string CreateFile(ref StreamWriter fileStream,string fileName,string fileExtension="csv")
+		{
+			FileStream fileHandle;
+			string     fileNameFixed = "";
+
+			try
+			{
+				fileName      = NullToString(fileName);
+				fileExtension = NullToString(fileExtension);
+
+				if ( fileExtension.Length < 1 )
+					fileExtension = ".csv";
+				else if ( ! fileExtension.StartsWith(".") )
+					fileExtension = "." + fileExtension;
+
+				if ( fileName.Length > 0 )
+					fileName = fileName.Replace("\\","-").Replace("/","-").Replace(":","-");
+				else
+					fileName = DateToString(DateTime.Now,5);
+
+				fileStream    = null;
+				fileNameFixed = Tools.SystemFolder("TempFiles") + fileName + "-";
+
+				for ( int k = 1 ; k < 999999 ; k++ )
+				{
+					fileName = fileNameFixed + k.ToString().PadLeft(3,'0') + fileExtension;
+					if ( ! File.Exists(fileName) )
+						break;
+				}
+				fileHandle = File.Open(fileName, FileMode.Create);
+				fileStream = new StreamWriter(fileHandle,System.Text.Encoding.Default);
+				return fileName;
+			}
+			catch (Exception ex)
+			{
+				LogException("Tools.CreateFile","fileName=" + fileName+", fileExtension=" + fileExtension,ex);
+			}
+			return "";
+		}
 
 		public static string FixFolderName(string folder)
 		{
-			if ( folder == null )
-				return "";
-			folder = folder.Trim();
+			folder = NullToString(folder);
 			if ( folder.Length < 1 )
 				return "";
 			return ( folder.EndsWith("\\") ? folder : folder + "\\" );
@@ -889,7 +976,7 @@ namespace PCIBusiness
 			if ( folder.Length > 0 )
 				return folder + ( folder.EndsWith("\\") ? "" : "\\" );
 			if ( subFolder.Length > 0 )
-				return folder + ( subFolder.EndsWith("\\") ? "" : "\\" );
+				return subFolder + ( subFolder.EndsWith("\\") ? "" : "\\" );
 			return "";
 		}
 
@@ -974,7 +1061,7 @@ namespace PCIBusiness
 
 			try
 			{
-				Tools.LogInfo("Tools.SQLDebug/2",str,255);
+				Tools.LogInfo("Tools.SQLDebug/2",str,250);
 				ret.Append(str+Constants.C_HTMLBREAK());
 
 				Tools.OpenDB(ref conn);
@@ -982,7 +1069,7 @@ namespace PCIBusiness
 				if ( conn.Execute(sql) )
 				{
 					str = "Execution successful, column count = " + conn.ColumnCount.ToString() + ( conn.EOF ? " (NO rows)" : " (At least one row)" );
-					Tools.LogInfo("Tools.SQLDebug/3",str,255);
+					Tools.LogInfo("Tools.SQLDebug/3",str,250);
 					ret.Append(str+"<hr />"); // Constants.C_HTMLBREAK());
 
 					string colType;
@@ -997,24 +1084,24 @@ namespace PCIBusiness
 						if ( conn.ColStatus("",k) == Constants.DBColumnStatus.ValueIsNull )
 							str = str + "NULL";
 						else if ( colType == "NVARCHAR" || colType == "NCHAR" )
-							str = str + conn.ColUniCode("",0,k);
+							str = str + conn.ColUniCode("",k);
 						else
 							str = str + conn.ColValue(k);
-						Tools.LogInfo("Tools.SQLDebug/4",str,255);
+						Tools.LogInfo("Tools.SQLDebug/4",str,250);
 						ret.Append(str+Constants.C_HTMLBREAK());
 					}
 				}
 				else
 				{
 					str = "Execution failed";
-					Tools.LogInfo("Tools.SQLDebug/5",str,255);
+					Tools.LogInfo("Tools.SQLDebug/5",str,250);
 					ret.Append(str+Constants.C_HTMLBREAK());
 				}
 			}
 			catch (Exception ex)
 			{
 				str = "Error : " + ex.Message;
-				Tools.LogInfo("Tools.SQLDebug/6",str,255);
+				Tools.LogInfo("Tools.SQLDebug/6",str,250);
 				ret.Append(str+Constants.C_HTMLBREAK());
 			}
 			finally
@@ -1022,6 +1109,151 @@ namespace PCIBusiness
 				Tools.CloseDB(ref conn);
 			}
 			return ret.ToString();
+		}
+
+
+		public static string MaskCardNumber(string cardNo)
+		{
+			cardNo = NullToString(cardNo);
+			if ( cardNo.Length >= 13 )
+				return cardNo.Substring(0,6) + "******" + cardNo.Substring(12);
+			if ( cardNo.Length >= 11 )
+				return cardNo.Substring(0,6) + "****"   + cardNo.Substring(10);
+			if ( cardNo.Length >=  9 )
+				return cardNo.Substring(0,4) + "****"   + cardNo.Substring( 8);
+			if ( cardNo.Length >=  5 )
+				return cardNo.Substring(0,2) + "**"     + cardNo.Substring( 4);
+			if ( cardNo.Length >=  1 )
+				return cardNo.Substring(0,1) + "****";
+			return "";
+		}
+
+		public static string ReadFile(string fileName)
+		{
+			StreamReader fHandle = null;
+
+			try
+			{
+				fHandle  = File.OpenText(fileName);
+				string h = fHandle.ReadToEnd();
+				return h.Trim();
+			}
+			catch
+			{
+				return "";
+			}
+			finally
+			{
+				if ( fHandle != null )
+					fHandle.Close();
+				fHandle = null;
+			}
+		}
+
+		public static int CreatePDF(string fileSource,string html,ref string fileName)
+		{
+			byte severity = 229;
+
+			try
+			{
+				LogInfo("Tools.CreatePDF/10","Create empty file for PDF",severity);
+				StreamWriter fileOut = null;
+				fileName = Tools.CreateFile(ref fileOut,fileSource,"pdf");
+				if ( fileOut == null )
+					return 10;
+				fileOut.Close();
+				fileOut = null;
+				if ( fileName.Length < 1 )
+					return 20;
+				LogInfo("Tools.CreatePDF/20","File created : " + fileName,severity);
+
+//	NO! Do NOT do this!
+//				html = html.Trim().Replace(Environment.NewLine,"<br />");
+//	NO!
+
+//	PDF code removed so as not to create a huge DLL
+
+//	SelectPDF code, works fine on Windows but NOT on MS Azure
+//
+//				SelectPdf.HtmlToPdf   converter = new SelectPdf.HtmlToPdf();
+//				SelectPdf.PdfDocument doc       = converter.ConvertHtmlString(html);
+//				doc.Save(fileName);
+//				doc.Close();
+
+//	IronPDF code, works fine on Windows but NOT on MS Azure
+//
+//				LogInfo("Tools.CreatePDF/30","Set up IronPDF object",severity);
+//				IronPdf.HtmlToPdf   converter = new IronPdf.HtmlToPdf();
+//				LogInfo("Tools.CreatePDF/40","Convert HTML to PDF",severity);
+//				IronPdf.PdfDocument doc       = converter.RenderHtmlAsPdf(html);
+//				LogInfo("Tools.CreatePDF/50","Save PDF to file " + fileName,severity);
+//				doc.SaveAs(fileName);
+//				LogInfo("Tools.CreatePDF/60","Exit",severity);
+
+				return 0;
+			}
+			catch (Exception ex)
+			{
+				LogInfo("Tools.CreatePDF/98","Failed ... " + ex.Message,severity);
+				LogException("Tools.CreatePDF/99","File="+fileName+"\n"+html,ex);
+			}
+			return 30;
+		}
+
+		public static string TickerName(int tickerType)
+		{
+			if ( tickerType == (int)Constants.TickerType.IBStockPrices        ) return "IB/Stock Prices";
+			if ( tickerType == (int)Constants.TickerType.IBExchangeRates      ) return "IB/Exchange Rates";
+			if ( tickerType == (int)Constants.TickerType.IBPortfolio          ) return "IB/Portfolio";
+			if ( tickerType == (int)Constants.TickerType.IBOrders             ) return "IB/Orders";
+			if ( tickerType == (int)Constants.TickerType.FinnHubStockPrices   ) return "FH/Stock Prices";
+			if ( tickerType == (int)Constants.TickerType.FinnHubStockHistory  ) return "FH/Stock History";
+			if ( tickerType == (int)Constants.TickerType.FinnHubExchangeRates ) return "FH/Exchange Rates";
+			return "";
+		}
+
+		public static JObj JSONToObject<JObj>(string jsonStr)
+		{
+			JObj                       obj;
+			MemoryStream               ms = null;
+			DataContractJsonSerializer serializer;
+
+			jsonStr = NullToString(jsonStr);
+			if ( jsonStr.Length < 1 )
+				return default(JObj);
+
+			try
+			{
+				obj        = Activator.CreateInstance<JObj>();
+				ms         = new MemoryStream(Encoding.Unicode.GetBytes(jsonStr));
+				serializer = new DataContractJsonSerializer(obj.GetType());
+				obj        = (JObj)serializer.ReadObject(ms);
+				ms.Close();
+				ms         = null;
+				return obj;
+			}
+			catch (Exception ex)
+			{
+				LogException("Tools.JSONToObject/10",jsonStr,ex);
+				LogInfo     ("Tools.JSONToObject/20",jsonStr,220);
+			}
+			finally
+			{
+				if ( ms != null )
+					ms.Close();
+				ms         = null;
+				serializer = null;
+			}
+			return default(JObj);
+		}
+
+		public static string GenerateHMAC(string infoToHash, string secretKey)
+		{
+//		Used for TokenEx in Register.aspx
+			var hmac = new System.Security.Cryptography.HMACSHA256();
+			hmac.Key = System.Text.Encoding.UTF8.GetBytes(secretKey);
+			var hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(infoToHash));
+			return Convert.ToBase64String(hash); // Ensure the string returned is Base64 Encoded
 		}
 	}
 }

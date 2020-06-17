@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PCIBusiness</RootNamespace>
     <AssemblyName>PCIBusiness</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -39,6 +39,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="itextsharp">
+      <HintPath>bin\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -62,13 +65,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Account.cs" />
     <Compile Include="BaseData.cs" />
     <Compile Include="BaseList.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Mail.cs" />
     <Compile Include="MiscData.cs" />
     <Compile Include="MiscList.cs" />
     <Compile Include="Payment.cs" />
     <Compile Include="Payments.cs" />
+    <Compile Include="PdfFile.cs" />
+    <Compile Include="PdfHeaderFooter.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -77,6 +84,9 @@
     <Compile Include="Provider.cs" />
     <Compile Include="Providers.cs" />
     <Compile Include="StdDisposable.cs" />
+    <Compile Include="Stock.cs" />
+    <Compile Include="StockHistory.cs" />
+    <Compile Include="Stocks.cs" />
     <Compile Include="SystemDetails.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="DBConn.cs" />
@@ -89,6 +99,7 @@
     <Compile Include="TransactionPayGate.cs" />
     <Compile Include="TransactionPayGenius.cs" />
     <Compile Include="TransactionPayU.cs" />
+    <Compile Include="TransactionPeach.cs" />
     <Compile Include="TransactionT24.cs" />
     <Compile Include="Web References\IkajoService\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -132,7 +143,9 @@
     <None Include="Web References\IkajoService\DescheduleResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\IkajoService\PtCard.wsdl" />
+    <None Include="Web References\IkajoService\PtCard.wsdl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Web References\IkajoService\RebillResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
