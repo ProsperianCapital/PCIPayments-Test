@@ -92,16 +92,20 @@ namespace PCIWebRTR
 			lblBureauCode.Text   = provider.BureauCode;
 			lblBureauName.Text   = lstProvider.SelectedItem.Text;
 			lblBureauStatus.Text = provider.BureauStatusName;
+			rdoCard.Text         = "Single card payment";
 			rdoCard.Enabled      = provider.ThreeDEnabled;
-			btnPay.Visible       = true;
-			if ( provider.ThreeDEnabled )
-				rdoCard.Text      = "Single card payment";
-			else
-			{
-				rdoCard.Text      = "Single card payment (disabled)";
+			btnPay.Visible       = provider.ThreeDEnabled;
+			if ( ! provider.ThreeDEnabled )
 				rdoCard.Checked   = false;
-				btnPay.Visible    = false;
-			}
+
+//			if ( provider.ThreeDEnabled )
+//				rdoCard.Text      = "Single card payment";
+//			else
+//			{
+//				rdoCard.Text      = "Single card payment (disabled)";
+//				rdoCard.Checked   = false;
+//				btnPay.Visible    = false;
+//			}
 
 			if ( provider.BureauStatusCode == 2 ) // Disabled
 			{
@@ -270,8 +274,8 @@ namespace PCIWebRTR
 					else
 					{
 						lblJS.Text = "<script type='text/javascript'>PaySingle(8);</script>";
-						if ( payment.Message.Length > 0 )
-							lblError2.Text = payment.Message;
+						if ( payment.ReturnMessage.Length > 0 )
+							lblError2.Text = payment.ReturnMessage;
 						//	lblError2.Text = "<br />" + payment.Message;
 						else
 							lblError2.Text = "Transaction failed";
