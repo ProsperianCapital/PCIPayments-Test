@@ -39,7 +39,7 @@ namespace PCIBusiness
 				if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
 					url = url + "/" + payment.CardToken + "/payments";
 
-				Tools.LogInfo("TransactionPeach.PostHTML/10","URL=" + url + ", XML Sent=" + xmlSent,221);
+				Tools.LogInfo("TransactionPeach.PostHTML/10","URL=" + url + ", URL data=" + xmlSent,221);
 
 				ret                              = 20;
 				byte[]         buffer            = Encoding.ASCII.GetBytes(xmlSent);
@@ -72,9 +72,12 @@ namespace PCIBusiness
 					ret        = 100;
 					resultCode = Tools.JSONValue(strResult,"code");
 					resultMsg  = Tools.JSONValue(strResult,"description");
-					ret        = 0;
+					ret        = 110;
+					if ( Successful )
+						ret     = 0;
+					else
+						Tools.LogInfo("TransactionPeach.PostHTML/120","resultCode="+resultCode+", resultMsg="+resultMsg,221);
 				}
-				Tools.LogInfo("TransactionPeach.PostHTML/110","resultCode="+resultCode+", resultMsg="+resultMsg,221);
 			}
 			catch (Exception ex)
 			{
@@ -105,8 +108,10 @@ namespace PCIBusiness
 				ret      = PostHTML((byte)Constants.TransactionType.GetToken,payment);
 				payToken = Tools.JSONValue(strResult,"id");
 				payRef   = Tools.JSONValue(strResult,"ndc");
+				if ( payToken.Length < 1 && ret == 0 )
+					ret = 247;
 
-				Tools.LogInfo("TransactionPeach.GetToken/20","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,10);
+				Tools.LogInfo("TransactionPeach.GetToken/20","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,221);
 			}
 			catch (Exception ex)
 			{
@@ -131,8 +136,10 @@ namespace PCIBusiness
 
 				ret    = PostHTML((byte)Constants.TransactionType.TokenPayment,payment);
 				payRef = Tools.JSONValue(strResult,"id");
+				if ( payRef.Length < 1 && ret == 0 )
+					ret = 249;
 
-				Tools.LogInfo("TransactionPeach.ProcessPayment/20","Post="+xmlSent+", Key="+payment.ProviderKey,30);
+				Tools.LogInfo("TransactionPeach.ProcessPayment/20","ResultCode="+ResultCode + ", payRef=" + payRef,221);
 			}
 			catch (Exception ex)
 			{

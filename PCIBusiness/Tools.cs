@@ -546,8 +546,9 @@ namespace PCIBusiness
 		{
 			if ( string.IsNullOrWhiteSpace(str) )
 				return "";
+			return System.Net.WebUtility.UrlEncode(str.Trim());
 //			return System.Net.WebUtility.HtmlEncode(str.Trim());
-			return str.Trim();
+//			return str.Trim();
 		}
 
 		public static string DBString(string str,byte mode=0,int maxLength=0)
@@ -617,6 +618,71 @@ namespace PCIBusiness
 		private static void LogWrite(string settingName, string component, string msg)
 		{
 		// Use this routine to log internal errors ...
+			int          k      = 0;
+			string       fName1 = "";
+			FileStream   fHandle = null;
+			StreamWriter fOut    = null;
+
+			try
+			{
+				fName1 = Tools.ConfigValue(settingName);
+				if ( fName1.Length < 1 )
+				{
+					fName1 = SystemFolder("");
+					if ( fName1.Length > 0 )
+						fName1 = fName1 + "Logs";
+					else
+						fName1 = "C:\\Temp";
+					fName1 = fName1 + "\\PCILogFile.txt";
+				}
+
+				k = fName1.LastIndexOf(".");
+				if ( k < 1 )
+				{
+					fName1 = fName1 + ".txt";
+					k      = fName1.LastIndexOf(".");
+				}
+				fName1 = fName1.Substring(0,k) + "-" + DateToString(System.DateTime.Now,7) + fName1.Substring(k);
+
+				if ( File.Exists(fName1) )
+					fHandle = File.Open(fName1, FileMode.Append);
+				else
+					fHandle = File.Open(fName1, FileMode.Create);
+				fOut = new StreamWriter(fHandle,System.Text.Encoding.Default);
+				fOut.WriteLine( "[v" + SystemDetails.AppVersion + ", " + Tools.DateToString(System.DateTime.Now,1,1,false) + "] " + component + " : " + msg);
+			}
+			catch (System.Threading.ThreadAbortException)
+			{
+			//	Ignore
+			}
+			catch (Exception ex)
+			{
+				if ( settingName.Length > 0 ) // To prevent recursion ...
+					LogWrite("","Tools.LogWrite","fName = '" + fName1 + "', k = " + k.ToString() + ", Error = " + ex.Message);
+			}
+			finally
+			{
+				if ( fOut != null )
+					try
+					{
+						fOut.Close();
+					}
+					catch { }
+				if ( fHandle != null )
+					try
+					{
+						fHandle.Close();
+					}
+					catch { }
+				fOut    = null;
+				fHandle = null;
+			}
+		}
+
+		private static void LogWriteWithSuffix(string settingName, string component, string msg)
+		{
+		// Use this routine to log internal errors ...
+		//	Use (A), (B), (C), etc after the file name (eg. Error-2020-06-19(A).txt)
 			int    k      = 0;
 			string fName1 = "";
 
@@ -637,7 +703,7 @@ namespace PCIBusiness
 				if ( k < 1 )
 				{
 					fName1 = fName1 + ".txt";
-					k     = fName1.LastIndexOf(".");
+					k      = fName1.LastIndexOf(".");
 				}
 				fName1 = fName1.Substring(0,k) + "-" + DateToString(System.DateTime.Now,7) + "(x)" + fName1.Substring(k);
 
@@ -684,7 +750,7 @@ namespace PCIBusiness
 			catch (Exception ex2)
 			{
 				if ( settingName.Length > 0 ) // To prevent recursion ...
-					LogWrite("","Tools.LogWrite","fName = '" + fName1 + "', k = " + k.ToString() + ", Error = " + ex2.Message);
+					LogWriteWithSuffix("","Tools.LogWrite","fName = '" + fName1 + "', k = " + k.ToString() + ", Error = " + ex2.Message);
 			}
 		}
 
