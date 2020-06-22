@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
 using System.Configuration;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Data;
@@ -251,14 +248,22 @@ namespace PCIBusiness
 			}
 		}
  
-   public Constants.DBColumnStatus ColStatus(string colName,int colNo=999999)
+   public Constants.DBColumnStatus ColStatus(string colName,int colNumber=999999)
    {
       try
 		{
-			if ( colNo >= 0 && colNo < 99999999 )
-				dataReader.GetValue(colNo);
-			else
+			if ( colName.Length > 0 )
 				colNo = dataReader.GetOrdinal(colName);
+			else
+			{
+				colNo = colNumber;
+				dataReader.GetValue(colNo);
+			}
+
+//			if ( colNumber >= 0 && colNumber < 9999 )
+//				dataReader.GetValue(colNo);
+//			else
+//				colNo = dataReader.GetOrdinal(colName);
 		}
 		catch
 		{
@@ -288,7 +293,7 @@ namespace PCIBusiness
       }
       catch (Exception ex)
       {
-         Tools.LogException ( ModuleName("DBConn.ColDataType"), "ColName=" + colName + ", ColNo=" + colNumber.ToString(), ex );
+         Tools.LogException ( ModuleName("DBConn.ColDataType"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return "";
    }
@@ -323,7 +328,7 @@ namespace PCIBusiness
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColShort"), "ColName=" + colName + ", ColNo=" + colNumber.ToString(), ex );
+				Tools.LogException ( ModuleName("DBConn.ColShort"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return 0;
    }
@@ -342,7 +347,7 @@ namespace PCIBusiness
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColLong/1"), "ColName=" + colName + ", ColNo=" + colNumber.ToString(), ex );
+				Tools.LogException ( ModuleName("DBConn.ColLong/1"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return 0;
    }
@@ -377,7 +382,7 @@ namespace PCIBusiness
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColDecimal"), "ColName=" + colName + ", ColNo=" + colNo.ToString(), ex );
+				Tools.LogException ( ModuleName("DBConn.ColDecimal"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return 0;
    }
@@ -487,7 +492,7 @@ namespace PCIBusiness
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColUniCode"), "ColName=" + colName + ", ColNo=" + colNo.ToString(), ex );
+				Tools.LogException ( ModuleName("DBConn.ColUniCode"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return "";
    }
@@ -506,7 +511,7 @@ namespace PCIBusiness
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColDate"), "ColName=" + colName + ", ColNo=" + colNo.ToString(), ex );
+				Tools.LogException ( ModuleName("DBConn.ColDate"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return Constants.C_NULLDATE();
    } 
@@ -520,7 +525,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException ( ModuleName("DBConn.ColValue"), "ColNo=" + colNumber.ToString(), ex );
+				Tools.LogException ( ModuleName("DBConn.ColValue"), "ColNumber=" + colNumber.ToString(), ex );
 			}
 			return "";
 		}
@@ -533,7 +538,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException ( ModuleName("DBConn.ColName"), "ColNo=" + colNumber.ToString(), ex );
+				Tools.LogException ( ModuleName("DBConn.ColName"), "ColNumber=" + colNumber.ToString(), ex );
 			}
 			return "";
 		}

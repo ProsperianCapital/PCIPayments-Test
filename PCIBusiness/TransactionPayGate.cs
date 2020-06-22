@@ -26,18 +26,6 @@ namespace PCIBusiness
 			return true;
 		}
 
-		public int GetTokenV1(Payment payment) // NOT USED, left in to keep interface the same
-		{
-			return 0;
-		}
-
-
-		public int GetTokenV2(Payment payment) // NOT USED, left in to keep interface the same
-		{
-			return 0;
-		}
-
-
 		public override int GetToken(Payment payment)
 		{
 			int ret  = 300;
