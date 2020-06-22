@@ -68,12 +68,16 @@ namespace PCIWebRTR
 					}
 
 //	Referring URL check
-					if ( Tools.ConfigValue("Access/AllowReferURL").Length > 0 )
+					if ( Tools.ConfigValue("Access/ReferURL").Length > 0 )
 					{
-						string[] referAllow = Tools.ConfigValue("AllowReferURL").ToUpper().Split(',');
+						string[] referAllow = Tools.ConfigValue("Access/ReferURL").ToUpper().Split(',');
 						bool     ok         = false;
+
 						foreach (string refer in referAllow)
-							if ( ref1.ToUpper().Contains(refer.Trim()) || ref2.ToUpper().Contains(refer.Trim()) )
+							if ( string.IsNullOrWhiteSpace(refer) )
+								continue;
+							else if ( ( ref1.Length > 0 && ref1.ToUpper().Contains(refer.Trim()) ) ||
+							          ( ref2.Length > 0 && ref2.ToUpper().Contains(refer.Trim()) ) )
 							{
 								ok = true;
 								break;
