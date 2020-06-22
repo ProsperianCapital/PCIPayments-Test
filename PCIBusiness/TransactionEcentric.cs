@@ -143,7 +143,7 @@ namespace PCIBusiness
 			return ret;
 		}
 
-		public override int ProcessPayment(Payment payment)
+		public override int TokenPayment(Payment payment)
 		{
 			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
@@ -152,7 +152,7 @@ namespace PCIBusiness
 			payRef   = "";
 //			authCode = "";
 
-			Tools.LogInfo("TransactionEcentric.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionEcentric.TokenPayment/10","Merchant Ref=" + payment.MerchantReference,199);
 
 			try
 			{
@@ -180,21 +180,21 @@ namespace PCIBusiness
 				        + "</s:Body>"
 				        + "</s:Envelope>";
 
-				Tools.LogInfo("TransactionEcentric.ProcessPayment/20","XML Sent=" + xmlSent,10);
+				Tools.LogInfo("TransactionEcentric.TokenPayment/20","XML Sent=" + xmlSent,10);
 				ret     = CallWebService(payment.ProviderURL,"Payment");
 				payRef  = Tools.XMLNode(xmlResult,"ReconID");
-				Tools.LogInfo("TransactionEcentric.ProcessPayment/30","XML Rec=" + XMLResult,10);
+				Tools.LogInfo("TransactionEcentric.TokenPayment/30","XML Rec=" + XMLResult,10);
 
 				if ( ! Successful || payRef.Length < 1 )
 				{
 					ret = ( ret > 0 ? ret : 630 );
-					Tools.LogInfo("TransactionEcentric.ProcessPayment/60","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TransactionEcentric.TokenPayment/60","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 				}
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionEcentric.ProcessPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionEcentric.ProcessPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionEcentric.TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionEcentric.TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
 			}
 			return ret;
 		}

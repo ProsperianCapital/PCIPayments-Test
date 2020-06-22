@@ -114,7 +114,7 @@ namespace PCIBusiness
 			return ret;
 		}
 
-		public override int ProcessPayment(Payment payment)
+		public override int TokenPayment(Payment payment)
 		{
 			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
@@ -122,7 +122,7 @@ namespace PCIBusiness
 			int ret = 600;
 			payRef  = "";
 
-			Tools.LogInfo("TransactionPayGate.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,10);
+			Tools.LogInfo("TransactionPayGate.TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
@@ -178,18 +178,18 @@ namespace PCIBusiness
 				payRef = Tools.XMLNode(xmlResult,"PayRequestId",nsPrefix,nsURL);
 
 				if ( ! Successful )
-					Tools.LogInfo("TransactionPayGate.ProcessPayment/21","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TransactionPayGate.TokenPayment/21","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 				else if ( payment.TransactionType == (byte)Constants.TransactionType.CardPayment && payRef.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.ProcessPayment/22","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TransactionPayGate.TokenPayment/22","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 				else if ( payment.TransactionType == (byte)Constants.TransactionType.TokenPayment && payRef.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.ProcessPayment/23","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TransactionPayGate.TokenPayment/23","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 				else if ( payment.TransactionType == (byte)Constants.TransactionType.ManualPayment && keyValuePairs.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.ProcessPayment/24","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TransactionPayGate.TokenPayment/24","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayGate.ProcessPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayGate.ProcessPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionPayGate.TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionPayGate.TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
 			}
 			return ret;
 		}

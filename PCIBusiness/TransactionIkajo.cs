@@ -107,14 +107,14 @@ namespace PCIBusiness
 			return ret;
 		}
 
-		public override int ProcessPayment(Payment payment)
+		public override int TokenPayment(Payment payment)
 		{
 			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
 
 			int ret = 300;
 
-			Tools.LogInfo("TransactionIkajo.ProcessPayment/10","Sale, Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionIkajo.TokenPayment/10","Sale, Merchant Ref=" + payment.MerchantReference,199);
 
 			try
 			{
@@ -137,7 +137,7 @@ namespace PCIBusiness
 				rebillReq.recurringToken         = Tools.XMLSafe(payment.CardToken);
 				rebillReq.signature              = md5Signature;
 
-				Tools.LogInfo("TransactionIkajo.ProcessPayment/20","",10);
+				Tools.LogInfo("TransactionIkajo.TokenPayment/20","",10);
 
 				if ( ikajo == null )
 					ikajo    = new PtCardService();
@@ -147,7 +147,7 @@ namespace PCIBusiness
 				                                                          + " | TransactionStatus=" + result.transactionStatus
 				                                                          + " | TransactionError=" + result.transactionError;
 
-				Tools.LogInfo("TransactionIkajo.ProcessPayment/30",x,10);
+				Tools.LogInfo("TransactionIkajo.TokenPayment/30",x,10);
 
 				payRef     = result.orderReference;
 				resultCode = result.transactionStatus;
@@ -158,8 +158,8 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionIkajo.ProcessPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionIkajo.ProcessPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionIkajo.TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionIkajo.TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
 			}
 			return ret;
 		}

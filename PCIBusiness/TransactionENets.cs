@@ -20,17 +20,23 @@ namespace PCIBusiness
 		}
 
 //		Not used by eNETS
+
 //		public override int GetToken(Payment payment)
 //		{
 //			return 0;
 //		}
+
+//		public override int TokenPayment(Payment payment)
+//		{
+//			return 0;
+//		}
+
       public override bool EnabledFor3d(byte transactionType)
 		{
 			return true;
 		}
 
-
-		public override int ProcessPayment(Payment payment)
+		public override int CardPayment(Payment payment)
 		{
 			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
@@ -38,7 +44,7 @@ namespace PCIBusiness
 			int ret = 10;
 			payRef  = "";
 
-			Tools.LogInfo("TransactionENets.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionENets.CardPayment/10","Merchant Ref=" + payment.MerchantReference,199);
 
 			try
 			{
@@ -68,8 +74,8 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionENets.ProcessPayment/98","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255);
-				Tools.LogException("TransactionENets.ProcessPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionENets.CardPayment/98","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255);
+				Tools.LogException("TransactionENets.CardPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex);
 			}
 			return ret;
 		}

@@ -81,7 +81,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPeach.PostHTML/198","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
+				Tools.LogInfo     ("TransactionPeach.PostHTML/198","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
 				Tools.LogException("TransactionPeach.PostHTML/199","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex);
 			}
 			return ret;
@@ -120,7 +120,41 @@ namespace PCIBusiness
 			return ret;
 		}
 
-		public override int ProcessPayment(Payment payment)
+		public override int CardPayment(Payment payment)
+		{
+			int ret = 10;
+
+			try
+			{
+				xmlSent = "entityId="          + Tools.URLString(payment.ProviderUserID)
+				        + "&paymentBrand="     + Tools.URLString(payment.CardType.ToUpper())
+				        + "&card.number="      + Tools.URLString(payment.CardNumber)
+				        + "&card.holder="      + Tools.URLString(payment.CardName)
+				        + "&card.expiryMonth=" + Tools.URLString(payment.CardExpiryMM)
+				        + "&card.expiryYear="  + Tools.URLString(payment.CardExpiryYYYY)
+				        + "&card.cvv="         + Tools.URLString(payment.CardCVV)
+				        + "&amount="           + Tools.URLString(payment.PaymentAmountDecimal)
+				        + "&currency="         + Tools.URLString(payment.CurrencyCode)
+				        + "&paymentType=DB"; // DB = Instant, PA = Pre-authorize
+
+				Tools.LogInfo("TransactionPeach.CardPayment/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
+
+				ret      = PostHTML((byte)Constants.TransactionType.GetToken,payment);
+				payToken = Tools.JSONValue(strResult,"id");
+				payRef   = Tools.JSONValue(strResult,"ndc");
+				if ( payToken.Length < 1 && ret == 0 )
+					ret = 248;
+
+				Tools.LogInfo("TransactionPeach.CardPayment/20","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,221);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogException("TransactionPeach.CardPayment/90","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex);
+			}
+			return ret;
+		}
+
+		public override int TokenPayment(Payment payment)
 		{
 			int ret = 10;
 
@@ -129,21 +163,21 @@ namespace PCIBusiness
 				xmlSent = "entityId="  + Tools.URLString(payment.ProviderUserID)
 				        + "&amount="   + Tools.URLString(payment.PaymentAmountDecimal)
 				        + "&currency=" + Tools.URLString(payment.CurrencyCode)
-				        + "&paymentType=PA"
+				        + "&paymentType=DB" // DB = Instant, PA = Pre-authorize
 				        + "&recurringType=REPEATED";
 
-				Tools.LogInfo("TransactionPeach.ProcessPayment/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
+				Tools.LogInfo("TransactionPeach.TokenPayment/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
 
 				ret    = PostHTML((byte)Constants.TransactionType.TokenPayment,payment);
 				payRef = Tools.JSONValue(strResult,"id");
 				if ( payRef.Length < 1 && ret == 0 )
 					ret = 249;
 
-				Tools.LogInfo("TransactionPeach.ProcessPayment/20","ResultCode="+ResultCode + ", payRef=" + payRef,221);
+				Tools.LogInfo("TransactionPeach.TokenPayment/20","ResultCode="+ResultCode + ", payRef=" + payRef,221);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("TransactionPeach.ProcessPayment/90","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex);
+				Tools.LogException("TransactionPeach.TokenPayment/90","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex);
 			}
 			return ret;
 		}

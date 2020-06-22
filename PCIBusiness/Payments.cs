@@ -174,6 +174,8 @@ namespace PCIBusiness
 							err = payment.GetToken();
 						else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
 							err = payment.ProcessPayment();
+						else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
+							err = payment.ProcessPayment();
 						else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
 							err = payment.DeleteToken();
 						if ( err == 0 )

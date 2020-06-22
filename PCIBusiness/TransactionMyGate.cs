@@ -121,7 +121,7 @@ namespace PCIBusiness
 			return ret;
 		}
 
-		public override int ProcessPayment(Payment payment)
+		public override int TokenPayment(Payment payment)
 		{
 			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
@@ -171,17 +171,17 @@ namespace PCIBusiness
 				xmlResult = null;
 				strResult = "";
 
-				Tools.LogInfo("TransactionMyGate.ProcessPayment/20","uploadDebitFile(\"" + xmlSent + "\")",10);
+				Tools.LogInfo("TransactionMyGate.TokenPayment/20","uploadDebitFile(\"" + xmlSent + "\")",10);
 
 				ret       = 630;
 				strResult = myGatePay.uploadDebitFile (xmlSent);
 
-				Tools.LogInfo("TransactionMyGate.ProcessPayment/30","Result=" + strResult,10);
+				Tools.LogInfo("TransactionMyGate.TokenPayment/30","Result=" + strResult,10);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionMyGate.ProcessPayment/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionMyGate.ProcessPayment/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionMyGate.TokenPayment/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionMyGate.TokenPayment/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
 			}
 			return ret;
 		}

@@ -50,7 +50,7 @@ namespace PCIBusiness
 			return ret;
 		}
 
-		public override int ProcessPayment(Payment payment)
+		public override int TokenPayment(Payment payment)
 		{
 			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
@@ -58,7 +58,7 @@ namespace PCIBusiness
 			int ret = 10;
 			payRef  = "";
 
-			Tools.LogInfo("TransactionPayGenius.ProcessPayment/10","Merchant Ref=" + payment.MerchantReference,10);
+			Tools.LogInfo("TransactionPayGenius.TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
@@ -78,12 +78,12 @@ namespace PCIBusiness
 				if ( Successful && payRef.Length > 0 )
 					ret  = 0;
 //				else
-//					Tools.LogInfo("TransactionPayGenius.ProcessPayment/50","JSON Sent="+xmlSent+", JSON Rec="+XMLResult,199);
+//					Tools.LogInfo("TransactionPayGenius.TokenPayment/50","JSON Sent="+xmlSent+", JSON Rec="+XMLResult,199);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayGenius.ProcessPayment/98","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayGenius.ProcessPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionPayGenius.TokenPayment/98","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255);
+				Tools.LogException("TransactionPayGenius.TokenPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex);
 			}
 			return ret;
 		}

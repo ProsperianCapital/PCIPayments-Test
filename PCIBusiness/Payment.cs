@@ -536,10 +536,9 @@ namespace PCIBusiness
 
 		public int ProcessPayment()
 		{
-//			int processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
-			int retProc     = 37020;
-			int retSQL      = 37020;
-			returnMessage   = "Invalid payment provider";
+			int retProc   = 37020;
+			int retSQL    = 37020;
+			returnMessage = "Invalid payment provider";
 			Tools.LogInfo("Payment.ProcessPayment/10","Merchant Ref=" + merchantReference,10);
 
 			if ( transaction == null || transaction.BureauCode != bureauCode )
@@ -584,7 +583,10 @@ namespace PCIBusiness
 			else
 				Tools.LogInfo("Payment.ProcessPayment/50","SQL 1 skipped",20);
 
-			retProc       = transaction.ProcessPayment(this);
+			if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
+				retProc    = transaction.TokenPayment(this);
+			else
+				retProc    = transaction.CardPayment(this);
 			threeDForm    = "";
 			returnMessage = transaction.ResultMessage;
 

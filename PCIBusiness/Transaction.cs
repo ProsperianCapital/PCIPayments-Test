@@ -134,7 +134,12 @@ namespace PCIBusiness
 			return 0;
 		}
 
-		public virtual int ProcessPayment(Payment payment)
+		public virtual int TokenPayment(Payment payment)
+		{
+			return 0;
+		}
+
+		public virtual int CardPayment(Payment payment)
 		{
 			return 0;
 		}

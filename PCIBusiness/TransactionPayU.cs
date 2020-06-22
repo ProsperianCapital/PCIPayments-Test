@@ -226,7 +226,7 @@ namespace PCIBusiness
 		}
 
 
-		public override int ProcessPayment(Payment payment)
+		public override int TokenPayment(Payment payment)
 		{
 			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
@@ -234,7 +234,7 @@ namespace PCIBusiness
 			int ret = 600;
 			xmlSent = "";
 
-			Tools.LogInfo("TransactionPayU.ProcessPayment/10","PAYMENT, Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionPayU.TokenPayment/10","PAYMENT, Merchant Ref=" + payment.MerchantReference,199);
 
 //		   +   "<secure3d>false</secure3d>"
 //       +   "<storePaymentMethod>true</storePaymentMethod>"
@@ -274,12 +274,12 @@ namespace PCIBusiness
 				ret    = SendXML(payment.ProviderURL,payment.ProviderUserID,payment.ProviderPassword);
 				payRef = Tools.XMLNode(xmlResult,"payUReference");
 
-				Tools.LogInfo("TransactionPayU.ProcessPayment/30","ResultCode="+ResultCode,30);
+				Tools.LogInfo("TransactionPayU.TokenPayment/30","ResultCode="+ResultCode,30);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayU.ProcessPayment/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayU.ProcessPayment/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo("TransactionPayU.TokenPayment/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionPayU.TokenPayment/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
 			}
 			return ret;
 		}
