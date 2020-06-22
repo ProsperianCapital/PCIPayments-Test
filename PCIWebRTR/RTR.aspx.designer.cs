@@ -76,6 +76,24 @@ namespace PCIWebRTR {
         protected global::System.Web.UI.WebControls.Literal lblSStatus;
         
         /// <summary>
+        /// lblSUserCode control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal lblSUserCode;
+        
+        /// <summary>
+        /// lblSURL control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal lblSURL;
+        
+        /// <summary>
         /// lstProvider control.
         /// </summary>
         /// <remarks>
@@ -184,6 +202,15 @@ namespace PCIWebRTR {
         protected global::System.Web.UI.WebControls.Literal lblBureauStatus;
         
         /// <summary>
+        /// pnlButtons control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlButtons;
+        
+        /// <summary>
         /// btnProcess1 control.
         /// </summary>
         /// <remarks>
@@ -200,6 +227,15 @@ namespace PCIWebRTR {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnProcess2;
+        
+        /// <summary>
+        /// btnProcess4 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnProcess4;
         
         /// <summary>
         /// btnProcess3 control.

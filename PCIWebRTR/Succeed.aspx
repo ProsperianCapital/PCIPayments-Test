@@ -28,7 +28,7 @@
 	N/A
 	</p>
 	<p class="ButtonRow">
-	<input type="button" value="Home" class="Button" onclick="JavaScript:location.href='RTR.aspx'" />
+	<input type="button" value="Home" class="Button" onclick="JavaScript:location.href='RTR.aspx?UserCode=999'" />
 	</p>
 	<hr />
 	<p class="Footer">

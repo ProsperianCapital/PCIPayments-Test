@@ -45,6 +45,12 @@ function PaySingle(mode)
 		<td>System Mode</td><td class="Red"> : <b><i><asp:Literal runat="server" ID="lblSMode"></asp:Literal></i></b></td></tr>
 	<tr>
 		<td>System Status</td><td class="Red"> : <b><i><asp:Literal runat="server" ID="lblSStatus"></asp:Literal></i></b></td></tr>
+	<tr>
+		<td colspan="2"><hr /></td></tr>
+	<tr>
+		<td>PlaNet User Code</td><td class="Red"> : <b><i><asp:Literal runat="server" ID="lblSUserCode"></asp:Literal></i></b></td></tr>
+	<tr>
+		<td>Referred URL</td><td class="Red"> : <b><i><asp:Literal runat="server" ID="lblSURL"></asp:Literal></i></b></td></tr>
 	</table>
 	<table class="Detail">
 	<tr>
@@ -84,16 +90,17 @@ function PaySingle(mode)
 		<td>Status</td>
 		<td> : <asp:Literal runat="server" ID="lblBureauStatus"></asp:Literal></td></tr>
 	</table>
-	<div class="ButtonRow">
+	<asp:Panel runat="server" ID="pnlButtons" CssClass="ButtonRow">
 		<asp:Button  runat="server" ID="btnProcess1" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Getting tokens ... please be patient')" onclick="btnProcess1_Click" Text="Get Tokens" />
-		<asp:Button  runat="server" ID="btnProcess2" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess2_Click" Text="Process Payments" />
+		<asp:Button  runat="server" ID="btnProcess2" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess2_Click" Text="Token Payments" />
+		<asp:Button  runat="server" ID="btnProcess4" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess4_Click" Text="Card Payments" />
 		<asp:Button  runat="server" ID="btnProcess3" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Deleting tokens ... please be patient')" onclick="btnProcess3_Click" Text="Delete Tokens" />
 		<asp:Button  runat="server" ID="btnConfig"   CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnConfig_Click" Text="Config" />
 		<input type="button" class="Button" onclick="JavaScript:ShowElt('divLogs',1)" value="Logs" />
 		<asp:Button  runat="server" ID="btnSQL"      CssClass="Button" OnClientClick="JavaScript:Busy(1,'Executing SQL ...')" onclick="btnSQL_Click" Text="Test SQL ..." />
 		<asp:Button  runat="server" ID="btnJSON"     CssClass="Button" OnClientClick="JavaScript:Busy(1,'Parsing JSON string ...')" onclick="btnJSON_Click" Text="Test JSON ..." visible="false" />
 		<asp:TextBox runat="server" ID="txtTest" Width="560px"></asp:TextBox>
-	</div>
+	</asp:Panel>
 	<hr />
 	<asp:Label runat="server" ID="lblTest"></asp:Label>
 	<asp:Label runat="server" ID="lblError" CssClass="Error"></asp:Label>

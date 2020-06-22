@@ -13,6 +13,7 @@ namespace PCIWebRTR
 		private int    timeOut;
 		private int    maxRows;
 		private string provider;
+		private string userCode;
 
 		protected void Page_Load(object sender, EventArgs e)
 		{
@@ -28,14 +29,62 @@ namespace PCIWebRTR
 			btnProcess1.Enabled = ( systemStatus == 0 );
 			btnProcess2.Enabled = ( systemStatus == 0 );
 			btnProcess3.Enabled = ( systemStatus == 0 );
+			btnProcess4.Enabled = ( systemStatus == 0 );
 			lblTest.Text        = "";
 			lblError.Text       = "";
 			lblError2.Text      = "";
 			lblJS.Text          = "";
 
-			if ( ! Page.IsPostBack )
+			if ( Page.IsPostBack )
+				try
+				{
+					userCode = Tools.ObjectToString(ViewState["UserCode"]);
+				}
+				catch
+				{
+					userCode = "";
+				}
+
+			else
 			{
-				lblVersion.Text = "Version " + SystemDetails.AppVersion;
+				lblVersion.Text   = "Version " + SystemDetails.AppVersion;
+				userCode          = Tools.ObjectToString(Request["UserCode"]);
+				string ref1       = Tools.ObjectToString(Request.UrlReferrer);
+				string ref2       = Tools.ObjectToString(Request.Headers["Referer"]); // Yes, this is spelt CORRECTLY! Do not change
+				lblSURL.Text      = ( ref1.Length > 4 ? ref1 : ref2 );
+				lblSUserCode.Text = userCode;
+
+//	Dev mode
+				if ( Tools.ConfigValue("Access/BackDoor") == "901317" )
+					userCode = ( userCode.Length == 0 ? "013" : userCode );
+				else
+				{
+//	User Check
+					if ( Tools.ConfigValue("Access/UserCode").Length > 0 &&
+						! (","+Tools.ConfigValue("Access/UserCode")+",").Contains(","+userCode+",") )
+					{
+						SetAccess(false,"Unauthorized access (invalid user code)");
+						return;
+					}
+
+//	Referring URL check
+					if ( Tools.ConfigValue("Access/AllowReferURL").Length > 0 )
+					{
+						string[] referAllow = Tools.ConfigValue("AllowReferURL").ToUpper().Split(',');
+						bool     ok         = false;
+						foreach (string refer in referAllow)
+							if ( ref1.ToUpper().Contains(refer.Trim()) || ref2.ToUpper().Contains(refer.Trim()) )
+							{
+								ok = true;
+								break;
+							}
+						if ( ! ok )
+						{
+							SetAccess(false,"Unauthorized access (invalid referring URL)");
+							return;
+						}
+					}
+				}
 
 				foreach (int bureauCode in Enum.GetValues(typeof(Constants.PaymentProvider)))
 					lstProvider.Items.Add(new ListItem(Enum.GetName(typeof(Constants.PaymentProvider),bureauCode),bureauCode.ToString().PadLeft(3,'0')));
@@ -45,11 +94,12 @@ namespace PCIWebRTR
 				string[]                 connString = Tools.NullToString(db.ConnectionString).Split(';');
 				int                      k;
 
-				lblSQLServer.Text = "";
-				lblSQLDB.Text     = "";
-				lblSQLUser.Text   = "";
-				lblSQLStatus.Text = "";
-				lblSMode.Text     = Tools.ConfigValue("SystemMode");
+				ViewState["UserCode"] = userCode;
+				lblSQLServer.Text     = "";
+				lblSQLDB.Text         = "";
+				lblSQLUser.Text       = "";
+				lblSQLStatus.Text     = "";
+				lblSMode.Text         = Tools.ConfigValue("SystemMode");
 
 				foreach ( string x in connString )
 				{
@@ -84,6 +134,22 @@ namespace PCIWebRTR
 			ProviderDetails();
 		}
 
+		private void SetAccess(bool allow,string errMsg="")
+		{
+			lblSStatus.Text    = "Blocked";
+			pnlButtons.Visible = allow;
+			rdoWeb.Enabled     = allow;
+			rdoAsynch.Enabled  = allow;
+			rdoCard.Enabled    = allow;
+			if ( allow )
+				lblError.Text   = "";
+			else
+			{
+				lblError.Text   = errMsg;
+				Tools.LogInfo("RTR.SetAccess",errMsg + ", " + lblSUserCode.Text + ", " + lblSURL.Text,222);
+			}
+		}
+
 		private void ProviderDetails()
 		{
 			string   bureauCode  = lstProvider.SelectedValue.Trim();
@@ -110,12 +176,14 @@ namespace PCIWebRTR
 			if ( provider.BureauStatusCode == 2 ) // Disabled
 			{
 				provider             = null;
-				btnProcess1.Text     = "Get Tokens (Disabled)";
-				btnProcess2.Text     = "Do Payments (Disabled)";
-				btnProcess3.Text     = "Delete Tokens (Disabled)";
+//				btnProcess1.Text     = "Get Tokens (Disabled)";
+//				btnProcess2.Text     = "Token Payments (Disabled)";
+//				btnProcess3.Text     = "Delete Tokens (Disabled)";
+//				btnProcess4.Text     = "Card Payments (Disabled)";
 				btnProcess1.Enabled  = false;
 				btnProcess2.Enabled  = false;
 				btnProcess3.Enabled  = false;
+				btnProcess4.Enabled  = false;
 				lblBureauURL.Text    = "";
 				lblMerchantKey.Text  = "";
 				lblMerchantUser.Text = "";
@@ -123,15 +191,18 @@ namespace PCIWebRTR
 				lblPayments.Text     = "";
 				return;
 			}
-			btnProcess1.Text    = "Get Tokens";
-			btnProcess2.Text    = "Process Payments";
-			btnProcess3.Text    = "Delete Tokens";
+//			btnProcess1.Text    = "Get Tokens";
+//			btnProcess2.Text    = "Token Payments";
+//			btnProcess3.Text    = "Delete Tokens";
+//			btnProcess4.Text    = "Card Payments";
 			btnProcess1.Enabled = true;
 			btnProcess2.Enabled = true;
 			btnProcess3.Enabled = true;
+			btnProcess4.Enabled = true;
 //			btnProcess1.CommandArgument = ((byte)Constants.TransactionType.GetToken).ToString();
 //			btnProcess2.CommandArgument = ((byte)Constants.TransactionType.TokenPayment).ToString();
 //			btnProcess3.CommandArgument = ((byte)Constants.TransactionType.DeleteToken).ToString();
+//			btnProcess4.CommandArgument = ((byte)Constants.TransactionType.CardPayment).ToString();
 
 			if ( bureauCode.Length > 0 )
 				using (Payments payments = new Payments())
@@ -144,17 +215,21 @@ namespace PCIWebRTR
 					lblPayments.Text     = provider.PaymentsToBeProcessed.ToString() + ( provider.PaymentsToBeProcessed >= Constants.C_MAXPAYMENTROWS() ? "+" : "" );
 					if ( provider.PaymentType == (byte)Constants.TransactionType.TokenPayment )
 					{
-						btnProcess1.Text    = "Get Tokens";
-						btnProcess1.Enabled = true;
-						btnProcess3.Text    = "Delete Tokens";
-						btnProcess3.Enabled = true;
+//						btnProcess1.Text    = "Get Tokens";
+						btnProcess1.Visible = true;
+//						btnProcess2.Text    = "Token Payments";
+						btnProcess2.Visible = true;
+//						btnProcess3.Text    = "Delete Tokens";
+						btnProcess3.Visible = true;
 					}
 					else if ( provider.PaymentType == (byte)Constants.TransactionType.CardPayment ) // Means no tokens, card payments only
 					{
-						btnProcess1.Text    = "N/A";
-						btnProcess1.Enabled = false;
-						btnProcess3.Text    = "N/A";
-						btnProcess3.Enabled = false;
+//						btnProcess1.Text    = "N/A";
+						btnProcess1.Visible = false;
+//						btnProcess2.Text    = "N/A";
+						btnProcess2.Visible = false;
+//						btnProcess3.Text    = "N/A";
+						btnProcess3.Visible = false;
 					}
 				}
 		}
@@ -172,6 +247,11 @@ namespace PCIWebRTR
 		protected void btnProcess2_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)Constants.TransactionType.TokenPayment);
+		}
+
+		protected void btnProcess4_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.CardPayment);
 		}
 
 		protected void btnProcess3_Click(Object sender, EventArgs e)
@@ -196,13 +276,13 @@ namespace PCIWebRTR
 
 			app.Arguments      =  "TransactionType=" + transactionType.ToString()
 			                   + " Rows=" + maxRows.ToString()
-			                   + " Provider=" + provider;
+			                   + " Provider=" + provider
+			                   + ( userCode.Length > 0 ? " UserCode=" + userCode : "" );
 			app.WindowStyle    = ProcessWindowStyle.Hidden;
 		//	app.WindowStyle    = ProcessWindowStyle.Normal;
 		//	app.FileName       = "PCIUnattended.exe";
 			app.CreateNoWindow = false;
 			app.FileName       = Tools.SystemFolder("Bin") + "PCIUnattended.exe";
-		//	app.FileName       = path + ( path.EndsWith("\\") ? "" : "\\" ) + "bin\\PCIUnattended.exe";
 
 			try
 			{
