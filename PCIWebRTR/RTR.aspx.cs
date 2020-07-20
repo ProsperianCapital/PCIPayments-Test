@@ -47,12 +47,10 @@ namespace PCIWebRTR
 
 			else
 			{
-				lblVersion.Text   = "Version " + SystemDetails.AppVersion;
-				userCode          = Tools.ObjectToString(Request["UserCode"]);
-				string ref1       = Tools.ObjectToString(Request.UrlReferrer);
-				string ref2       = Tools.ObjectToString(Request.Headers["Referer"]); // Yes, this is spelt CORRECTLY! Do not change
-				lblSURL.Text      = ( ref1.Length > 4 ? ref1 : ref2 );
-				lblSUserCode.Text = userCode;
+				lblVersion.Text = "Version " + SystemDetails.AppVersion;
+				userCode        = Tools.ObjectToString(Request["UserCode"]);
+				string ref1     = Tools.ObjectToString(Request.UrlReferrer);
+				string ref2     = Tools.ObjectToString(Request.Headers["Referer"]); // Yes, this is spelt CORRECTLY! Do not change
 
 //	Dev mode
 				if ( Tools.ConfigValue("Access/BackDoor")  == ((int)Constants.SystemPassword.BackDoor).ToString() ||
@@ -90,6 +88,9 @@ namespace PCIWebRTR
 						}
 					}
 				}
+
+				lblSURL.Text      = ( ref1.Length > 4 ? ref1 : ref2 );
+				lblSUserCode.Text = userCode;
 
 				foreach (int bureauCode in Enum.GetValues(typeof(Constants.PaymentProvider)))
 					lstProvider.Items.Add(new ListItem(Enum.GetName(typeof(Constants.PaymentProvider),bureauCode),bureauCode.ToString().PadLeft(3,'0')));
