@@ -110,6 +110,7 @@
     <Compile Include="Succeed.aspx.designer.cs">
       <DependentUpon>Succeed.aspx</DependentUpon>
     </Compile>
+    <Compile Include="WebTools.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PCIBusiness\PCIBusiness.csproj">
