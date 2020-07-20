@@ -64,12 +64,12 @@ namespace PCIBusiness
 			return returnCode;
 		}
 
-		public int ExecQuery(string sqlQuery,byte loadRows,string dataClass="",bool noRowsIsError=true,bool alwaysClose=false)
+		public int ExecQuery(string sqlQuery,byte loadRows,string dataClass="",bool noRowsIsError=true,bool alwaysClose=false,string connectionName="")
 		{
 			sql = sqlQuery;
 
 			if ( loadRows == 0 )
-				return base.ExecuteSQL(null,alwaysClose,noRowsIsError);
+				return base.ExecuteSQL(null,alwaysClose,noRowsIsError,connectionName);
 
 			if ( string.IsNullOrWhiteSpace(dataClass) )
 				return base.LoadDataFromSQL();
@@ -130,13 +130,6 @@ namespace PCIBusiness
 			try
 			{
 				return dbConn.ColLong(colName,0,errorMode);
-
-//				if ( dbConn != null )
-//				{
-//					int x = dbConn.ColNumber(colName,errorMode);
-//					if ( x >= 0 )
-//						return dbConn.ColLong(x);
-//				}
 			}
 			catch
 			{ }
@@ -147,17 +140,10 @@ namespace PCIBusiness
 			try
 			{
 				return dbConn.ColDate(colName,0,errorMode);
-
-//				if ( dbConn != null )
-//				{
-//					int x = dbConn.ColNumber(colName,errorMode);
-//					if ( x >= 0 )
-//						return dbConn.ColDate(x);
-//				}
 			}
 			catch
 			{ }
-			return Constants.C_NULLDATE();
+			return Constants.DateNull;
 		}
 		public string GetColumnCurrency(string colName,byte errorMode=1)
 		{

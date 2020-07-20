@@ -87,7 +87,9 @@
     <Compile Include="Stock.cs" />
     <Compile Include="StockHistory.cs" />
     <Compile Include="Stocks.cs" />
+    <Compile Include="StockTick.cs" />
     <Compile Include="SystemDetails.cs" />
+    <Compile Include="TickerState.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="DBConn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="TransactionPayU.cs" />
     <Compile Include="TransactionPeach.cs" />
     <Compile Include="TransactionT24.cs" />
+    <Compile Include="TransactionTokenEx.cs" />
     <Compile Include="Web References\IkajoService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -8,7 +8,7 @@ namespace PCIBusiness
 	{
 		private SmtpClient  smtp;
 		private MailMessage msg;
-		private string      mailSender;
+//		private string      mailSender;
 
 		private void AddMail(MailAddressCollection mailList,string mail)
 		{
@@ -51,6 +51,10 @@ namespace PCIBusiness
 		{
 			set {	msg.From = new MailAddress(value); }
 		}
+//		public  string Sender
+//		{
+//			set {	msg.Sender = new MailAddress(value); }
+//		}
 		public  string Heading
 		{
 			set {	msg.Subject = value.Trim(); }
@@ -70,6 +74,25 @@ namespace PCIBusiness
 				return 30;
 			if ( msg.To.Count < 1 )
 				return 40;
+
+			if ( msg.Sender == null )
+				try
+				{
+					msg.Sender = new MailAddress(Tools.ConfigValue("SMTP-User"));
+				}
+				catch
+				{ }
+
+			if ( msg.Sender == null )
+				try
+				{
+					msg.Sender = new MailAddress(Tools.ConfigValue("SMTP-From"));
+				}
+				catch
+				{ }
+
+			if ( msg.From == null )
+				msg.From = msg.Sender;
 
 			msg.IsBodyHtml = msg.Body.ToUpper().Contains("<HTML");
 
@@ -113,14 +136,15 @@ namespace PCIBusiness
 			string smtpPassword = Tools.ConfigValue("SMTP-Password");
 			string smtpBCC      = Tools.ConfigValue("SMTP-BCC");
 			int    smtpPort     = Tools.StringToInt(Tools.ConfigValue("SMTP-Port"));
-			mailSender          = smtpUser;
+//			mailSender          = smtpUser;
 			msg                 = new MailMessage();
 			smtp                = new SmtpClient(smtpServer);
 
 			if ( smtpPort > 0 )
-				smtp.Port  = smtpPort;
+				smtp.Port = smtpPort;
 			smtp.UseDefaultCredentials = false;
 			smtp.Credentials           = new NetworkCredential(smtpUser,smtpPassword);
+//			msg.Sender                 = new MailAddress(smtpUser);
 		}
 	}
 }

@@ -3,7 +3,6 @@ using System.IO;
 using System.Xml;
 using System.Globalization;
 using System.Text;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
 namespace PCIBusiness
@@ -30,12 +29,6 @@ namespace PCIBusiness
 //		12  HH:mm:ss                  Hard-code to 23:59:59
 
 		static byte logSeverity;
-
-		public static bool SystemIsLive()
-		{
-			string mode = ConfigValue("SystemMode").ToUpper();
-			return ( mode.Length >= 4 && ( mode.Contains("PROD") || mode.Contains("LIVE") ) );
-		}
 
 		public static string DecimalToString(decimal theValue,byte decimalPlaces=2)
 		{
@@ -111,21 +104,21 @@ namespace PCIBusiness
 
 		public static DateTime StringToDate(string dd,string mm,string yy)
 		{
-			DateTime ret = Constants.C_NULLDATE();
+			DateTime ret = Constants.DateNull;
 			try
 			{
 				ret = new DateTime(System.Convert.ToInt32(yy), System.Convert.ToInt32(mm), System.Convert.ToInt32(dd));
 			}
 			catch
 			{
-				ret = Constants.C_NULLDATE();
+				ret = Constants.DateNull;
 			}
 			return ret;
 		}
 
 		public static DateTime StringToDate(string theDate,byte dateFormat)
 		{
-			DateTime ret = Constants.C_NULLDATE();
+			DateTime ret = Constants.DateNull;
 			string   dd  = "";
 			string   mm  = "";
 			string   yy  = "";
@@ -169,7 +162,7 @@ namespace PCIBusiness
 			}
 			catch
 			{
-				ret = Constants.C_NULLDATE();
+				ret = Constants.DateNull;
 			}
 			return ret;
 		}
@@ -184,10 +177,10 @@ namespace PCIBusiness
 			string theDate = "" ;
 			string theTime = "" ;
 
-			if ( whatDate.CompareTo(Constants.C_NULLDATE()) <= 0 && dateFormat == 19 ) // for SQL
+			if ( whatDate.CompareTo(Constants.DateNull) <= 0 && dateFormat == 19 ) // for SQL
 				return "NULL";
 
-			if ( whatDate.CompareTo(Constants.C_NULLDATE()) <= 0 )
+			if ( whatDate.CompareTo(Constants.DateNull) <= 0 )
 				return "";
 
 			if ( dateFormat == 1 )        // DD/MM/YYYY
@@ -231,11 +224,11 @@ namespace PCIBusiness
 			return ( quotes ? "'" : "" ) + (theDate + " " + theTime).Trim() + ( quotes ? "'" : "" );
 		}
 
-		public static bool OpenDB(ref DBConn dbConn)
+		public static bool OpenDB(ref DBConn dbConn,string connectionName="")
 		{
 			if ( dbConn == null )
 				dbConn = new DBConn();
-			return dbConn.Open();
+			return dbConn.Open(connectionName);
 		}
 
 		public static void CloseDB(ref DBConn dbConn)
@@ -615,35 +608,49 @@ namespace PCIBusiness
 			return ""; 
 		}
 
+		public static string LogFileName(string settingName, DateTime fileDate)
+		{
+			try
+			{
+				string fName = Tools.ConfigValue(settingName);
+				if ( fName.Length < 1 )
+				{
+					fName = SystemFolder("");
+					if ( fName.Length > 0 )
+						fName = fName + "Logs";
+					else
+						fName = "C:\\Temp";
+					fName = fName + "\\PCILogFile.txt";
+				}
+
+				int k = fName.LastIndexOf(".");
+				if ( k < 1 )
+				{
+					fName = fName + ".txt";
+					k     = fName.LastIndexOf(".");
+				}
+				if ( fileDate <= Constants.DateNull )
+					fileDate = System.DateTime.Now;
+				fName = fName.Substring(0,k) + "-" + DateToString(fileDate,7) + fName.Substring(k);
+				return fName;
+			}
+			catch (Exception ex)
+			{
+			}
+			return "C:\\Temp\\Error-X.txt";
+		}
+
 		private static void LogWrite(string settingName, string component, string msg)
 		{
 		// Use this routine to log internal errors ...
-			int          k      = 0;
-			string       fName1 = "";
+			int          k       = 0;
+			string       fName1  = "";
 			FileStream   fHandle = null;
 			StreamWriter fOut    = null;
 
 			try
 			{
-				fName1 = Tools.ConfigValue(settingName);
-				if ( fName1.Length < 1 )
-				{
-					fName1 = SystemFolder("");
-					if ( fName1.Length > 0 )
-						fName1 = fName1 + "Logs";
-					else
-						fName1 = "C:\\Temp";
-					fName1 = fName1 + "\\PCILogFile.txt";
-				}
-
-				k = fName1.LastIndexOf(".");
-				if ( k < 1 )
-				{
-					fName1 = fName1 + ".txt";
-					k      = fName1.LastIndexOf(".");
-				}
-				fName1 = fName1.Substring(0,k) + "-" + DateToString(System.DateTime.Now,7) + fName1.Substring(k);
-
+				fName1 = Tools.LogFileName(settingName,System.DateTime.Now);
 				if ( File.Exists(fName1) )
 					fHandle = File.Open(fName1, FileMode.Append);
 				else
@@ -788,9 +795,8 @@ namespace PCIBusiness
 		//	Calling routines must supply a severity between 0-255 (default 10)
 		//	If severity == 255 then do NOT log for LIVE
 
-			if ( severity == 255 )
-				if ( LiveTestOrDev() == Constants.SystemMode.Live )
-					return;
+			if ( severity == 255 && SystemIsLive() )
+				return;
 
 			if ( logSeverity < 1 )
 			{
@@ -897,7 +903,7 @@ namespace PCIBusiness
 			}
 			catch
 			{ }
-			return Constants.C_NULLDATE();
+			return Constants.DateNull;
 		}
 
 		public static byte CheckDate(string dd,string mm,string yy,ref DateTime theDate)
@@ -916,10 +922,10 @@ namespace PCIBusiness
 
 		public static int CalcAge(DateTime dateOfBirth,DateTime theDate)
 		{
-			if ( theDate == null || theDate <= Constants.C_NULLDATE() )
+			if ( theDate == null || theDate <= Constants.DateNull )
 				theDate = System.DateTime.Now;
 
-			if ( dateOfBirth <= Constants.C_NULLDATE() || dateOfBirth >= theDate )
+			if ( dateOfBirth <= Constants.DateNull || dateOfBirth >= theDate )
 				return 0;
 
 			int diff = theDate.Year - dateOfBirth.Year;
@@ -1094,13 +1100,23 @@ namespace PCIBusiness
 				if ( k < 0 )
 					break;
 				k   = k + lineLength;
-				ret = ret + str.Substring(0,k) + Constants.C_HTMLBREAK();
+				ret = ret + str.Substring(0,k) + Constants.HTMLBreak;
 				str = str.Substring(k+1).Trim();
 			}
 			return ret + str;
 		}
 
-		public static Constants.SystemMode LiveTestOrDev()
+		public static bool SystemViaBackDoor()
+		{
+			return ( ConfigValue("Access/BackDoor") == ((int)Constants.SystemPassword.BackDoor).ToString() );
+		}
+
+		public static bool SystemIsLive()
+		{
+			return SystemLiveTestOrDev() == Constants.SystemMode.Live;
+		}
+
+		public static Constants.SystemMode SystemLiveTestOrDev()
 		{
 			string mode = Tools.ConfigValue("SystemMode").ToUpper();
 			if ( mode.StartsWith("LIVE") || mode.StartsWith("PROD") )
@@ -1111,6 +1127,11 @@ namespace PCIBusiness
 		}
 
 		public static string BureauCode(Constants.PaymentProvider providerCode)
+		{
+			return ((short)providerCode).ToString().PadLeft(3,'0');
+		}
+
+		public static string TradingProviderCode(Constants.TradingProvider providerCode)
 		{
 			return ((short)providerCode).ToString().PadLeft(3,'0');
 		}
@@ -1128,7 +1149,7 @@ namespace PCIBusiness
 			try
 			{
 				Tools.LogInfo("Tools.SQLDebug/2",str,250);
-				ret.Append(str+Constants.C_HTMLBREAK());
+				ret.Append(str+Constants.HTMLBreak);
 
 				Tools.OpenDB(ref conn);
 
@@ -1154,21 +1175,21 @@ namespace PCIBusiness
 						else
 							str = str + conn.ColValue(k);
 						Tools.LogInfo("Tools.SQLDebug/4",str,250);
-						ret.Append(str+Constants.C_HTMLBREAK());
+						ret.Append(str+Constants.HTMLBreak);
 					}
 				}
 				else
 				{
 					str = "Execution failed";
 					Tools.LogInfo("Tools.SQLDebug/5",str,250);
-					ret.Append(str+Constants.C_HTMLBREAK());
+					ret.Append(str+Constants.HTMLBreak);
 				}
 			}
 			catch (Exception ex)
 			{
 				str = "Error : " + ex.Message;
 				Tools.LogInfo("Tools.SQLDebug/6",str,250);
-				ret.Append(str+Constants.C_HTMLBREAK());
+				ret.Append(str+Constants.HTMLBreak);
 			}
 			finally
 			{
@@ -1268,13 +1289,14 @@ namespace PCIBusiness
 
 		public static string TickerName(int tickerType)
 		{
-			if ( tickerType == (int)Constants.TickerType.IBStockPrices        ) return "IB/Stock Prices";
-			if ( tickerType == (int)Constants.TickerType.IBExchangeRates      ) return "IB/Exchange Rates";
-			if ( tickerType == (int)Constants.TickerType.IBPortfolio          ) return "IB/Portfolio";
-			if ( tickerType == (int)Constants.TickerType.IBOrders             ) return "IB/Orders";
-			if ( tickerType == (int)Constants.TickerType.FinnHubStockPrices   ) return "FH/Stock Prices";
-			if ( tickerType == (int)Constants.TickerType.FinnHubStockHistory  ) return "FH/Stock History";
-			if ( tickerType == (int)Constants.TickerType.FinnHubExchangeRates ) return "FH/Exchange Rates";
+			if ( tickerType == (int)Constants.TickerType.IBStockPrices          ) return "IB/Stock Prices";
+			if ( tickerType == (int)Constants.TickerType.IBExchangeRates        ) return "IB/Exchange Rates";
+			if ( tickerType == (int)Constants.TickerType.IBPortfolio            ) return "IB/Portfolio";
+//			if ( tickerType == (int)Constants.TickerType.IBOrders               ) return "IB/Orders";
+			if ( tickerType == (int)Constants.TickerType.FinnHubStockPrices     ) return "FH/Stock Prices";
+			if ( tickerType == (int)Constants.TickerType.FinnHubStockHistory    ) return "FH/Stock History";
+			if ( tickerType == (int)Constants.TickerType.FinnHubExchangeRates   ) return "FH/Exchange Rates";
+			if ( tickerType == (int)Constants.TickerType.FinnHubStockTicks      ) return "FH/Stock Tick Data";
 			return "";
 		}
 
@@ -1315,7 +1337,7 @@ namespace PCIBusiness
 
 		public static string GenerateHMAC(string infoToHash, string secretKey)
 		{
-//		Used for TokenEx in Register.aspx
+//		Used for TokenEx
 			var hmac = new System.Security.Cryptography.HMACSHA256();
 			hmac.Key = System.Text.Encoding.UTF8.GetBytes(secretKey);
 			var hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(infoToHash));

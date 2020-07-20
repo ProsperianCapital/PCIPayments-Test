@@ -69,23 +69,20 @@ namespace PCIBusiness
 			return from;
 		}
 
-		public bool Open()
+		public bool Open(string connectionName="")
 		{
 			isEOF = true;
 
 			if ( dbConn == null )
 			{
-//				string connName   = "";
 				string connString = "";
+				if ( string.IsNullOrWhiteSpace(connectionName) )
+					connectionName = "DBConn";
 
 				try
 				{
-//					connName = Tools.ConfigValue("DBConnection");
-//					if ( connName == null || connName.Trim().Length == 0 )
-//						connName = "LiveDB";
-
-					ConnectionStringSettings db = ConfigurationManager.ConnectionStrings["DBConn"];
-					connString = db.ConnectionString;
+					ConnectionStringSettings db = ConfigurationManager.ConnectionStrings[connectionName];
+					connString                  = db.ConnectionString;
 					if ( connString == null || connString.Length < 5 )
 						return false;
 					dbConn = new SqlConnection(connString);
@@ -204,7 +201,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException ( ModuleName("DBConn.Execute"), sql, ex );
+				Tools.LogException ( ModuleName("DBConn.Execute"), DatabaseDetails + ". SQL = " + sql, ex );
 				return false;
 			}
 			return true;
@@ -230,7 +227,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("DBConn.NextResultSet","",ex);
+				Tools.LogException(ModuleName("DBConn.NextResultSet"),DatabaseDetails,ex);
 			}
 			return false;
 		}
@@ -281,7 +278,7 @@ namespace PCIBusiness
       return Constants.DBColumnStatus.EOF; // 2
    }
 
-   public string ColDataType(string colName,int colNumber=999999)
+   public string ColDataType(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
@@ -293,23 +290,27 @@ namespace PCIBusiness
       }
       catch (Exception ex)
       {
-         Tools.LogException ( ModuleName("DBConn.ColDataType"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
+			if ( errorMode == 1 )
+				Tools.LogException ( ModuleName("DBConn.ColDataType"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return "";
    }
 
-   public byte ColByte(string colName,byte errorMode=1)
+   public byte ColByte(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
-         colNo = dataReader.GetOrdinal(colName);
+			if ( colName.Length > 0 )
+				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
          if ( ! dataReader.IsDBNull(colNo) ) 
             return dataReader.GetByte(colNo);
       }
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColByte"), "ColName=" + colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColByte"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return 0;
    }
@@ -347,23 +348,26 @@ namespace PCIBusiness
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColLong/1"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
+				Tools.LogException ( ModuleName("DBConn.ColLong"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return 0;
    }
 
-   public long ColBig(string colName,byte errorMode=1)
+   public long ColBig(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
-         colNo = dataReader.GetOrdinal(colName);
+			if ( colName.Length > 0 )
+				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
          if ( ! dataReader.IsDBNull(colNo) ) 
             return dataReader.GetInt64(colNo);
       }
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColBig"), "ColName=" + colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColBig"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return 0;
    }
@@ -387,32 +391,21 @@ namespace PCIBusiness
       return 0;
    }
 
-   public string ColString(string colName,byte errorMode=1)
+   public string ColString(string colName,int colNumber=999999,byte errorMode=1)
    {
       try
       {
-         colNo = dataReader.GetOrdinal(colName);
+			if ( colName.Length > 0 )
+				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
 			if ( ! dataReader.IsDBNull(colNo) )
 				return dataReader.GetString(colNo).Trim();
-
-//			if ( ! dataReader.IsDBNull(colNo) )
-//			{
-//				string colType = dataReader.GetDataTypeName(colNo).ToUpper();
-//				string colValue;
-//				if ( colType == "NCHAR" || colType == "NVARCHAR" )
-//					colValue = dataReader.GetSqlString(colNo).ToString();
-//				else
-//					colValue = dataReader.GetString(colNo);
-//				if ( errorMode == 37 )
-//					Tools.LogInfo ( ModuleName("DBConn.ColString"), "Column " + colName + " : Col No = " + colNo.ToString() + ", SQL Type = " + colType + ", Value = '" + colValue + "'", 255 );
-//				return colValue.Trim();
-//			}
-
      }
       catch (Exception ex)
       {
 			if ( errorMode == 1 )
-				Tools.LogException ( ModuleName("DBConn.ColString"), "ColName=" + colName, ex );
+				Tools.LogException ( ModuleName("DBConn.ColString"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
       return "";
    }
@@ -513,24 +506,24 @@ namespace PCIBusiness
 			if ( errorMode == 1 )
 				Tools.LogException ( ModuleName("DBConn.ColDate"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
       }
-      return Constants.C_NULLDATE();
+      return Constants.DateNull;
    } 
 
-		public string ColValue(int colNumber)
+		public string ColValue(int colNumber,byte errorMode=1)
 		{
 			try
 			{
-				string tmp = dataReader[colNumber].ToString();
-				return tmp.Trim();
+				return (dataReader[colNumber].ToString()).Trim();
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException ( ModuleName("DBConn.ColValue"), "ColNumber=" + colNumber.ToString(), ex );
+				if ( errorMode == 1 )
+					Tools.LogException ( ModuleName("DBConn.ColValue"), "ColNumber=" + colNumber.ToString(), ex );
 			}
 			return "";
 		}
 
-		public string ColName(int colNumber)
+		public string ColName(int colNumber,byte errorMode=1)
 		{
 			try
 			{
@@ -538,7 +531,8 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException ( ModuleName("DBConn.ColName"), "ColNumber=" + colNumber.ToString(), ex );
+				if ( errorMode == 1 )
+					Tools.LogException ( ModuleName("DBConn.ColName"), "ColNumber=" + colNumber.ToString(), ex );
 			}
 			return "";
 		}
@@ -557,6 +551,33 @@ namespace PCIBusiness
 			return -8;
 		}
 
+		public string DatabaseDetails
+		{
+			get
+			{
+				string ret = "";
+				try
+				{
+					string[] connStr = dbConn.ConnectionString.Split(';');
+					foreach (string piece in connStr) // NOT "passsword"
+						if ( piece.ToUpper().StartsWith("SERVE") ||
+						     piece.ToUpper().StartsWith("DATA")  ||
+						     piece.ToUpper().StartsWith("UID")   ||
+						     piece.ToUpper().StartsWith("USER")  ||
+						     piece.ToUpper().StartsWith("DB") )
+							ret = ret + ", " + piece;
+				}
+				catch
+				{
+					ret = "Error";
+				}		
+				if ( ret.Length < 1 )
+					ret = "Not connected";
+				else if ( ret.StartsWith(",") )			
+					ret = ret.Substring(1).Trim();
+				return "DBConnection : " + ret;
+			}
+		}
 
 	// Routines for cleaning up
 	// ------------------------

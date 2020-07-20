@@ -38,6 +38,7 @@ namespace PCIBusiness
 		private string   ccPIN;
 		private string   ccToken;
 
+//	Payment Provider (eg. Peach)
 		private string   bureauCode;
 		private string   providerAccount;
 		private string   providerKey;
@@ -45,12 +46,31 @@ namespace PCIBusiness
 		private string   providerPassword;
 		private string   providerURL;
 
+//	Token Provider (eg. TokenEx)
+		private string   tokenizerKey;
+		private string   tokenizerID;
+		private string   tokenizerURL;
+
 		private int      processMode;
 		private byte     transactionType;
 		private string   threeDForm;
 
 		private Transaction transaction;
 
+
+//		Token Provider stuff
+		public string    TokenizerKey
+		{
+			get { return  Tools.NullToString(tokenizerKey); }
+		}
+		public string    TokenizerID
+		{
+			get { return  Tools.NullToString(tokenizerID); }
+		}
+		public string    TokenizerURL
+		{
+			get { return  Tools.NullToString(tokenizerURL); }
+		}
 
 //		Payment Provider stuff
 		public string    BureauCode
@@ -439,18 +459,20 @@ namespace PCIBusiness
 		{
 			get
 			{
-				if ( transactionType == (byte)Constants.TransactionType.CardPayment   ) return "Card Payment";
-				if ( transactionType == (byte)Constants.TransactionType.DeleteToken   ) return "Delete Token";
-				if ( transactionType == (byte)Constants.TransactionType.GetToken      ) return "Get Token";
-				if ( transactionType == (byte)Constants.TransactionType.ManualPayment ) return "Manual Payment (3d)";
-				if ( transactionType == (byte)Constants.TransactionType.TokenPayment  ) return "Token Payment";
+				if ( transactionType == (byte)Constants.TransactionType.CardPayment      ) return "Card Payment";
+				if ( transactionType == (byte)Constants.TransactionType.DeleteToken      ) return "Delete Token";
+				if ( transactionType == (byte)Constants.TransactionType.GetToken         ) return "Get Token";
+				if ( transactionType == (byte)Constants.TransactionType.ManualPayment    ) return "Manual Payment (3d)";
+				if ( transactionType == (byte)Constants.TransactionType.TokenPayment     ) return "Token Payment";
+				if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken ) return "Get Card Number from Token";
 				return "Unknown (transactionType=" + transactionType.ToString() + ")";
 			}
 		}
-//		public Provider  Provider
-//		{
-//			get { return  provider; }
-//		}
+
+		public int Detokenize() // ToDo
+		{
+			return 0;
+		}
 
 		public int DeleteToken()
 		{
@@ -512,6 +534,8 @@ namespace PCIBusiness
 					return retProc; // eNETS does not have tokenization ... yet
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach) )
 					transaction = new TransactionPeach();
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
+					transaction = new TransactionTokenEx();
 				else
 					return retProc;
 			}
@@ -561,6 +585,8 @@ namespace PCIBusiness
 					transaction = new TransactionENets();
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach) )
 					transaction = new TransactionPeach();
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
+					transaction = new TransactionTokenEx();
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
 //					transaction = new TransactionPayFast();
 				else
@@ -628,9 +654,14 @@ namespace PCIBusiness
 		//	Payment Provider
 			providerKey      = dbConn.ColString ("Safekey");
 			providerURL      = dbConn.ColString ("url");
-			providerAccount  = dbConn.ColString ("MerchantAccount",0);
-			providerUserID   = dbConn.ColString ("MerchantUserId",0);
-			providerPassword = dbConn.ColString ("MerchantUserPassword",0);
+			providerAccount  = dbConn.ColString ("MerchantAccount",0,0);
+			providerUserID   = dbConn.ColString ("MerchantUserId",0,0);
+			providerPassword = dbConn.ColString ("MerchantUserPassword",0,0);
+
+		//	Token Provider (if empty, then it is the same as the payment provider)
+			tokenizerID      = dbConn.ColString ("idToken" ,0,0);
+			tokenizerKey     = dbConn.ColString ("keyToken",0,0);
+			tokenizerURL     = dbConn.ColString ("urlToken",0,0);
 
 		//	Customer
 			if ( dbConn.ColStatus("lastName") == Constants.DBColumnStatus.ColumnOK )
@@ -649,22 +680,22 @@ namespace PCIBusiness
 			}
 
 		//	Payment
-			merchantReference         = dbConn.ColString("merchantReference",0);
-			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0); // Only really for Ikajo, don't log error
-			paymentAmount             = dbConn.ColLong  ("amountInCents",0);
-			currencyCode              = dbConn.ColString("currencyCode",0);
-			paymentDescription        = dbConn.ColString("description",0);
+			merchantReference         = dbConn.ColString("merchantReference",0,0);
+			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0,0); // Only really for Ikajo, don't log error
+			paymentAmount             = dbConn.ColLong  ("amountInCents",0,0);
+			currencyCode              = dbConn.ColString("currencyCode",0,0);
+			paymentDescription        = dbConn.ColString("description",0,0);
 
 		//	Card/token/transaction details, not always present, don't log errors
-			ccName        = dbConn.ColString("nameOnCard",0);
-			ccNumber      = dbConn.ColString("cardNumber",0);
-			ccExpiryMonth = dbConn.ColString("cardExpiryMonth",0);
-			ccExpiryYear  = dbConn.ColString("cardExpiryYear",0);
-			ccType        = dbConn.ColString("cardType",0);
-			ccCVV         = dbConn.ColString("cvv",0);
-			ccToken       = dbConn.ColString("token",0);
-			ccPIN         = dbConn.ColString("PIN",0);
-			transactionID = dbConn.ColString("transactionId",0);
+			ccName        = dbConn.ColString("nameOnCard",0,0);
+			ccNumber      = dbConn.ColString("cardNumber",0,0);
+			ccExpiryMonth = dbConn.ColString("cardExpiryMonth",0,0);
+			ccExpiryYear  = dbConn.ColString("cardExpiryYear",0,0);
+			ccType        = dbConn.ColString("cardType",0,0);
+			ccCVV         = dbConn.ColString("cvv",0,0);
+			ccToken       = dbConn.ColString("token",0,0);
+			ccPIN         = dbConn.ColString("PIN",0,0);
+			transactionID = dbConn.ColString("transactionId",0,0);
 		}
 
 		public override void CleanUp()

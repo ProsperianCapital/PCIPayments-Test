@@ -42,8 +42,8 @@ namespace PCIBusiness
 				Tools.LogInfo("TransactionPeach.PostHTML/10","URL=" + url + ", URL data=" + xmlSent,221);
 
 				ret                              = 20;
-				byte[]         buffer            = Encoding.ASCII.GetBytes(xmlSent);
-//				byte[]         buffer            = Encoding.UTF8.GetBytes(xmlSent);
+//				byte[]         buffer            = Encoding.ASCII.GetBytes(xmlSent);
+				byte[]         buffer            = Encoding.UTF8.GetBytes(xmlSent);
 				HttpWebRequest request           = (HttpWebRequest)HttpWebRequest.Create(url);
 				ret                              = 30;
 				request.Method                   = "POST";
@@ -126,16 +126,22 @@ namespace PCIBusiness
 
 			try
 			{
-				xmlSent = "entityId="          + Tools.URLString(payment.ProviderUserID)
-				        + "&paymentBrand="     + Tools.URLString(payment.CardType.ToUpper())
-				        + "&card.number="      + Tools.URLString(payment.CardNumber)
-				        + "&card.holder="      + Tools.URLString(payment.CardName)
-				        + "&card.expiryMonth=" + Tools.URLString(payment.CardExpiryMM)
-				        + "&card.expiryYear="  + Tools.URLString(payment.CardExpiryYYYY)
-				        + "&card.cvv="         + Tools.URLString(payment.CardCVV)
-				        + "&amount="           + Tools.URLString(payment.PaymentAmountDecimal)
-				        + "&currency="         + Tools.URLString(payment.CurrencyCode)
-				        + "&paymentType=DB"; // DB = Instant, PA = Pre-authorize
+				xmlSent = "entityId="               + Tools.URLString(payment.ProviderUserID)
+				        + "&paymentBrand="          + Tools.URLString(payment.CardType.ToUpper())
+				        + "&card.number="           + Tools.URLString(payment.CardNumber)
+				        + "&card.holder="           + Tools.URLString(payment.CardName)
+				        + "&card.expiryMonth="      + Tools.URLString(payment.CardExpiryMM)
+				        + "&card.expiryYear="       + Tools.URLString(payment.CardExpiryYYYY)
+				        + "&card.cvv="              + Tools.URLString(payment.CardCVV)
+				        + "&amount="                + Tools.URLString(payment.PaymentAmountDecimal)
+				        + "&currency="              + Tools.URLString(payment.CurrencyCode)
+				        + "&merchantTransactionId=" + Tools.URLString(payment.MerchantReference)
+				        + "&descriptor="            + Tools.URLString(payment.PaymentDescription)
+				        + "&merchantInvoiceId="     + Tools.URLString(payment.MerchantReference)
+				        + "&merchant.name=Prosperian"
+				        + "&paymentType=DB" // DB = Instant debit, PA = Pre-authorize, CP =
+				        + "&recurringType=REPEATED";
+//				        + "&merchant.city=[merchant.city]abcdefghijklmnopqrstuvwxyz"
 
 				Tools.LogInfo("TransactionPeach.CardPayment/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
 
@@ -160,10 +166,12 @@ namespace PCIBusiness
 
 			try
 			{
-				xmlSent = "entityId="  + Tools.URLString(payment.ProviderUserID)
-				        + "&amount="   + Tools.URLString(payment.PaymentAmountDecimal)
-				        + "&currency=" + Tools.URLString(payment.CurrencyCode)
-				        + "&paymentType=DB" // DB = Instant, PA = Pre-authorize
+				xmlSent = "entityId="               + Tools.URLString(payment.ProviderUserID)
+				        + "&amount="                + Tools.URLString(payment.PaymentAmountDecimal)
+				        + "&currency="              + Tools.URLString(payment.CurrencyCode)
+				        + "&merchantTransactionId=" + Tools.URLString(payment.MerchantReference)
+				        + "&descriptor="            + Tools.URLString(payment.PaymentDescription)
+				        + "&paymentType=DB" // DB = Instant debit, PA = Pre-authorize
 				        + "&recurringType=REPEATED";
 
 				Tools.LogInfo("TransactionPeach.TokenPayment/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
@@ -185,8 +193,9 @@ namespace PCIBusiness
 
 		public TransactionPeach() : base()
 		{
-			bureauCode                           = Tools.BureauCode(Constants.PaymentProvider.Peach);
-			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+			bureauCode                            = Tools.BureauCode(Constants.PaymentProvider.Peach);
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
 		}
 	}
 }

@@ -95,7 +95,7 @@ namespace PCIBusiness
 			string tranDesc = "";
 
 			if ( Tools.NullToString(url).Length == 0 )
-				if ( Tools.LiveTestOrDev() == Constants.SystemMode.Live )
+				if ( Tools.SystemIsLive() )
 					url = "https://www.paygenius.co.za";
 				else
 					url = "https://developer.paygenius.co.za";

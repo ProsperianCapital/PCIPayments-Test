@@ -7,26 +7,34 @@ namespace PCIBusiness
 
 	//	General stand-alone constants
 	//	-----------------------------
-		public static DateTime C_NULLDATE()
+		public static DateTime DateNull
 		{
-			return System.Convert.ToDateTime("1799/12/31");
+			get { return Convert.ToDateTime("1799/12/31"); }
 		}
-		public static string C_HTMLBREAK()
+		public static short MaxRowsSQL
 		{
-			return "<br />";
+			get {  return 1000; }
 		}
-//		public static string C_TEXTBREAK()
+		public static short MaxRowsPayment
+		{
+			get {  return 50; }
+		}
+		public static string HTMLBreak
+		{
+			get { return "<br />"; }
+		}
+//		public static string TextBreak
 //		{
-//			return Environment.NewLine; // "\n";
+//			return { Environment.NewLine; }
 //		}
-		public static short C_MAXSQLROWS()
+
+		public enum SystemPassword : int
 		{
-			return 1000;
+			Login     = 901317,
+			BackDoor  = 615702,
+			Technical = 463228
 		}
-		public static short C_MAXPAYMENTROWS()
-		{
-			return 50;
-		}
+
 		public enum DBColumnStatus : byte
 		{
 			InvalidColumn = 1,
@@ -54,11 +62,17 @@ namespace PCIBusiness
 			PayGenius  = 18,
 			Ecentric   = 19,
 			eNETS      = 20,
-			Peach      = 21
-
+			Peach      = 21,
+			TokenEx    = 22
 //	Not implemented yet
-//			DinersClub = 22
-//			PayFast    = 23
+//			DinersClub = 23
+//			PayFast    = 24
+		}
+
+		public enum TradingProvider : int
+		{
+			InteractiveBrokers = 1,
+			FinnHub            = 2
 		}
 
 		public enum CreditCardType : byte
@@ -102,11 +116,12 @@ namespace PCIBusiness
 		}
 		public enum TransactionType : byte
 		{
-			GetToken       =  1,
-			TokenPayment   =  2,
-			CardPayment    =  3,
-			DeleteToken    =  4,
-			ManualPayment  = 73
+			GetToken         =  1,
+			TokenPayment     =  2,
+			CardPayment      =  3,
+			DeleteToken      =  4,
+			GetCardFromToken =  5,
+			ManualPayment    = 73
 		}
 
 //	iTextSharp stuff
@@ -136,18 +151,55 @@ namespace PCIBusiness
 			IBStockPrices          =  1,
 			IBExchangeRates        =  2,
 			IBPortfolio            =  3,
-			IBOrders               =  4,
+			IBOrders               =  4, // Not implemented yet
 			IBExchangeCandles      =  5,
 			FinnHubStockPrices     = 21,
 			FinnHubStockHistory    = 22,
 			FinnHubExchangeRates   = 23,
-			FinnHubExchangeCandles = 24 // Not implemented yet
+			FinnHubStockTicks      = 24,
+			FinnHubExchangeCandles = 29
+		}
+
+		public enum TickerStatus : byte
+		{
+			Stopped  = 11,
+			Stopping = 21,
+			Starting = 31,
+			Running  = 41,
+			Disabled = 88,
+			Unused   = 99
+		}
+
+		public enum TickerAction : byte
+		{
+			ShutDown = 1,
+			Stop     = 2,
+			Run      = 3
 		}
 
 		public enum DataFormat : int
 		{
 			CSV = 31,
 			PDF = 32			
+		}
+
+		public enum TechnicalQuery : byte
+		{
+		//	Values greater than 99 need the system password
+			SQLStatus       =   1,
+			SQLObject       = 102,
+			SQLExecute      = 103,
+			ConfigNet       =   4,
+			ConfigSoftware  =   5,
+			ConfigApp       = 106,
+			ErrorLogView    =   7,
+			InfoLogView     =   8,
+			ErrorLogWrite   = 109,
+			InfoLogWrite    = 110,
+			EMailSend       = 111,
+			ClientDetails   =  12,
+			CertDetails     =  13,
+			ServerVariables =  14
 		}
 
 //		public enum PaymentType : byte

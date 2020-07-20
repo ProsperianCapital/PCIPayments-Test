@@ -2,6 +2,9 @@
 
 namespace PCIBusiness
 {
+//	FinnHub
+//	Used to deserialize a JSON result
+
 	public class StockHistory
 	{
 		public decimal[] c;
@@ -37,7 +40,5 @@ namespace PCIBusiness
 			v = null;
 			s = null;
 		}
-
-
 	}
 }

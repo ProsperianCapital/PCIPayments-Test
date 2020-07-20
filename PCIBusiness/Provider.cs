@@ -41,8 +41,9 @@ namespace PCIBusiness
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)   ||
 				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)     ||
-//				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)     ||
-				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
+				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)     ||
+				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)  ||
+				     bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
 					bureauStatus = 3; // Live
 //				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
 //					bureauStatus = 2; // Disabled
@@ -86,6 +87,7 @@ namespace PCIBusiness
 				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)  ) transaction = new TransactionEcentric();
 				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)     ) transaction = new TransactionENets();
 				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)     ) transaction = new TransactionPeach();
+				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx)   ) transaction = new TransactionTokenEx();
 				return transaction;
 			}
 		}
@@ -130,8 +132,9 @@ namespace PCIBusiness
 			dbConn.SourceInfo = "Provider.LoadData";
 			merchantKey       = dbConn.ColString("Safekey");
 			providerURL       = dbConn.ColString("url");
-			userID            = dbConn.ColString("MerchantUserId",0);
-			userPassword      = dbConn.ColString("MerchantUserPassword",0);
+			userID            = dbConn.ColString("MerchantUserId",0,0);
+			userPassword      = dbConn.ColString("MerchantUserPassword",0,0);
+//			bureauCode        = dbConn.ColString("BureauCode",0);
 			bureauName        = "";
 			bureauStatus      = 0;
 		}

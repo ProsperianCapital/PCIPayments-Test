@@ -44,6 +44,7 @@ namespace PCIBusiness
 		public  string      ResultCode
 		{
 			get { return     Tools.NullToString(resultCode); }
+			set { resultCode = value.Trim(); }
 		}
 		public  string      ResultStatus
 		{

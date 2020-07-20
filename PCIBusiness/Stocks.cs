@@ -17,21 +17,23 @@
 			return null;
 		}
 
-		public int LoadAll(string secType="")
+		public int LoadAll(Constants.TradingProvider tradeProvider,int tickerType=0,string secType="",int counter=0)
 		{
-//			if ( secType.ToUpper() == "CASH" )
-//				sql = "select 1 as StockId,'USD' as Symbol,'FH' as BrokerExchangeCode,'CASH' as SecType,'' as CUR"
-//				    +     " union select 2,'EUR','FH','CASH',''"
-//				    +     " union select 3,'ZAR','FH','CASH',''";
-//			else
-//				sql = "exec sp_Get_StockListB"
-//				    + ( secType.Length > 0 ? " @SecType = " + Tools.DBString(secType) : "" );
+		//	if ( secType.ToUpper() == "STK-HISTORY" )
 
-			if ( secType.ToUpper() == "STK-HISTORY" )
-				sql = "exec sp_Get_StockCandles";
+			if ( tickerType == (int)Constants.TickerType.FinnHubStockHistory )
+				sql = "exec sp_Get_StockCandles @ProviderCode=" + Tools.DBString(Tools.TradingProviderCode(tradeProvider));
+
+			else if ( tickerType == (int)Constants.TickerType.FinnHubStockTicks )
+				sql = "exec sp_GetTickList @ProviderCode=" + Tools.DBString(Tools.TradingProviderCode(tradeProvider))
+				    + ( Tools.SystemLiveTestOrDev() == Constants.SystemMode.Development ? ",@Test="+counter.ToString() : "" );
+
+			else if ( secType.Length > 0 )
+				sql = "exec sp_Get_StockListB @SecType = " + Tools.DBString(secType);
+
 			else
-				sql = "exec sp_Get_StockListB"
-				    + ( secType.Length > 0 ? " @SecType = " + Tools.DBString(secType) : "" );
+				sql = "exec sp_Get_StockListB";
+
 			Tools.LogInfo("Stocks.LoadAll",sql,10);
 			return LoadDataFromSQL();
 		}
