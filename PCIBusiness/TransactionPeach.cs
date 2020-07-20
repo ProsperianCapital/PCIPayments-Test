@@ -26,7 +26,9 @@ namespace PCIBusiness
 		private int PostHTML(byte transactionType,Payment payment)
 		{
 			int    ret = 10;
-			string url = "https://test.oppwa.com/v1/registrations";
+//			string url = "https://test.oppwa.com/v1/registrations";
+			string url = "https://test.oppwa.com/v1/payments";
+//			string url = "https://oppwa.com/v1/payments";
 			strResult  = "";
 			payRef     = "";
 			resultCode = "999.999.999";
@@ -42,12 +44,10 @@ namespace PCIBusiness
 				Tools.LogInfo("TransactionPeach.PostHTML/10","URL=" + url + ", URL data=" + xmlSent,221);
 
 				ret                              = 20;
-//				byte[]         buffer            = Encoding.ASCII.GetBytes(xmlSent);
 				byte[]         buffer            = Encoding.UTF8.GetBytes(xmlSent);
 				HttpWebRequest request           = (HttpWebRequest)HttpWebRequest.Create(url);
 				ret                              = 30;
 				request.Method                   = "POST";
-//				request.Headers["Authorization"] = "Bearer OGFjN2E0Yzc3MmI3N2RkZjAxNzJiN2VkMDFmODA2YTF8akE0aEVaOG5ZQQ==";
 				request.Headers["Authorization"] = "Bearer " + payment.ProviderKey;
 				request.ContentType              = "application/x-www-form-urlencoded";
 				ret                              = 40;
@@ -79,10 +79,14 @@ namespace PCIBusiness
 						Tools.LogInfo("TransactionPeach.PostHTML/120","resultCode="+resultCode+", resultMsg="+resultMsg,221);
 				}
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
+			{
+				Tools.DecodeWebException(ex1,"TransactionPeach.PostHTML/197",xmlSent);
+			}
+			catch (Exception ex2)
 			{
 				Tools.LogInfo     ("TransactionPeach.PostHTML/198","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPeach.PostHTML/199","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex);
+				Tools.LogException("TransactionPeach.PostHTML/199","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex2);
 			}
 			return ret;
 		}
@@ -126,6 +130,24 @@ namespace PCIBusiness
 
 			try
 			{
+// v1
+//				xmlSent = "entityId="               + Tools.URLString(payment.ProviderUserID)
+//				        + "&paymentBrand="          + Tools.URLString(payment.CardType.ToUpper())
+//				        + "&card.number="           + Tools.URLString(payment.CardNumber)
+//				        + "&card.holder="           + Tools.URLString(payment.CardName)
+//				        + "&card.expiryMonth="      + Tools.URLString(payment.CardExpiryMM)
+//				        + "&card.expiryYear="       + Tools.URLString(payment.CardExpiryYYYY)
+//				        + "&card.cvv="              + Tools.URLString(payment.CardCVV)
+//				        + "&amount="                + Tools.URLString(payment.PaymentAmountDecimal)
+//				        + "&currency="              + Tools.URLString(payment.CurrencyCode)
+//				        + "&merchantTransactionId=" + Tools.URLString(payment.MerchantReference)
+//				        + "&descriptor="            + Tools.URLString(payment.PaymentDescription)
+//				        + "&merchantInvoiceId="     + Tools.URLString(payment.MerchantReference)
+//				        + "&merchant.name=Prosperian"
+//				        + "&paymentType=DB" // DB = Instant debit, PA = Pre-authorize, CP =
+//				        + "&recurringType=REPEATED";
+//	//			        + "&merchant.city=[merchant.city]abcdefghijklmnopqrstuvwxyz"
+
 				xmlSent = "entityId="               + Tools.URLString(payment.ProviderUserID)
 				        + "&paymentBrand="          + Tools.URLString(payment.CardType.ToUpper())
 				        + "&card.number="           + Tools.URLString(payment.CardNumber)
@@ -138,10 +160,10 @@ namespace PCIBusiness
 				        + "&merchantTransactionId=" + Tools.URLString(payment.MerchantReference)
 				        + "&descriptor="            + Tools.URLString(payment.PaymentDescription)
 				        + "&merchantInvoiceId="     + Tools.URLString(payment.MerchantReference)
+				        + "&shopperResultUrl="      + Tools.ConfigValue("SystemURL")+"/Succeed.aspx?TransRef="+Tools.XMLSafe(payment.MerchantReference)
 				        + "&merchant.name=Prosperian"
-				        + "&paymentType=DB" // DB = Instant debit, PA = Pre-authorize, CP =
-				        + "&recurringType=REPEATED";
-//				        + "&merchant.city=[merchant.city]abcdefghijklmnopqrstuvwxyz"
+				        + "&recurringType=REPEATED"
+				        + "&paymentType=DB"; // DB = Instant debit, PA = Pre-authorize, CP =
 
 				Tools.LogInfo("TransactionPeach.CardPayment/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
 
@@ -189,7 +211,6 @@ namespace PCIBusiness
 			}
 			return ret;
 		}
-
 
 		public TransactionPeach() : base()
 		{

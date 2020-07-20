@@ -83,9 +83,7 @@ namespace PCIBusiness
 			{
 				resultCode = ex1.Response.Headers["tx_code"];
 				resultMsg  = ex1.Response.Headers["tx_message"];
-
-				Tools.LogInfo     ("TransactionTokenEx.PostHTML/198","Ret="+ret.ToString()+", URL=" + pURL + ", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionTokenEx.PostHTML/199","Ret="+ret.ToString()+", URL=" + pURL + ", XML Sent="+xmlSent,ex1);
+				Tools.DecodeWebException(ex1,"TransactionTokenEx.PostHTML/197",xmlSent);
 			}
 			catch (Exception ex2)
 			{
@@ -142,9 +140,13 @@ namespace PCIBusiness
 						Tools.LogInfo("TransactionTokenEx.PostJSON/110","resultCode="+resultCode+", resultMsg="+resultMsg,221);
 				}
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogException("TransactionTokenEx.PostJSON/199","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex);
+				Tools.DecodeWebException(ex1,"TransactionTokenEx.PostJSON/197",xmlSent);
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogException("TransactionTokenEx.PostJSON/199","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex2);
 			}
 			return ret;
 		}
@@ -209,9 +211,13 @@ namespace PCIBusiness
 						Tools.LogInfo("TransactionTokenEx.PostXML/110","resultCode="+resultCode+", resultMsg="+resultMsg,221);
 				}
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogException("TransactionTokenEx.PostXML/199","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex);
+				Tools.DecodeWebException(ex1,"TransactionTokenEx.PostXML/197",xmlSent);
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogException("TransactionTokenEx.PostXML/199","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex2);
 			}
 			return ret;
 		}

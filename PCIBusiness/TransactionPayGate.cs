@@ -304,10 +304,14 @@ namespace PCIBusiness
 					}
 				}
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogInfo("TransactionPayGate.CallWebService/98","ret="+ret.ToString(),220);
-				Tools.LogException("TransactionPayGate.CallWebService/99","ret="+ret.ToString(),ex);
+				Tools.DecodeWebException(ex1,"TransactionPayGate.CallWebService/97","ret="+ret.ToString());
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogInfo     ("TransactionPayGate.CallWebService/98","ret="+ret.ToString(),220);
+				Tools.LogException("TransactionPayGate.CallWebService/99","ret="+ret.ToString(),ex2);
 			}
 			return ret;
 		}

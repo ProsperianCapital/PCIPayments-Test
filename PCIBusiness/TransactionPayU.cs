@@ -141,10 +141,14 @@ namespace PCIBusiness
 
 				Tools.LogInfo("TransactionPayU.SendXML/80","URL=" + url + ", XML Sent=" + xmlSent+", XML Rec="+xmlReceived,220);
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogInfo("TransactionPayU.SendXML/85","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayU.SendXML/90","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex);
+				Tools.DecodeWebException(ex1,"TransactionPayU.SendXML/97",xmlSent);
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogInfo     ("TransactionPayU.SendXML/98","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionPayU.SendXML/99","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex2);
 			}
 			return ret;
 		}

@@ -112,10 +112,14 @@ namespace PCIBusiness
 
 				Tools.LogInfo("TransactionT24.PostHTML/80","XML Sent=" + xmlSent+", XML Rec=" + xmlReceived,220);
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogInfo("TransactionT24.PostHTML/85","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionT24.PostHTML/90","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex);
+				Tools.DecodeWebException(ex1,"TransactionT24.PostHTML/97",xmlSent);
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogInfo     ("TransactionT24.PostHTML/98","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionT24.PostHTML/99","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex2);
 			}
 			return ret;
 		}

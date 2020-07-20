@@ -135,10 +135,14 @@ namespace PCIBusiness
 					Tools.LogInfo("TransactionEcentric.GetToken/60","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 				}
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogInfo("TransactionEcentric.GetToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionEcentric.GetToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.DecodeWebException(ex1,"TransactionEcentric.GetToken/97",xmlSent);
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogInfo     ("TransactionEcentric.GetToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionEcentric.GetToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex2);
 			}
 			return ret;
 		}
@@ -191,10 +195,14 @@ namespace PCIBusiness
 					Tools.LogInfo("TransactionEcentric.TokenPayment/60","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
 				}
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogInfo("TransactionEcentric.TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionEcentric.TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.DecodeWebException(ex1,"TransactionEcentric.TokenPayment/97",xmlSent);
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogInfo     ("TransactionEcentric.TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
+				Tools.LogException("TransactionEcentric.TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex2);
 			}
 			return ret;
 		}
@@ -255,10 +263,14 @@ namespace PCIBusiness
 				resultMsg  = Tools.XMLNode(xmlResult,"Description");
 				ret        = 0;
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogInfo("TransactionEcentric.CallWebService/298","ret="+ret.ToString(),220);
-				Tools.LogException("TransactionEcentric.CallWebService/299","ret="+ret.ToString(),ex);
+				Tools.DecodeWebException(ex1,"TransactionEcentric.CallWebService/297","ret="+ret.ToString());
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogInfo     ("TransactionEcentric.CallWebService/298","ret="+ret.ToString(),220);
+				Tools.LogException("TransactionEcentric.CallWebService/299","ret="+ret.ToString(),ex2);
 			}
 			return ret;
 		}

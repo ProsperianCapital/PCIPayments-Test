@@ -1343,5 +1343,36 @@ namespace PCIBusiness
 			var hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(infoToHash));
 			return Convert.ToBase64String(hash); // Ensure the string returned is Base64 Encoded
 		}
+
+		public static string DecodeWebException(System.Net.WebException ex,string callingModule="",string extraData="")
+		{
+			try
+			{
+				System.Net.HttpWebResponse errorResponse = ex.Response as System.Net.HttpWebResponse;
+				if ( errorResponse == null )
+					return "";
+
+				string responseContent = "";
+				int    k               = 0;
+
+				using ( StreamReader sR = new StreamReader(errorResponse.GetResponseStream()) )
+					responseContent = sR.ReadToEnd();
+
+				responseContent = responseContent + Environment.NewLine + Environment.NewLine;
+				foreach (string key in errorResponse.Headers.AllKeys )
+					responseContent = responseContent + "[" + (k++).ToString() + "] " + key + " : " + errorResponse.Headers[key] + Environment.NewLine;
+
+				if ( callingModule.Length > 0 )
+				{
+					extraData = ( extraData.Length == 0 ? "" : extraData + ". " ) + "(WebException) ";
+					Tools.LogInfo     (callingModule,extraData + responseContent,245);
+					Tools.LogException(callingModule,extraData + responseContent,ex);
+				}
+				return responseContent;
+			}
+			catch
+			{ }
+			return "";
+		}
 	}
 }
