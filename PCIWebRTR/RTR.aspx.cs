@@ -55,7 +55,8 @@ namespace PCIWebRTR
 				lblSUserCode.Text = userCode;
 
 //	Dev mode
-				if ( Tools.ConfigValue("Access/BackDoor") == "901317" )
+				if ( Tools.ConfigValue("Access/BackDoor")  == ((int)Constants.SystemPassword.BackDoor).ToString() ||
+				   Tools.NullToString(Request["BackDoor"]) == ((int)Constants.SystemPassword.BackDoor).ToString() )
 					userCode = ( userCode.Length == 0 ? "013" : userCode );
 				else
 				{
