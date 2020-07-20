@@ -215,8 +215,8 @@ namespace PCIWebRTR
 					lblBureauURL.Text    = provider.BureauURL;
 					lblMerchantKey.Text  = provider.MerchantKey;
 					lblMerchantUser.Text = provider.MerchantUserID;
-					lblCards.Text        = provider.CardsToBeTokenized.ToString()    + ( provider.CardsToBeTokenized    >= Constants.C_MAXPAYMENTROWS() ? "+" : "" );
-					lblPayments.Text     = provider.PaymentsToBeProcessed.ToString() + ( provider.PaymentsToBeProcessed >= Constants.C_MAXPAYMENTROWS() ? "+" : "" );
+					lblCards.Text        = provider.CardsToBeTokenized.ToString()    + ( provider.CardsToBeTokenized    >= Constants.MaxRowsPayment ? "+" : "" );
+					lblPayments.Text     = provider.PaymentsToBeProcessed.ToString() + ( provider.PaymentsToBeProcessed >= Constants.MaxRowsPayment ? "+" : "" );
 					if ( provider.PaymentType == (byte)Constants.TransactionType.TokenPayment )
 					{
 //						btnProcess1.Text    = "Get Tokens";
@@ -433,7 +433,7 @@ namespace PCIWebRTR
 				else if ( ! rdo0.Checked )
 					return;
 
-				if ( fDate <= Constants.C_NULLDATE() )
+				if ( fDate <= Constants.DateNull )
 					return;
 
 				int k    = fileName.LastIndexOf(".");
