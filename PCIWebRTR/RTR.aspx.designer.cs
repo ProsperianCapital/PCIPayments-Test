@@ -220,6 +220,15 @@ namespace PCIWebRTR {
         protected global::System.Web.UI.WebControls.Button btnProcess1;
         
         /// <summary>
+        /// btnProcess3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnProcess3;
+        
+        /// <summary>
         /// btnProcess2 control.
         /// </summary>
         /// <remarks>
@@ -238,13 +247,13 @@ namespace PCIWebRTR {
         protected global::System.Web.UI.WebControls.Button btnProcess4;
         
         /// <summary>
-        /// btnProcess3 control.
+        /// btnProcess5 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnProcess3;
+        protected global::System.Web.UI.WebControls.Button btnProcess5;
         
         /// <summary>
         /// btnConfig control.

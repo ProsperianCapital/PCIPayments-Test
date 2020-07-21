@@ -260,6 +260,11 @@ namespace PCIWebRTR
 			ProcessCards((byte)Constants.TransactionType.CardPayment);
 		}
 
+		protected void btnProcess5_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.CardPaymentTokenEx);
+		}
+
 		protected void btnProcess3_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)Constants.TransactionType.DeleteToken);

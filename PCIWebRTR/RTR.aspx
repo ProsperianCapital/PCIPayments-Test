@@ -92,14 +92,15 @@ function PaySingle(mode)
 	</table>
 	<asp:Panel runat="server" ID="pnlButtons" CssClass="ButtonRow">
 		<asp:Button  runat="server" ID="btnProcess1" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Getting tokens ... please be patient')" onclick="btnProcess1_Click" Text="Get Tokens" />
+		<asp:Button  runat="server" ID="btnProcess3" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Deleting tokens ... please be patient')" onclick="btnProcess3_Click" Text="Delete Tokens" /> |
 		<asp:Button  runat="server" ID="btnProcess2" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess2_Click" Text="Token Payments" />
 		<asp:Button  runat="server" ID="btnProcess4" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess4_Click" Text="Card Payments" />
-		<asp:Button  runat="server" ID="btnProcess3" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Deleting tokens ... please be patient')" onclick="btnProcess3_Click" Text="Delete Tokens" />
+		<asp:Button  runat="server" ID="btnProcess5" CssClass="Button" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess5_Click" Text="TokenEx Payments" /> |
 		<asp:Button  runat="server" ID="btnConfig"   CssClass="Button" OnClientClick="JavaScript:Busy(1)" onclick="btnConfig_Click" Text="Config" />
 		<input type="button" class="Button" onclick="JavaScript:ShowElt('divLogs',1)" value="Logs" />
 		<asp:Button  runat="server" ID="btnSQL"      CssClass="Button" OnClientClick="JavaScript:Busy(1,'Executing SQL ...')" onclick="btnSQL_Click" Text="Test SQL ..." />
 		<asp:Button  runat="server" ID="btnJSON"     CssClass="Button" OnClientClick="JavaScript:Busy(1,'Parsing JSON string ...')" onclick="btnJSON_Click" Text="Test JSON ..." visible="false" />
-		<asp:TextBox runat="server" ID="txtTest" Width="560px"></asp:TextBox>
+		<asp:TextBox runat="server" ID="txtTest" Width="480px"></asp:TextBox>
 	</asp:Panel>
 	<hr />
 	<asp:Label runat="server" ID="lblTest"></asp:Label>
