@@ -100,7 +100,7 @@ function PaySingle(mode)
 		<input type="button" class="Button" onclick="JavaScript:ShowElt('divLogs',1)" value="Logs" />
 		<asp:Button  runat="server" ID="btnSQL"      CssClass="Button" OnClientClick="JavaScript:Busy(1,'Executing SQL ...')" onclick="btnSQL_Click" Text="Test SQL ..." />
 		<asp:Button  runat="server" ID="btnJSON"     CssClass="Button" OnClientClick="JavaScript:Busy(1,'Parsing JSON string ...')" onclick="btnJSON_Click" Text="Test JSON ..." visible="false" />
-		<asp:TextBox runat="server" ID="txtTest" Width="480px"></asp:TextBox>
+		<asp:TextBox runat="server" ID="txtTest" Width="450px"></asp:TextBox>
 	</asp:Panel>
 	<hr />
 	<asp:Label runat="server" ID="lblTest"></asp:Label>
