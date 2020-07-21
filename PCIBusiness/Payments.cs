@@ -129,7 +129,12 @@ namespace PCIBusiness
 			else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
     		{
 				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
-				desc = "Card Payment";
+				desc = "Card Payment (Direct)";
+			}
+			else if ( transactionType == (byte)Constants.TransactionType.CardPaymentTokenEx )
+    		{
+				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
+				desc = "Card Payment (via TokenEx)";
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
     		{
@@ -176,6 +181,8 @@ namespace PCIBusiness
 						else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
 							err = payment.ProcessPayment();
 						else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
+							err = payment.ProcessPayment();
+						else if ( transactionType == (byte)Constants.TransactionType.CardPaymentTokenEx )
 							err = payment.ProcessPayment();
 						else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
 							err = payment.DeleteToken();

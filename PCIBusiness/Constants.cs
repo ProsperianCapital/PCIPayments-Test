@@ -116,12 +116,13 @@ namespace PCIBusiness
 		}
 		public enum TransactionType : byte
 		{
-			GetToken         =  1,
-			TokenPayment     =  2,
-			CardPayment      =  3,
-			DeleteToken      =  4,
-			GetCardFromToken =  5,
-			ManualPayment    = 73
+			GetToken           =  1,
+			TokenPayment       =  2,
+			CardPayment        =  3,
+			DeleteToken        =  4,
+			GetCardFromToken   =  5,
+			CardPaymentTokenEx =  6,
+			ManualPayment      = 73
 		}
 
 //	iTextSharp stuff

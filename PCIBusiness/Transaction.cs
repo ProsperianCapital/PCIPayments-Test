@@ -127,22 +127,27 @@ namespace PCIBusiness
 
 		public virtual int GetToken(Payment payment)
 		{
-			return 0;
+			return 14010;
 		}
 
 		public virtual int DeleteToken(Payment payment)
 		{
-			return 0;
+			return 14020;
 		}
 
 		public virtual int TokenPayment(Payment payment)
 		{
-			return 0;
+			return 14030;
 		}
 
 		public virtual int CardPayment(Payment payment)
 		{
-			return 0;
+			return 14040;
+		}
+
+		public virtual int CardPaymentTokenEx(Payment payment)
+		{
+			return 14050;
 		}
 
       public virtual bool EnabledFor3d(byte transactionType)
