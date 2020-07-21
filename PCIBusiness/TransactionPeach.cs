@@ -168,12 +168,13 @@ namespace PCIBusiness
 				Tools.LogInfo("TransactionPeach.CardPayment/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
 
 				ret      = PostHTML((byte)Constants.TransactionType.GetToken,payment);
-				payToken = Tools.JSONValue(strResult,"id");
-				payRef   = Tools.JSONValue(strResult,"ndc");
-				if ( payToken.Length < 1 && ret == 0 )
+//				payToken = Tools.JSONValue(strResult,"id");
+//				payRef   = Tools.JSONValue(strResult,"ndc");
+				payRef   = Tools.JSONValue(strResult,"id");
+				if ( payRef.Length < 1 && ret == 0 )
 					ret = 248;
 
-				Tools.LogInfo("TransactionPeach.CardPayment/20","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,221);
+				Tools.LogInfo("TransactionPeach.CardPayment/20","ResultCode="+ResultCode + ", payRef=" + payRef,221);
 			}
 			catch (Exception ex)
 			{

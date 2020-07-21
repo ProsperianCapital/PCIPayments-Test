@@ -30,9 +30,9 @@ namespace PCIBusiness
 
 			try
 			{
-				if ( payment.ProviderURL.Length > 0 )
+				if ( payment.ProviderURL.Length > 0 )  // The PAYMENT provider (Peach)
 					pURL = payment.ProviderURL;
-				if ( payment.TokenizerURL.Length > 0 )
+				if ( payment.TokenizerURL.Length > 0 ) // The TOKENIZER (TokenEx)
 					tURL = payment.TokenizerURL;
 				if ( tranPeach == null )
 					tranPeach = new TransactionPeach();
@@ -264,30 +264,38 @@ namespace PCIBusiness
 
 			int ret = 10;
 
+			if ( payment.CardToken.Length < 6 )
+			{
+				Tools.LogInfo("TransactionTokenEx.CardPayment/10","Invalid token (" + payment.CardToken.Length + "), reference " + payment.MerchantReference,222);
+				return ret;
+			}
+
 			try
 			{
-				xmlSent = "entityId="          + Tools.URLString(payment.ProviderUserID)
-				        + "&paymentBrand="     + Tools.URLString(payment.CardType.ToUpper())
-				        + "&card.number={{{"   + Tools.URLString(payment.CardToken) + "}}}"
-				        + "&card.holder="      + Tools.URLString(payment.CardName)
-				        + "&card.expiryMonth=" + Tools.URLString(payment.CardExpiryMM)
-				        + "&card.expiryYear="  + Tools.URLString(payment.CardExpiryYYYY)
-				        + "&card.cvv="         + Tools.URLString(payment.CardCVV)
-				        + "&amount="           + Tools.URLString(payment.PaymentAmountDecimal)
-				        + "&currency="         + Tools.URLString(payment.CurrencyCode)
-				        + "&paymentType=DB" // DB = Instant, PA = Pre-authorize, CP =
+				xmlSent = "entityId="               + Tools.URLString(payment.ProviderUserID)
+				        + "&paymentBrand="          + Tools.URLString(payment.CardType.ToUpper())
+				        + "&card.number={{{"        + Tools.URLString(payment.CardToken) + "}}}"
+				        + "&card.holder="           + Tools.URLString(payment.CardName)
+				        + "&card.expiryMonth="      + Tools.URLString(payment.CardExpiryMM)
+				        + "&card.expiryYear="       + Tools.URLString(payment.CardExpiryYYYY)
+				        + "&card.cvv="              + Tools.URLString(payment.CardCVV)
+				        + "&amount="                + Tools.URLString(payment.PaymentAmountDecimal)
+				        + "&currency="              + Tools.URLString(payment.CurrencyCode)
+				        + "&merchantTransactionId=" + Tools.URLString(payment.MerchantReference)
+				        + "&descriptor="            + Tools.URLString(payment.PaymentDescription)
+				        + "&paymentType=DB" // DB = Instant, PA = Pre-authorize
 				        + "&recurringType=REPEATED";
 //				        + "&card.cvv={{{cvv}}}"
 
-				Tools.LogInfo("TransactionTokenEx.CardPayment/10","Post="+xmlSent+", Key="+payment.ProviderKey,10);
+				Tools.LogInfo("TransactionTokenEx.CardPayment/20","Post="+xmlSent+", Key="+payment.ProviderKey,10);
 
-				ret      = PeachHTML((byte)Constants.TransactionType.CardPayment,payment);
-				payToken = Tools.JSONValue(strResult,"id");
-				payRef   = Tools.JSONValue(strResult,"ndc");
-				if ( payToken.Length < 1 && ret == 0 )
+				ret    = PeachHTML((byte)Constants.TransactionType.CardPayment,payment);
+				payRef = Tools.JSONValue(strResult,"id");
+//				payRef = Tools.JSONValue(strResult,"ndc");
+				if ( payRef.Length < 1 && ret == 0 )
 					ret = 248;
 
-				Tools.LogInfo("TransactionTokenEx.CardPayment/20","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,221);
+				Tools.LogInfo("TransactionTokenEx.CardPayment/30","ResultCode="+ResultCode + ", payRef=" + payRef,221);
 			}
 			catch (Exception ex)
 			{
