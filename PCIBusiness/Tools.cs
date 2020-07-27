@@ -302,6 +302,9 @@ namespace PCIBusiness
 		//	{"key1":"value","key2":"value","key3":"value"}
 		//	Spaces on either side of {",:} are handled
 
+			if ( string.IsNullOrWhiteSpace(data) || string.IsNullOrWhiteSpace(tag) )
+				return "";
+
 			try
 			{
 				int    j;

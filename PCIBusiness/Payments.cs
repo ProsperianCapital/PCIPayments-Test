@@ -106,6 +106,7 @@ namespace PCIBusiness
 		{
 			int    maxRows  = Tools.StringToInt(Tools.ConfigValue("MaximumRows"));
 			int    iter     = 0;
+			int    rowsDone = 0;
 			string desc     = "";
 
 			bureauCode = Tools.NullToString(bureau);
@@ -129,12 +130,12 @@ namespace PCIBusiness
 			else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
     		{
 				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
-				desc = "Card Payment (Direct)";
+				desc = "(Direct) Card Payment)";
 			}
-			else if ( transactionType == (byte)Constants.TransactionType.CardPaymentTokenEx )
+			else if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty )
     		{
 				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
-				desc = "Card Payment (via TokenEx)";
+				desc = "(TokenEx) Card Payment";
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
     		{
@@ -163,14 +164,13 @@ namespace PCIBusiness
 
 			Tools.LogInfo("Payments.ProcessCards/15",desc + ", MaxRows=" + maxRows.ToString()+", RowsToProcess=" + rowsToProcess.ToString()+", BureauCode="+bureauCode+", SQL="+sql,199);
 
-			try
-			{
-				while ( rowsToProcess < 1 || rowsToProcess > success + fail )
+			while ( rowsToProcess < 1 || rowsToProcess > success + fail )
+				try
 				{
 					if ( LoadDataFromSQL(maxRows,"Payments.ProcessCards ("+desc+", "+bureauCode+")") < 1 )
 						break;
 					Tools.CloseDB(ref dbConn);
-					int rowsDone = 0;
+					rowsDone = 0;
 					iter++;
 					foreach (Payment payment in objList)
 					{
@@ -182,7 +182,7 @@ namespace PCIBusiness
 							err = payment.ProcessPayment();
 						else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
 							err = payment.ProcessPayment();
-						else if ( transactionType == (byte)Constants.TransactionType.CardPaymentTokenEx )
+						else if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty )
 							err = payment.ProcessPayment();
 						else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
 							err = payment.DeleteToken();
@@ -203,16 +203,16 @@ namespace PCIBusiness
 					if ( fail > 999 )
 						break;
 				}
-			}
-			catch (Exception ex)
-			{
-				Tools.LogException("Payments.ProcessCards/50","Iteration " + iter.ToString() + ", " + desc + " " + (success+fail).ToString(),ex);
-			}
-			finally
-			{
-				Tools.CloseDB(ref dbConn);
-				Tools.LogInfo("Payments.ProcessCards/90","Finished (" + success.ToString() + " " + desc + "s succeeded, " + fail.ToString() + " "+ desc + "s failed)",199);
-			}
+				catch (Exception ex)
+				{
+					Tools.LogException("Payments.ProcessCards/50","Iteration " + iter.ToString() + ", " + desc + " " + (success+fail).ToString(),ex);
+				}
+				finally
+				{
+					Tools.CloseDB(ref dbConn);
+					Tools.LogInfo("Payments.ProcessCards/90","Finished (" + success.ToString() + " " + desc + "s succeeded, " + fail.ToString() + " "+ desc + "s failed)",199);
+				}
+
 			return success+fail;
 		}
 	}

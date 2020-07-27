@@ -596,8 +596,8 @@ namespace PCIBusiness
 
 			if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
 				retProc    = transaction.TokenPayment(this);
-			else if ( transactionType == (byte)Constants.TransactionType.CardPaymentTokenEx )
-				retProc    = transaction.CardPaymentTokenEx(this);
+			else if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty )
+				retProc    = transaction.CardPaymentThirdParty(this);
 			else
 				retProc    = transaction.CardPayment(this);
 

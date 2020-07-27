@@ -14,6 +14,7 @@ namespace PCIBusiness
 		protected string      resultMsg;
 		protected string      xmlSent;
 		protected string      bureauCode;
+		protected string      bureauCodeTokenizer;
 		protected string      strResult;
 		protected XmlDocument xmlResult;
 
@@ -145,7 +146,7 @@ namespace PCIBusiness
 			return 14040;
 		}
 
-		public virtual int CardPaymentTokenEx(Payment payment)
+		public virtual int CardPaymentThirdParty(Payment payment)
 		{
 			return 14050;
 		}
@@ -167,21 +168,22 @@ namespace PCIBusiness
 
 		public Transaction()
 		{
-			payRef        = "";
-			payToken      = "";
-//			authCode      = "";
-			resultCode    = "";
-			resultMsg     = "";
-			xmlSent       = "";
-			bureauCode    = "";
-			strResult     = "";
-			eci           = "";
-			paReq         = "";
-			termUrl       = "";
-			md            = "";
-			acsUrl        = "";
-			keyValuePairs = "";
-			xmlResult     = null;
+			bureauCodeTokenizer = Tools.BureauCode(Constants.PaymentProvider.TokenEx);
+			bureauCode          = "";
+			payRef              = "";
+			payToken            = "";
+//			authCode            = "";
+			resultCode          = "";
+			resultMsg           = "";
+			xmlSent             = "";
+			strResult           = "";
+			eci                 = "";
+			paReq               = "";
+			termUrl             = "";
+			md                  = "";
+			acsUrl              = "";
+			keyValuePairs       = "";
+			xmlResult           = null;
 		}
 	}
 }

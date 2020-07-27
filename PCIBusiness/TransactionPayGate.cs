@@ -33,7 +33,7 @@ namespace PCIBusiness
 
 			try
 			{
-				Tools.LogInfo("TransactionPayGate.GetToken/10","Merchant Ref=" + payment.MerchantReference,199);
+				Tools.LogInfo("TransactionPayGate.GetToken/10","Merchant Ref=" + payment.MerchantReference,10);
 
 				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
 				        +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
@@ -72,7 +72,7 @@ namespace PCIBusiness
 
 			try
 			{
-				Tools.LogInfo("TransactionPayGate.DeleteToken/10","Merchant Ref=" + payment.MerchantReference,199);
+				Tools.LogInfo("TransactionPayGate.DeleteToken/10","Merchant Ref=" + payment.MerchantReference,10);
 
 				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
 				        +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
@@ -249,7 +249,7 @@ namespace PCIBusiness
 					resultStatus = Tools.XMLNode(xmlResult,"StatusName"       ,nsPrefix,nsURL);
 					ret          = 50;
 
-					Tools.LogInfo("TransactionPayGate.CallWebService/50",payment.TransactionTypeName+", XML Rec="+xmlOut,255);
+					Tools.LogInfo("TransactionPayGate.CallWebService/50",payment.TransactionTypeName+", XML Rec="+xmlOut,10);
 
 					if ( payment.TransactionType == (byte)Constants.TransactionType.ManualPayment &&
 					     resultStatus.ToUpper() == ("ThreeDSecureRedirectRequired").ToUpper() )
