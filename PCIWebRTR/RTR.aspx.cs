@@ -262,7 +262,7 @@ namespace PCIWebRTR
 
 		protected void btnProcess5_Click(Object sender, EventArgs e)
 		{
-			ProcessCards((byte)Constants.TransactionType.CardPaymentTokenEx);
+			ProcessCards((byte)Constants.TransactionType.CardPaymentThirdParty);
 		}
 
 		protected void btnProcess3_Click(Object sender, EventArgs e)
@@ -447,9 +447,10 @@ namespace PCIWebRTR
 				fileName = fileName.Substring(0,k) + "-" + PCIBusiness.Tools.DateToString(fDate,7) + fileName.Substring(k);
 				fHandle  = File.OpenText(fileName);
 				string h = fHandle.ReadToEnd().Trim().Replace("<","&lt;").Replace(">","&gt;");
-				h        = h.Replace(Environment.NewLine,"</p><p>");
+				h        = h.Replace(Environment.NewLine+"[v","</p><p>[v");
 				if ( ! h.EndsWith("<p>") )
-					h = h + "<p>";
+					h     = h + "<p>";
+				h        = h.Replace(Environment.NewLine,"<br />");
 				lblTest.Text = "<div class='Error'>Log File : " + fileName + "</div><p>" + h + "&nbsp;</p>";
 				lblJS.Text   = "";
 			}
@@ -491,18 +492,20 @@ namespace PCIWebRTR
 			try
 			{
 				string folder  = "<u>System Configuration</u><br />"
-				               + "- Version = " + SystemDetails.AppVersion + "<br />"
-				               + "- Date = " + SystemDetails.AppDate + "<br />"
-				               + "- Owner = " + SystemDetails.Owner + "<br />"
-				               + "- Developer = " + SystemDetails.Developer + "<hr />"
+				               + "- App version = " + SystemDetails.AppVersion + "<br />"
+				               + "- App date = "    + SystemDetails.AppDate + "<br />"
+				               + "- DLL version = " + PCIBusiness.SystemDetails.AppVersion + "<br />"
+				               + "- DLL date = "    + PCIBusiness.SystemDetails.AppDate + "<br />"
+				               + "- Owner = "       + PCIBusiness.SystemDetails.Owner + "<br />"
+				               + "- Developer = "   + PCIBusiness.SystemDetails.Developer + "<hr />"
 				               + "<u>Environment</u><br />"
-				               + "- Machine Name = " + Environment.MachineName + "<br />"
-				               + "- Processors = " + Environment.ProcessorCount.ToString() + "<br />"
-				               + "- Available Memory = " + Environment.WorkingSet.ToString() + " bytes<br />"
-				               + "- Operating System = " + Environment.OSVersion.ToString() + "<br />"
+				               + "- Machine Name = "           + Environment.MachineName + "<br />"
+				               + "- Processors = "             + Environment.ProcessorCount.ToString() + "<br />"
+				               + "- Available Memory = "       + Environment.WorkingSet.ToString() + " bytes<br />"
+				               + "- Operating System = "       + Environment.OSVersion.ToString() + "<br />"
 				               + "- Microsoft .NET Runtime = " + Environment.Version.ToString() + "<br />"
-				               + "- User Domain = " + Environment.UserDomainName + "<br />"
-				               + "- User Name = " + Environment.UserName + "<hr />"
+				               + "- User Domain = "            + Environment.UserDomainName + "<br />"
+				               + "- User Name = "              + Environment.UserName + "<hr />"
 				               + "<u>Internal</u><br />"
 				               + "- Server.MachineName = " + Server.MachineName + "<br />"
 				               + "- Server.MapPath = " + Server.MapPath("") + "<br />"
