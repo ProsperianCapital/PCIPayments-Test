@@ -240,6 +240,12 @@ namespace PCIWebRTR
 				}
 		}
 
+		protected void btnTest_Click(Object sender, EventArgs e)
+		{
+			txtRows.Text = "1";
+			ProcessCards((byte)PCIBusiness.Constants.TransactionType.Test);
+		}
+
 		protected void btnPay_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)PCIBusiness.Constants.TransactionType.ManualPayment);
@@ -273,7 +279,9 @@ namespace PCIWebRTR
 		private void ProcessCards(byte transactionType)
 		{
 			if ( transactionType > 0 && CheckData() == 0 )
-				if ( rdoWeb.Checked )
+				if ( transactionType == (byte)Constants.TransactionType.Test )
+					ProcessTest();
+				else if ( rdoWeb.Checked )
 					ProcessWeb(transactionType);
 				else if ( rdoAsynch.Checked )
 					ProcessAsynch(transactionType);
@@ -318,6 +326,40 @@ namespace PCIWebRTR
 			app = null;
 		}
 
+		private void ProcessTest()
+		{
+			int ret = 0;
+
+			try
+			{
+				Tools.LogInfo("RTR.ProcessTest/1","Started, provider '" + provider + "'",10);
+
+				using (Payment payment = new Payment(provider))
+				{
+					payment.TransactionType = (byte)Constants.TransactionType.Test;
+					ret = payment.ProcessPayment();
+					if ( ret == 0 && payment.WebForm.Length > 0 )
+						try
+						{
+						//	Busy();
+							ret = 987654;
+						//	This always throws a "thread aborted" exception ... ignore it
+							System.Web.HttpContext.Current.Response.Clear();
+							System.Web.HttpContext.Current.Response.Write(payment.WebForm);
+							System.Web.HttpContext.Current.Response.End();
+						}
+						catch
+						{ }
+				}
+				Tools.LogInfo("RTR.ProcessTest/2", "Finished", 10);
+			}
+			catch (Exception ex)
+			{
+				if ( ret != 987654 )
+					Tools.LogException("RTR.ProcessTest/9","",ex);
+			}
+		}
+
 		private void ProcessPayment()
 		{
 			int ret = 0;
@@ -350,14 +392,14 @@ namespace PCIWebRTR
 //						payment.LastName  = payment.CardName;
 
 					ret = payment.ProcessPayment();
-					if ( ret == 0 && payment.ThreeDForm.Length > 0 )
+					if ( ret == 0 && payment.WebForm.Length > 0 )
 						try
 						{
 						//	Busy();
 							ret = 987654;
 						//	This always throws a "thread aborted" exception ... ignore it
 							System.Web.HttpContext.Current.Response.Clear();
-							System.Web.HttpContext.Current.Response.Write(payment.ThreeDForm);
+							System.Web.HttpContext.Current.Response.Write(payment.WebForm);
 							System.Web.HttpContext.Current.Response.End();
 						}
 						catch
@@ -492,12 +534,12 @@ namespace PCIWebRTR
 			try
 			{
 				string folder  = "<u>System Configuration</u><br />"
-				               + "- App version = " + SystemDetails.AppVersion + "<br />"
-				               + "- App date = "    + SystemDetails.AppDate + "<br />"
-				               + "- DLL version = " + PCIBusiness.SystemDetails.AppVersion + "<br />"
-				               + "- DLL date = "    + PCIBusiness.SystemDetails.AppDate + "<br />"
-				               + "- Owner = "       + PCIBusiness.SystemDetails.Owner + "<br />"
-				               + "- Developer = "   + PCIBusiness.SystemDetails.Developer + "<hr />"
+				               + "- App version = "            + SystemDetails.AppVersion + "<br />"
+				               + "- App date = "               + SystemDetails.AppDate + "<br />"
+				               + "- DLL version = "            + PCIBusiness.SystemDetails.AppVersion + "<br />"
+				               + "- DLL date = "               + PCIBusiness.SystemDetails.AppDate + "<br />"
+				               + "- Owner = "                  + PCIBusiness.SystemDetails.Owner + "<br />"
+				               + "- Developer = "              + PCIBusiness.SystemDetails.Developer + "<hr />"
 				               + "<u>Environment</u><br />"
 				               + "- Machine Name = "           + Environment.MachineName + "<br />"
 				               + "- Processors = "             + Environment.ProcessorCount.ToString() + "<br />"
@@ -507,32 +549,33 @@ namespace PCIWebRTR
 				               + "- User Domain = "            + Environment.UserDomainName + "<br />"
 				               + "- User Name = "              + Environment.UserName + "<hr />"
 				               + "<u>Internal</u><br />"
-				               + "- Server.MachineName = " + Server.MachineName + "<br />"
-				               + "- Server.MapPath = " + Server.MapPath("") + "<br />"
-				               + "- Request.Url.AbsoluteUri = " + Request.Url.AbsoluteUri + "<br />"
-				               + "- Request.Url.AbsolutePath = " + Request.Url.AbsolutePath + "<br />"
-				               + "- Request.Url.LocalPath = " + Request.Url.LocalPath + "<br />"
-				               + "- Request.Url.PathAndQuery = " + Request.Url.PathAndQuery + "<br />"
-				               + "- Request.RawUrl = " + Request.RawUrl + "<br />"
+				               + "- Server.MachineName = "              + Server.MachineName + "<br />"
+				               + "- Server.MapPath = "                  + Server.MapPath("") + "<br />"
+				               + "- Request.Url.AbsoluteUri = "         + Request.Url.AbsoluteUri + "<br />"
+				               + "- Request.Url.AbsolutePath = "        + Request.Url.AbsolutePath + "<br />"
+				               + "- Request.Url.LocalPath = "           + Request.Url.LocalPath + "<br />"
+				               + "- Request.Url.PathAndQuery = "        + Request.Url.PathAndQuery + "<br />"
+				               + "- Request.RawUrl = "                  + Request.RawUrl + "<br />"
 				               + "- Request.PhysicalApplicationPath = " + Request.PhysicalApplicationPath + "<br />"
-				               + "- Environment.SystemDirectory = " + Environment.SystemDirectory + "<br />"
-				               + "- Environment.CurrentDirectory = " + Environment.CurrentDirectory + "<hr />"
+				               + "- Environment.SystemDirectory = "     + Environment.SystemDirectory + "<br />"
+				               + "- Environment.CurrentDirectory = "    + Environment.CurrentDirectory + "<hr />"
 				               + "<u>ECentric</u><br />"
-				               + "- Certificate File = " + Tools.SystemFolder("Certificates") + Tools.ConfigValue("ECentric/CertName") + "<br />"
-				               + "- Certificate Password = " + Tools.ConfigValue("ECentric/CertPassword") + "<hr />"
+				               + "- Certificate File = "                + Tools.SystemFolder("Certificates") + Tools.ConfigValue("ECentric/CertName") + "<br />"
+				               + "- Certificate Password = "            + Tools.ConfigValue("ECentric/CertPassword") + "<hr />"
 				               + "<u>Authorized Access</u><br />"
-				               + "- By user code(s) = " + Tools.ConfigValue("Access/UserCode") + "<br />"
-				               + "- Via referring URL(s) = " + Tools.ConfigValue("Access/ReferURL") + "<hr />"
+				               + "- By user code(s) = "                 + Tools.ConfigValue("Access/UserCode") + "<br />"
+				               + "- Via referring URL(s) = "            + Tools.ConfigValue("Access/ReferURL") + "<br />"
+				               + "- User code logged in = "             + userCode + "<hr />"
 				               + "<u>Settings</u><br />"
-				               + "- System Mode = " + Tools.ConfigValue("SystemMode") + "<br />"
-				               + "- Process Mode = " + Tools.ConfigValue("ProcessMode") + "<br />"
-				               + "- Page timeout = " + Server.ScriptTimeout.ToString() + " seconds<br />"
-				               + "- Rows to Process per Iteration = " + Tools.ConfigValue("MaximumRows") + "<br />"
-				               + "- Error Logs folder/file = " + Tools.ConfigValue("LogFileErrors") + "<br />"
-				               + "- Info Logs folder/file = " + Tools.ConfigValue("LogFileInfo") + "<br />"
-				               + "- System path = " + Tools.ConfigValue("SystemPath") + "<br />"
-				               + "- System URL = " + Tools.ConfigValue("SystemURL") + "<br />"
-				               + "- Success page = " + Tools.ConfigValue("SystemURL") + "/Succeed.aspx<hr />"
+				               + "- System Mode = "                     + Tools.ConfigValue("SystemMode") + "<br />"
+				               + "- Process Mode = "                    + Tools.ConfigValue("ProcessMode") + "<br />"
+				               + "- Page timeout = "                    + Server.ScriptTimeout.ToString() + " seconds<br />"
+				               + "- Rows to Process per Iteration = "   + Tools.ConfigValue("MaximumRows") + "<br />"
+				               + "- Error Logs folder/file = "          + Tools.ConfigValue("LogFileErrors") + "<br />"
+				               + "- Info Logs folder/file = "           + Tools.ConfigValue("LogFileInfo") + "<br />"
+				               + "- System path = "                     + Tools.ConfigValue("SystemPath") + "<br />"
+				               + "- System URL = "                      + Tools.ConfigValue("SystemURL") + "<br />"
+				               + "- Success page = "                    + Tools.ConfigValue("SystemURL") + "/Succeed.aspx<hr />"
 				               + "<u>Database</u><br />"
 				               + "- DB Connection [DBConn] = ";
 
