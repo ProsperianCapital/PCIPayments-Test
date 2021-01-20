@@ -41,12 +41,12 @@ namespace PCIBusiness
 		{
 			try
 			{
-				Tools.LogInfo("TickerState.DoSQL/1",sql,222);
+				Tools.LogInfo("TickerState.DoSQL/1",sql,10);
 				int  ret = ExecuteSQL(null,1,false,DBConnection);
 				if ( ret == 0 )
 				{
 					LoadData(dbConn);
-					Tools.LogInfo("TickerState.DoSQL/2","Success, tickerCode="+tickerCode + " / tickerStatus=" + tickerStatus,222);
+					Tools.LogInfo("TickerState.DoSQL/2","Success, tickerCode="+tickerCode + " / tickerStatus=" + tickerStatus,10);
 				}
 				else
 					Tools.LogInfo("TickerState.DoSQL/3","Error, ret="+ret.ToString() + " (" + ReturnMessage + ")",222);
@@ -92,7 +92,7 @@ namespace PCIBusiness
 			origin            = dbConn.ColString("ActionOrigin",0,0);
 //			dateUpdated       = dbConn.ColDate  ("ActionDate",0,0);
 
-			Tools.LogInfo("TickerState.LoadData","tickerCode="+tickerCode+", tickerStatus="+tickerStatus,222);
+			Tools.LogInfo("TickerState.LoadData","tickerCode="+tickerCode+", tickerStatus="+tickerStatus,10);
 		}
 	}
 }

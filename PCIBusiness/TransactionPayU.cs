@@ -73,6 +73,8 @@ namespace PCIBusiness
 
 			try
 			{
+				if ( url.Length < 1 )
+					url = BureauURL;
 				if ( ! url.ToUpper().EndsWith("WSDL") )
 					url = url + "/service/PayUAPI?wsdl";
 
@@ -158,7 +160,7 @@ namespace PCIBusiness
 			int ret = 300;
 			xmlSent = "";
 
-			Tools.LogInfo("TransactionPayU.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionPayU.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
@@ -238,7 +240,7 @@ namespace PCIBusiness
 			int ret = 600;
 			xmlSent = "";
 
-			Tools.LogInfo("TransactionPayU.TokenPayment/10","PAYMENT, Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionPayU.TokenPayment/10","PAYMENT, Merchant Ref=" + payment.MerchantReference,10);
 
 //		   +   "<secure3d>false</secure3d>"
 //       +   "<storePaymentMethod>true</storePaymentMethod>"
@@ -301,7 +303,8 @@ namespace PCIBusiness
 
 		public TransactionPayU() : base()
 		{
-			bureauCode = Tools.BureauCode(Constants.PaymentProvider.PayU);
+			base.LoadBureauDetails(Constants.PaymentProvider.PayU);
+		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.PayU);
 		}
 	}
 }

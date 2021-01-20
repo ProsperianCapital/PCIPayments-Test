@@ -6,6 +6,9 @@ using System.IO;
 
 namespace PCIBusiness
 {
+//	MyGate no longer exist.
+//	See www.wirecard.com
+
 	public class TransactionMyGate : Transaction
 	{
 //	v1
@@ -188,7 +191,8 @@ namespace PCIBusiness
 
 		public TransactionMyGate() : base()
 		{
-			bureauCode = Tools.BureauCode(Constants.PaymentProvider.MyGate);
+			base.LoadBureauDetails(Constants.PaymentProvider.MyGate);
+		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.MyGate);
 		}
 
 		public override void Close()

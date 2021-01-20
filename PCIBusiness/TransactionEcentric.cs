@@ -14,6 +14,7 @@ namespace PCIBusiness
 		private X509Certificate2Collection certs;
 		private string                     xmlHeader;
 		private string                     tranStatus;
+		private string                     nsURL;
 
 		public  bool Successful
 		{
@@ -31,7 +32,7 @@ namespace PCIBusiness
 //
 //				xmlSent = xmlHeader.Replace("#TransRef#",Tools.XMLSafe(payment.MerchantReference))
 //				        + "<s:Body>"
-//				        + "<AddCardRequest xmlns='http://www.ecentricswitch.co.za/paymentgateway/v1'>"
+//				        + "<AddCardRequest xmlns='" + nsURL + "'>"
 //				        +	"<MerchantID>" + Tools.XMLSafe(payment.ProviderKey) + "</MerchantID>"
 //				        +	"<MerchantUserID>" + Tools.XMLSafe(payment.ProviderUserID) + "</MerchantUserID>"
 //				        +	"<Card>"
@@ -55,7 +56,7 @@ namespace PCIBusiness
 //					ret      = 400;
 //					xmlSent  = xmlHeader.Replace("#TransRef#",Tools.XMLSafe(payment.MerchantReference))
 //					         + "<s:Body xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'>"
-//					         + "<PaymentRequest xmlns='http://www.ecentricswitch.co.za/paymentgateway/v1'>"
+//					         + "<PaymentRequest xmlns='" + nsURL + "'>"
 //					         +   "<MerchantID>" + Tools.XMLSafe(payment.ProviderKey) + "</MerchantID>"
 //					         +   "<TransactionID>" + Tools.XMLSafe(payment.TransactionID) + "</TransactionID>"
 //					         +   "<OrderNumber>" + Tools.XMLSafe(payment.MerchantReference) + "</OrderNumber>"
@@ -106,11 +107,12 @@ namespace PCIBusiness
 
 			try
 			{
-				Tools.LogInfo("TransactionEcentric.GetToken/10","Merchant Ref=" + payment.MerchantReference,199);
+				Tools.LogInfo("TransactionEcentric.GetToken/10","Merchant Ref=" + payment.MerchantReference,10);
 
 				xmlSent  = xmlHeader.Replace("#TransRef#",Tools.XMLSafe(payment.MerchantReference))
 				         + "<s:Body>"
-				         + "<AddCardRequest xmlns='http://www.ecentricswitch.co.za/paymentgateway/v1'>"
+//				         + "<AddCardRequest xmlns='http://www.ecentricswitch.co.za/paymentgateway/v1'>"
+				         + "<AddCardRequest xmlns='" + nsURL + "'>"
 				         +   "<MerchantID>" + Tools.XMLSafe(payment.ProviderKey) + "</MerchantID>"
 				         +   "<MerchantUserID>" + Tools.XMLSafe(payment.ProviderUserID) + "</MerchantUserID>"
 				         +   "<Card>"
@@ -156,13 +158,13 @@ namespace PCIBusiness
 			payRef   = "";
 //			authCode = "";
 
-			Tools.LogInfo("TransactionEcentric.TokenPayment/10","Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionEcentric.TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
 				xmlSent = xmlHeader.Replace("#TransRef#",Tools.XMLSafe(payment.MerchantReference))
 				        + "<s:Body xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'>"
-				        + "<PaymentRequest xmlns='http://www.ecentricswitch.co.za/paymentgateway/v1'>"
+				        + "<PaymentRequest xmlns='" + nsURL + "'>"
 				        +   "<MerchantID>" + Tools.XMLSafe(payment.ProviderKey) + "</MerchantID>"
 				        +   "<TransactionID>" + Tools.XMLSafe(payment.TransactionID) + "</TransactionID>"
 				        +   "<OrderNumber>" + Tools.XMLSafe(payment.MerchantReference) + "</OrderNumber>"
@@ -212,7 +214,8 @@ namespace PCIBusiness
 			int ret = 10;
 
 			if ( Tools.NullToString(url).Length == 0 )
-				url = "https://sandbox.ecentricswitch.co.za:8443/paymentgateway/v1";
+				url = BureauURL;
+			//	url = "https://sandbox.ecentricswitch.co.za:8443/paymentgateway/v1";
 
 			try
 			{
@@ -227,10 +230,10 @@ namespace PCIBusiness
 				webRequest.Accept      = "text/xml";
 				webRequest.Method      = "POST";
 
-				Tools.LogInfo("TransactionEcentric.CallWebService/10","URL=" + url);
+				Tools.LogInfo("TransactionEcentric.CallWebService/10","URL=" + url,10);
 				ret                           = 20;
             webRequest.ClientCertificates = certs;
-				Tools.LogInfo("TransactionEcentric.CallWebService/20","Cert count=" + certs.Count.ToString());
+				Tools.LogInfo("TransactionEcentric.CallWebService/20","Cert count=" + certs.Count.ToString(),10);
 
 				using (Stream stream = webRequest.GetRequestStream())
 				{
@@ -251,7 +254,7 @@ namespace PCIBusiness
 					}
 				}
 
-				Tools.LogInfo("TransactionEcentric.CallWebService/50","XML Rec="+strResult,255);
+				Tools.LogInfo("TransactionEcentric.CallWebService/50","XML Rec="+strResult,50);
 
 				ret        = 150;
 				xmlResult  = new XmlDocument();
@@ -281,15 +284,18 @@ namespace PCIBusiness
 		//	cert1 = X509Certificate.CreateFromCertFile("C:\\Dev\\Prosperian\\Application\\PCIWebRTR\\Certificates\\ECentricRoot.cer");
 		//	cert2 = X509Certificate.CreateFromCertFile("C:\\Dev\\Prosperian\\Application\\PCIWebRTR\\Certificates\\ECentricClient.cer");
 
+			byte   err      = 10;
 			string certName = "";
 			string certPwd  = "";
-			byte   err      = 10;
+			nsURL           = "http://www.ecentricswitch.co.za/paymentgateway/v1";
+
+			base.LoadBureauDetails(Constants.PaymentProvider.Ecentric);
 
 			try
 			{
 				xmlHeader  = "<s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/'>"
 				           + "<s:Header>"
-				           +	"<MessageHeader xmlns='http://www.ecentricswitch.co.za/paymentgateway/v1'>"
+				           +	"<MessageHeader xmlns='" + nsURL + "'>"
 				           +		"<MessageDateTime>" + Tools.DateToString(System.DateTime.Now,7,0)
 				                                      + "T"
 				                                      + Tools.DateToString(System.DateTime.Now,0,5) + "</MessageDateTime>"
@@ -301,8 +307,8 @@ namespace PCIBusiness
 				certName   = Tools.SystemFolder("Certificates") + Tools.ConfigValue("ECentric/CertName");
 				err        = 30;
 				certPwd    = Tools.ConfigValue("ECentric/CertPassword");
-				err        = 40;
-				bureauCode = Tools.BureauCode(Constants.PaymentProvider.Ecentric);
+//				err        = 40;
+//				bureauCode = Tools.BureauCode(Constants.PaymentProvider.Ecentric);
 				err        = 50;
 				certs      = new X509Certificate2Collection();
 

@@ -27,7 +27,7 @@ namespace PCIBusiness
 			string url = Tools.ConfigValue("SystemURL") + "/Succeed.aspx?TransRef=" + Tools.XMLSafe(payment.MerchantReference);
 			int    ret = 300;
 
-			Tools.LogInfo("TransactionIkajo.GetToken/10","Sale, Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionIkajo.GetToken/10","Sale, Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
@@ -114,7 +114,7 @@ namespace PCIBusiness
 
 			int ret = 300;
 
-			Tools.LogInfo("TransactionIkajo.TokenPayment/10","Sale, Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionIkajo.TokenPayment/10","Sale, Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
@@ -196,7 +196,8 @@ namespace PCIBusiness
 
 		public TransactionIkajo() : base()
 		{
-			bureauCode = Tools.BureauCode(Constants.PaymentProvider.Ikajo);
+			base.LoadBureauDetails(Constants.PaymentProvider.Ikajo);
+		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.Ikajo);
 		}
 
 		public override void Close()

@@ -49,7 +49,7 @@ namespace PCIBusiness
 
 		public string SourceInfo
 		{
-			get { return sourceInfo; }
+			get { return Tools.NullToString(sourceInfo); }
 			set 
 			{
 				if ( string.IsNullOrWhiteSpace(sourceInfo) && ! string.IsNullOrWhiteSpace(value) )

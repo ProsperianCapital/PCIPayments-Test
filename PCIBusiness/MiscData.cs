@@ -113,7 +113,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("MiscData.LoadData","",ex);
+				Tools.LogException("LoadData","",ex,this);
 			}
 		}
 

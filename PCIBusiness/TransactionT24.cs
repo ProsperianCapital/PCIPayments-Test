@@ -58,6 +58,9 @@ namespace PCIBusiness
 
 			try
 			{
+				if ( url.Length < 1 )
+					url = BureauURL;
+
 				Tools.LogInfo("TransactionT24.PostHTML/10","URL=" + url + ", XML Sent=" + xmlSent,10);
 
 			// Construct web request object
@@ -72,8 +75,7 @@ namespace PCIBusiness
 				webRequest.KeepAlive      = false;
 
 				ret = 30;
-//				byte[] page = Encoding.ASCII.GetBytes(xmlSent);
-				byte[] page = Encoding.UTF8.GetBytes(xmlSent); // To handle unicode
+				byte[] page = Encoding.UTF8.GetBytes(xmlSent); // UTF8 needed for unicode
 
 			// Insert encoded HTML into web request
 				ret = 40;
@@ -130,7 +132,7 @@ namespace PCIBusiness
 
 			try
 			{
-				xmlSent = "version="                + Tools.URLString(providerVersion)
+				xmlSent =  "version="               + Tools.URLString(providerVersion)
 				        + "&ipaddress="
 				        + "&merchant_account="      + Tools.URLString(payment.ProviderUserID)
 				        + "&first_name="            + Tools.URLString(payment.FirstName)
@@ -218,7 +220,7 @@ namespace PCIBusiness
 //					ret     = 70;
 //					xmlSent = xmlSent + "&control=" + HashSHA1(chk);
 //					Tools.LogInfo("TransactionT24.GetToken/40","(Refund) POST="+xmlSent+", Key="+payment.ProviderKey,177);
-//					ret     = PostHTML("https://payment.ccp.transact24.com/Refund");
+//					ret     = PostHTML(BureauURL + "/Refund");
 //				}
 
 			}
@@ -260,7 +262,7 @@ namespace PCIBusiness
 
 			try
 			{
-				xmlSent = "version="                + Tools.URLString(providerVersion)
+				xmlSent =  "version="               + Tools.URLString(providerVersion)
 				        + "&ipaddress="
 				        + "&merchant_account="      + Tools.URLString(payment.ProviderUserID)
 				        + "&first_name="            + Tools.URLString(payment.FirstName)
@@ -328,7 +330,8 @@ namespace PCIBusiness
 
 		public TransactionT24() : base()
 		{
-			bureauCode = Tools.BureauCode(Constants.PaymentProvider.T24);
+			base.LoadBureauDetails(Constants.PaymentProvider.T24);
+		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.T24);
 		}
 	}
 }

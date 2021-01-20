@@ -44,7 +44,7 @@ namespace PCIBusiness
 			int ret = 10;
 			payRef  = "";
 
-			Tools.LogInfo("TransactionENets.CardPayment/10","Merchant Ref=" + payment.MerchantReference,199);
+			Tools.LogInfo("TransactionENets.CardPayment/10","Merchant Ref=" + payment.MerchantReference,10);
 
 			try
 			{
@@ -85,8 +85,11 @@ namespace PCIBusiness
 			int    ret = 10;
 			string url = payment.ProviderURL;
 
-			if ( Tools.NullToString(url).Length == 0 && ! Tools.SystemIsLive() )
-				url = "https://uat-api.nets.com.sg:9065/GW2/TxnReqListener";
+			if ( Tools.NullToString(url).Length == 0 )
+				url = BureauURL;
+
+			if ( Tools.NullToString(url).Length == 0 )
+				return 20;
 
 			ret        = 30;
 			acsUrl     = "";
@@ -209,7 +212,8 @@ namespace PCIBusiness
 
 		public TransactionENets() : base()
 		{
-			bureauCode = Tools.BureauCode(Constants.PaymentProvider.eNETS);
+			base.LoadBureauDetails(Constants.PaymentProvider.eNETS);
+		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.eNETS);
 
 		//	Force TLS 1.2
 			ServicePointManager.Expect100Continue = true;
