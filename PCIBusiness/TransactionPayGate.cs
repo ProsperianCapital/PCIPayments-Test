@@ -33,10 +33,10 @@ namespace PCIBusiness
 
 			try
 			{
-				Tools.LogInfo("TransactionPayGate.GetToken/10","Merchant Ref=" + payment.MerchantReference,10);
+				Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
-				        +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
+				        +                  " xmlns:pay='" + nsURL + "'>"
 				        + "<soapenv:Header />"
 				        + "<soapenv:Body>"
 				        + "<pay:SingleVaultRequest>"
@@ -56,12 +56,12 @@ namespace PCIBusiness
 				payToken = Tools.XMLNode(xmlResult,"VaultId",nsPrefix,nsURL);
 
 				if ( ! Successful || payToken.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.GetToken/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("GetToken/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayGate.GetToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayGate.GetToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo     ("GetToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("GetToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex ,this);
 			}
 			return ret;
 		}
@@ -72,10 +72,10 @@ namespace PCIBusiness
 
 			try
 			{
-				Tools.LogInfo("TransactionPayGate.DeleteToken/10","Merchant Ref=" + payment.MerchantReference,10);
+				Tools.LogInfo("DeleteToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 				xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
-				        +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
+				        +                  " xmlns:pay='" + nsURL + "'>"
 				        + "<soapenv:Header />"
 				        + "<soapenv:Body>"
 				        + "<pay:SingleVaultRequest>"
@@ -92,12 +92,12 @@ namespace PCIBusiness
 				ret     = CallWebService(payment);
 
 				if ( ! Successful )
-					Tools.LogInfo("TransactionPayGate.DeleteToken/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("DeleteToken/20","XML Sent="+xmlSent+", XML Rec="+XMLResult,199,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayGate.DeleteToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayGate.DeleteToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo     ("DeleteToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("DeleteToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex ,this);
 			}
 			return ret;
 		}
@@ -110,13 +110,13 @@ namespace PCIBusiness
 			int ret = 600;
 			payRef  = "";
 
-			Tools.LogInfo("TransactionPayGate.TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10);
+			Tools.LogInfo("TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 			try
 			{
 				if ( payment.TransactionType == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
 					xmlSent = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
-					        +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
+					        +                  " xmlns:pay='" + nsURL + "'>"
 					        + "<soapenv:Header />"
 					        + "<soapenv:Body>"
 					        + "<pay:SinglePaymentRequest>"
@@ -166,18 +166,18 @@ namespace PCIBusiness
 				payRef = Tools.XMLNode(xmlResult,"PayRequestId",nsPrefix,nsURL);
 
 				if ( ! Successful )
-					Tools.LogInfo("TransactionPayGate.TokenPayment/21","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TokenPayment/21","XML Sent="+xmlSent+", XML Rec="+XMLResult,199,this);
 				else if ( payment.TransactionType == (byte)Constants.TransactionType.CardPayment && payRef.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.TokenPayment/22","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TokenPayment/22","XML Sent="+xmlSent+", XML Rec="+XMLResult,199,this);
 				else if ( payment.TransactionType == (byte)Constants.TransactionType.TokenPayment && payRef.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.TokenPayment/23","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TokenPayment/23","XML Sent="+xmlSent+", XML Rec="+XMLResult,199,this);
 				else if ( payment.TransactionType == (byte)Constants.TransactionType.ManualPayment && keyValuePairs.Length < 1 )
-					Tools.LogInfo("TransactionPayGate.TokenPayment/24","XML Sent="+xmlSent+", XML Rec="+XMLResult,199);
+					Tools.LogInfo("TokenPayment/24","XML Sent="+xmlSent+", XML Rec="+XMLResult,199,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayGate.TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayGate.TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo     ("TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex ,this);
 			}
 			return ret;
 		}
@@ -186,7 +186,7 @@ namespace PCIBusiness
 		{
 			if ( section == 1 )
 				return "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'"
-				     +                  " xmlns:pay='http://www.paygate.co.za/PayHOST'>"
+				     +                  " xmlns:pay='" + nsURL + "'>"
 				     + "<soapenv:Header />"
 				     + "<soapenv:Body>"
 				     + "<pay:SinglePaymentRequest>"
@@ -220,15 +220,16 @@ namespace PCIBusiness
 			string url    = payment.ProviderURL;
 			keyValuePairs = "";
 
-			if ( Tools.NullToString(url).Length == 0 )
+			if ( Tools.NullToString(url).Length < 1 )
 //				PayGate use the same URL for live and test
-				url = "https://secure.paygate.co.za/payhost/process.trans";
+//				url = "https://secure.paygate.co.za/payhost/process.trans";
+				url = BureauURL;
 
 			try
 			{
 				using ( WebClient wc = new WebClient() )
 				{
-					Tools.LogInfo("TransactionPayGate.CallWebService/10",payment.TransactionTypeName+", XML Sent="+xmlSent,10);
+					Tools.LogInfo("CallWebService/10",payment.TransactionTypeName+", XML Sent="+xmlSent,10,this);
 
 					ret           = 20;
 					wc.Encoding   = System.Text.Encoding.UTF8;
@@ -249,7 +250,7 @@ namespace PCIBusiness
 					resultStatus = Tools.XMLNode(xmlResult,"StatusName"       ,nsPrefix,nsURL);
 					ret          = 50;
 
-					Tools.LogInfo("TransactionPayGate.CallWebService/50",payment.TransactionTypeName+", XML Rec="+xmlOut,10);
+					Tools.LogInfo("CallWebService/50",payment.TransactionTypeName+", XML Rec="+xmlOut,10,this);
 
 					if ( payment.TransactionType == (byte)Constants.TransactionType.ManualPayment &&
 					     resultStatus.ToUpper() == ("ThreeDSecureRedirectRequired").ToUpper() )
@@ -306,19 +307,20 @@ namespace PCIBusiness
 			}
 			catch (WebException ex1)
 			{
-				Tools.DecodeWebException(ex1,"TransactionPayGate.CallWebService/97","ret="+ret.ToString());
+				Tools.DecodeWebException(ex1,ClassName+".CallWebService/97","ret="+ret.ToString());
 			}
 			catch (Exception ex2)
 			{
-				Tools.LogInfo     ("TransactionPayGate.CallWebService/98","ret="+ret.ToString(),220);
-				Tools.LogException("TransactionPayGate.CallWebService/99","ret="+ret.ToString(),ex2);
+				Tools.LogInfo     ("CallWebService/98","ret="+ret.ToString(),220,this);
+				Tools.LogException("CallWebService/99","ret="+ret.ToString(),ex2,this);
 			}
 			return ret;
 		}
 
 		public TransactionPayGate() : base()
 		{
-			bureauCode = Tools.BureauCode(Constants.PaymentProvider.PayGate);
+			base.LoadBureauDetails(Constants.PaymentProvider.PayGate);
+		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.PayGate);
 
 		//	Force TLS 1.2
 			ServicePointManager.Expect100Continue = true;

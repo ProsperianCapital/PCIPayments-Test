@@ -23,6 +23,10 @@ namespace PCIBusiness
 		{
 			get { return "<br />"; }
 		}
+		public static byte LogSeverity
+		{
+			get { return 233; }
+		}
 //		public static string TextBreak
 //		{
 //			return { Environment.NewLine; }
@@ -32,7 +36,8 @@ namespace PCIBusiness
 		{
 			Login     = 901317,
 			BackDoor  = 615702,
-			Technical = 463228
+			Technical = 463228,
+			MobileDev = 183206
 		}
 
 		public enum DBColumnStatus : byte
@@ -54,19 +59,30 @@ namespace PCIBusiness
 
 		public enum PaymentProvider : int
 		{
-			MyGate     =  2,
-			T24        =  6,
-			Ikajo      = 15,
-			PayU       = 16,
-			PayGate    = 17,
-			PayGenius  = 18,
-			Ecentric   = 19,
-			eNETS      = 20,
-			Peach      = 21,
-			TokenEx    = 22
+			MyGate      =  2,
+			T24         =  6,
+			Ikajo       = 15,
+			PayU        = 16,
+			PayGate     = 17,
+			PayGenius   = 18,
+			Ecentric    = 19,
+			eNETS       = 20,
+			Peach       = 21,
+			TokenEx     = 22,
+			SatchelPay  = 23,
+			FNB         = 24,
+			CyberSource = 25
 //	Not implemented yet
-//			DinersClub = 23
-//			PayFast    = 24
+//			DinersClub = xx
+//			PayFast    = xx
+		}
+
+		public enum MessageProvider : int
+		{
+			GlobalSMS  = 1,
+			ClickaTell = 2,
+			SendGrid   = 3,
+			SocketLabs = 4
 		}
 
 		public enum TradingProvider : int
@@ -103,6 +119,7 @@ namespace PCIBusiness
 			Development = 1,
 			Test        = 2,
 			Live        = 3
+//			Debug       = 4
 		}
 		public enum ProcessMode : int
 		{
@@ -116,13 +133,15 @@ namespace PCIBusiness
 		}
 		public enum TransactionType : byte
 		{
-			GetToken             =  1,
-			TokenPayment         =  2,
-			CardPayment          =  3,
-			DeleteToken          =  4,
-			GetCardFromToken     =  5,
-			CardPaymentThirdParty = 6,
-			ManualPayment        = 73
+			GetToken              =   1,
+			TokenPayment          =   2,
+			CardPayment           =   3,
+			DeleteToken           =   4,
+			GetCardFromToken      =   5,
+			CardPaymentThirdParty =   6,
+			ThreeDSecurePayment   =   7,
+			ManualPayment         =  73,
+			Test                  = 197
 		}
 
 //	iTextSharp stuff
@@ -184,6 +203,12 @@ namespace PCIBusiness
 			PDF = 32			
 		}
 
+		public enum HttpMethod : int
+		{
+			Get  = 1,
+			Post = 2			
+		}
+
 		public enum TechnicalQuery : byte
 		{
 		//	Values greater than 99 need the system password
@@ -201,6 +226,22 @@ namespace PCIBusiness
 			ClientDetails   =  12,
 			CertDetails     =  13,
 			ServerVariables =  14
+		}
+
+
+		public enum MessageType : byte
+		{
+			EMail    = 1,
+			SMS      = 2,
+			WhatsApp = 3
+		}
+
+		public enum WebDataType : byte
+		{
+			FormGetOrPost = 1,
+			FormPost      = 2,
+			JSON          = 3,
+			XML           = 4
 		}
 
 //		public enum PaymentType : byte

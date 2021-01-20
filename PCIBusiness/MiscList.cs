@@ -55,7 +55,7 @@ namespace PCIBusiness
 				returnCode = 39999;
 				if ( returnMessage.Length < 1 )
 					returnMessage = "Internal SQL error/2";
-				Tools.LogException("MiscList.UpdateQuery",sql,ex);
+				Tools.LogException("UpdateQuery",sql,ex,this);
 			}
 			finally
 			{
@@ -88,7 +88,7 @@ namespace PCIBusiness
 			{
 				err = ex.Message;
 			}
-			Tools.LogException("MiscList.ExecQuery",err + " (DataClass=" + dataClass + ", SQL=" + sqlQuery + ")");
+			Tools.LogException("ExecQuery",err + " (DataClass=" + dataClass + ", SQL=" + sqlQuery + ")",null,this);
 			return 0;
 		}
 
@@ -110,15 +110,20 @@ namespace PCIBusiness
 			{ }
 			return "";
 		}
-		public string GetColumn(string colName,byte errorMode=1)
+		public string GetColumn(string colName,byte errorMode=1,byte convertMode=0)
 		{
 			try
 			{
 				if ( dbConn != null )
 				{
-					int x = dbConn.ColNumber(colName,errorMode);
-					if ( x >= 0 )
-						return GetColumn(x);	
+					int  cNum  = dbConn.ColNumber(colName,errorMode);
+					if ( cNum >= 0 )
+					{
+						string ret = GetColumn(cNum);
+						if ( ret.Length > 5 && convertMode == 6 )
+							ret = ret.Replace(Environment.NewLine,"<br />");
+						return ret;
+					}
 				}
 			}
 			catch
@@ -130,6 +135,16 @@ namespace PCIBusiness
 			try
 			{
 				return dbConn.ColLong(colName,0,errorMode);
+			}
+			catch
+			{ }
+			return 0;
+		}
+		public long GetColumnLong(string colName,byte errorMode=1)
+		{
+			try
+			{
+				return dbConn.ColBig(colName,0,errorMode);
 			}
 			catch
 			{ }
@@ -211,7 +226,7 @@ namespace PCIBusiness
 
 			try
 			{
-				Tools.LogInfo("MiscList.Download/10","Create CSV file",severity);
+				Tools.LogInfo("Download/10","Create CSV file",severity,this);
 
 				if ( sql.Length > 0 )
 					if ( ExecQuery(sql,0) != 0 )
@@ -224,7 +239,7 @@ namespace PCIBusiness
 				fileName = Tools.CreateFile(ref fileOut,userCode+"-"+dataName,(format==(int)Constants.DataFormat.CSV?"csv":"pdf"));
 				if ( fileName.Length == 0 || fileOut == null )
 				{
-					Tools.LogException("MiscList.Download/50","Cannot create output file (" + userCode+"-"+dataName + ")");
+					Tools.LogException("Download/50","Cannot create output file (" + userCode+"-"+dataName + ")",null,this);
 					return 50;
 				}
 
@@ -267,7 +282,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("MiscList.Download/90","",ex);
+				Tools.LogException("Download/90","",ex,this);
 			}
 			finally
 			{

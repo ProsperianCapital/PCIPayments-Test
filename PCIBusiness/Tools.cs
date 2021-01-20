@@ -54,6 +54,25 @@ namespace PCIBusiness
 			return tmp;
 		}
 
+		public static string DecimalToCurrency(decimal theValue)
+		{
+			string tmp = theValue.ToString().Trim();
+			int    k   = tmp.IndexOf(".");
+			if ( theValue == 0 )
+				return "0.00";
+			if ( k < 0 )               // 3478
+				return tmp + ".00";
+			if ( k == tmp.Length-1 )   // 3478.
+				return tmp + "00";
+			if ( k == tmp.Length-2 )   // 3478.1
+				return tmp + "0";
+			if ( k == tmp.Length-3 )   // 3478.19
+				return tmp;
+			if ( k <= tmp.Length-4 )   // 3478.1966
+				return tmp.Substring(0,k+3);
+			return tmp;
+		}
+
 		public static string ObjectToString(Object theValue)
 		{
 			if ( theValue == null ) return "";
@@ -116,7 +135,7 @@ namespace PCIBusiness
 			return ret;
 		}
 
-		public static DateTime StringToDate(string theDate,byte dateFormat)
+		public static DateTime StringToDate(string theDate,byte dateFormat,byte timeFormat=0)
 		{
 			DateTime ret = Constants.DateNull;
 			string   dd  = "";
@@ -150,6 +169,14 @@ namespace PCIBusiness
 				if ( theDate.Length == 19 )
 					ss = theDate.Substring(17,2);
 			}
+			else if ( dateFormat == 0 && timeFormat == 3 && theDate.Length == 5 )
+			{
+				dd = "31";
+				mm = "12";
+				yy = "1999";
+				hh = theDate.Substring(0,2);	
+				mi = theDate.Substring(3,2);
+			}
 
 			try
 			{
@@ -174,16 +201,16 @@ namespace PCIBusiness
 
 		public static string DateToString(DateTime whatDate,byte dateFormat,byte timeFormat=0,bool quotes=false)
 		{
+			if ( whatDate.CompareTo(Constants.DateNull) <= 0 )
+				if ( dateFormat == 19 ) // for SQL
+					return "NULL";
+				else
+					return "";
+
 			string theDate = "" ;
 			string theTime = "" ;
 
-			if ( whatDate.CompareTo(Constants.DateNull) <= 0 && dateFormat == 19 ) // for SQL
-				return "NULL";
-
-			if ( whatDate.CompareTo(Constants.DateNull) <= 0 )
-				return "";
-
-			if ( dateFormat == 1 )        // DD/MM/YYYY
+			if       ( dateFormat ==  1 ) // DD/MM/YYYY
 				theDate = whatDate.ToString("dd/MM/yyyy",CultureInfo.InvariantCulture);
 			else if  ( dateFormat ==  2 ) // YYYY/MM/DD
 				theDate = whatDate.ToString("yyyy/MM/dd",CultureInfo.InvariantCulture);
@@ -288,15 +315,7 @@ namespace PCIBusiness
 			     + suffix;
 		}
 
-//		public static string JSONPair(string name,int value,bool firstPair=false,bool lastPair=false)
-//		{
-//			string quote = "\"";
-//			return (firstPair?"{":"")
-//			     + quote + name.Trim().Replace(quote,"'") + quote + " : " + value.ToString()
-//			     + (lastPair ?"}":",");
-//		}
-
-		public static string JSONValue(string data,string tag)
+		public static string JSONValue(string data,string tag,short arrayPosition=0)
 		{
 		//	Handle data in the format
 		//	{"key1":"value","key2":"value","key3":"value"}
@@ -330,6 +349,31 @@ namespace PCIBusiness
 								k = j;
 							break;
 						}
+				}
+
+				if ( arrayPosition > 0 ) // Look for [...]
+				{
+					h = value.IndexOf("[");
+					k = value.IndexOf("]",h+1);
+					if ( h >= 0 && k > h )
+					{
+						value = value.Substring(h+1,k-h-1).Trim();
+						j     = 0;
+						while ( j < arrayPosition && value.Length > 0 )
+						{
+							j++;
+							h = value.IndexOf("{");
+							k = value.IndexOf("}",h+1);
+							if ( h >= 0 && k > h )
+								if ( j == arrayPosition )
+									return value.Substring(h+1,k-h-1).Trim();
+								else
+									value = value.Substring(k+1).Trim();
+							else
+								break;
+						}
+					}
+					return "";
 				}
 
 				if ( value.Substring(0,1) == "\"" ) // Value starts with " and will end with "
@@ -381,6 +425,44 @@ namespace PCIBusiness
 			return "";
 		}
 
+		public static string HTMLValue(string data,string htmlName,string htmlId="")
+		{
+			try
+			{
+				data     = Tools.NullToString(data);
+				htmlName = Tools.NullToString(htmlName).ToUpper();
+				htmlId   = Tools.NullToString(htmlId).ToUpper();
+				if ( data.Length < 1 )
+					return "";
+				if ( htmlName.Length < 1 && htmlId.Length < 1 )
+					return "";
+
+				int k;
+				int j;
+
+				if ( htmlId.Length > 0 )
+					k = data.ToUpper().Replace("\"","'").IndexOf("ID='"+htmlId+"'");
+				else
+					k = data.ToUpper().Replace("\"","'").IndexOf("NAME='"+htmlName+"'");
+				if ( k < 1 )
+					return "";
+				data = data.Substring(k);
+				j    = data.IndexOf(">");
+				k    = data.ToUpper().IndexOf("VALUE=");
+				if ( k > 0 && k < j-6 )
+				{
+					data = data.Substring(k+6,j-k-6);
+					k    = data.Replace("\"","'").IndexOf("'");
+					j    = data.Replace("\"","'").IndexOf("'",k+1);
+					if ( j > k+1 )
+						return data.Substring(k+1,j-k-1).Trim();					
+				}
+			}
+			catch
+			{ }
+			return "";
+		}
+
 		public static string XMLCell(string tagName,string tagData,int maxLength=0)
 		{
 			string p = XMLSafe(tagData);
@@ -401,6 +483,7 @@ namespace PCIBusiness
 					try
 					{	
 						ret = xmlDoc.SelectSingleNode("//"+xmlTag).InnerText.Trim();
+						XmlElement p = xmlDoc.GetElementById(xmlTag);
 					}
 					catch { }
 					if ( ret == null || ret.Length == 0 )
@@ -538,10 +621,12 @@ namespace PCIBusiness
          return str;
 		}
 
-		public static string URLString(string str)
+		public static string URLString(string str,byte exceptionType=0)
 		{
 			if ( string.IsNullOrWhiteSpace(str) )
 				return "";
+			if ( exceptionType == 1 && ( str.Contains("{{{") || str.Contains("}}}") ) ) // TokenEx
+				return str.Trim();
 			return System.Net.WebUtility.UrlEncode(str.Trim());
 //			return System.Net.WebUtility.HtmlEncode(str.Trim());
 //			return str.Trim();
@@ -637,27 +722,35 @@ namespace PCIBusiness
 				fName = fName.Substring(0,k) + "-" + DateToString(fileDate,7) + fName.Substring(k);
 				return fName;
 			}
-			catch (Exception ex)
+			catch
 			{
 			}
 			return "C:\\Temp\\Error-X.txt";
 		}
 
-		private static void LogWrite(string settingName, string component, string msg)
+		private static void LogWrite(string settingName, string component, string msg, Object caller)
 		{
 		// Use this routine to log internal errors ...
-			int          k       = 0;
-			string       fName1  = "";
+			string       fNameX  = "";
 			FileStream   fHandle = null;
 			StreamWriter fOut    = null;
 
 			try
 			{
-				fName1 = Tools.LogFileName(settingName,System.DateTime.Now);
-				if ( File.Exists(fName1) )
-					fHandle = File.Open(fName1, FileMode.Append);
+				if ( caller != null )
+				{
+					string h = caller.ToString();
+					int    p = h.IndexOf(",");
+					if ( p > 0 )
+						h = h.Substring(0,p).Trim();
+					if ( h.Length > 0 )
+						component = h + "." + component;
+				}
+				fNameX = Tools.LogFileName(settingName,System.DateTime.Now);
+				if ( File.Exists(fNameX) )
+					fHandle = File.Open(fNameX, FileMode.Append);
 				else
-					fHandle = File.Open(fName1, FileMode.Create);
+					fHandle = File.Open(fNameX, FileMode.Create);
 				fOut = new StreamWriter(fHandle,System.Text.Encoding.Default);
 				fOut.WriteLine( "[v" + SystemDetails.AppVersion + ", " + Tools.DateToString(System.DateTime.Now,1,1,false) + "] " + component + " : " + msg);
 			}
@@ -668,7 +761,7 @@ namespace PCIBusiness
 			catch (Exception ex)
 			{
 				if ( settingName.Length > 0 ) // To prevent recursion ...
-					LogWrite("","Tools.LogWrite","fName = '" + fName1 + "', k = " + k.ToString() + ", Error = " + ex.Message);
+					LogWrite("","Tools.LogWrite","fName = '" + fNameX + "', Error = " + ex.Message,SystemDetails.AppID);
 			}
 			finally
 			{
@@ -732,7 +825,7 @@ namespace PCIBusiness
 						fOut.WriteLine( "[v" + SystemDetails.AppVersion + ", " + Tools.DateToString(System.DateTime.Now,1,1,false) + "] " + component + " : " + msg);
 						break;
 					}
-					catch (Exception ex1)
+					catch
 					{ }
 					finally
 					{
@@ -777,7 +870,7 @@ namespace PCIBusiness
 //			LogWrite("LogFileErrors",component,msg);
 //		}
 
-		public static void LogException(string component, string msg, Exception ex=null)
+		public static void LogException(string component, string msg, Exception ex=null, Object caller=null)
 		{
 			if ( ex != null )
 			{
@@ -788,10 +881,10 @@ namespace PCIBusiness
 				else
 					msg = ex.Message + msg + " : [" + ex.ToString() + "]";
 			}
-			LogWrite("LogFileErrors",component,msg);
+			LogWrite("LogFileErrors",component,msg,caller);
 		}
 
-		public static void LogInfo(string component, string msg, byte severity=10)
+		public static void LogInfo(string component, string msg, byte severity=10, Object caller=null)
 		{
 		// Use this routine to log debugging/info messages
 		//	To decide which messages to write, adjust the severity below
@@ -803,7 +896,7 @@ namespace PCIBusiness
 
 			if ( logSeverity < 1 )
 			{
-				int h = Tools.StringToInt(Tools.ConfigValue("LogSeverity"));
+				int h = Tools.StringToInt(ConfigValue("LogSeverity"));
 				if ( h > 0 && h < byte.MaxValue )
 					logSeverity = (byte)h;
 				else
@@ -811,7 +904,41 @@ namespace PCIBusiness
 			}
 
 			if ( severity >= logSeverity )
-				LogWrite("LogFileInfo",component,msg);
+				LogWrite("LogFileInfo",component,msg,caller);
+
+//			{
+//				string h = "";
+//				if ( caller != null )
+//				{
+//					h      = caller.ToString();
+//					int  k = h.IndexOf(",");
+//					if ( k > 0 )
+//						h = h.Substring(0,k).Trim();
+//					if ( h.Length > 0 )
+//						h = h + ".";
+//				}
+//				LogWrite("LogFileInfo",h+component,msg,caller);
+//			}
+
+		}
+
+		public static bool CheckPIN(string pin,byte length=0)
+		{
+			pin   = NullToString(pin);
+			int x = StringToInt(pin);
+			return ( x > 0 && ( pin.Length == length || length < 1 ) );
+		}
+
+		public static bool CheckPhone(string phone)
+		{
+			phone = NullToString(phone).Replace(" ","").Replace("(","").Replace(")","");
+			if ( phone.Length < 8 )
+				return false;
+			if ( phone.StartsWith("0") || phone.StartsWith("+") )
+				for ( int k = 0 ; k < phone.Length ; k++ )
+					if ( ! ("0123456789").Contains(phone.Substring(k,1)) )
+						return false;
+			return true;
 		}
 
 		public static bool CheckEMail(string email,byte mode=2)
@@ -940,6 +1067,17 @@ namespace PCIBusiness
 			if ( dateOfBirth.Day > theDate.Day )
 				return diff - 1;
 			return diff;
+		}
+
+		public static string ProviderCredentials(string providerName,string keyType,string keySubType="")
+		{
+			string keyValue = "";
+			string keyName  = providerName + "/" + keyType;
+			if ( keySubType.Length > 0 )
+				keyValue = ConfigValue(keyName+"/"+keySubType);
+			if ( keyValue.Length < 1 )
+				keyValue = ConfigValue(keyName);
+			return keyValue;
 		}
 
 		public static string ConfigValue(string configName)
@@ -1347,16 +1485,22 @@ namespace PCIBusiness
 			return Convert.ToBase64String(hash); // Ensure the string returned is Base64 Encoded
 		}
 
-		public static string DecodeWebException(System.Net.WebException ex,string callingModule="",string extraData="")
+		public static string DecodeWebException(System.Net.WebException ex1,string callingModule="",string extraData="")
 		{
+			string responseContent = "";
+			callingModule = callingModule + "[DecodeWebException/";
+
 			try
 			{
-				System.Net.HttpWebResponse errorResponse = ex.Response as System.Net.HttpWebResponse;
+				System.Net.HttpWebResponse errorResponse = ex1.Response as System.Net.HttpWebResponse;
 				if ( errorResponse == null )
+				{
+					Tools.LogInfo     (callingModule+"1]",extraData + " (" + ex1.Message + ")",245);
+					Tools.LogException(callingModule+"2]",extraData,ex1);
 					return "";
+				}
 
-				string responseContent = "";
-				int    k               = 0;
+				int k = 0;
 
 				using ( StreamReader sR = new StreamReader(errorResponse.GetResponseStream()) )
 					responseContent = sR.ReadToEnd();
@@ -1365,17 +1509,35 @@ namespace PCIBusiness
 				foreach (string key in errorResponse.Headers.AllKeys )
 					responseContent = responseContent + "[" + (k++).ToString() + "] " + key + " : " + errorResponse.Headers[key] + Environment.NewLine;
 
-				if ( callingModule.Length > 0 )
-				{
-					extraData = ( extraData.Length == 0 ? "" : extraData + ". " ) + "(WebException) ";
-					Tools.LogInfo     (callingModule,extraData + responseContent,245);
-					Tools.LogException(callingModule,extraData + responseContent,ex);
-				}
-				return responseContent;
+				Tools.LogInfo     (callingModule+"5]",extraData + responseContent,245);
+				Tools.LogException(callingModule+"6]",extraData + responseContent,ex1);
+
+//				if ( callingModule.Length > 0 )
+//				{
+//					extraData = ( extraData.Length == 0 ? "" : extraData + ". " ) + "(WebException) ";
+//					Tools.LogInfo     (callingModule+"5]",extraData + responseContent,245);
+//					Tools.LogException(callingModule+"6]",extraData + responseContent,ex1);
+//				}
 			}
-			catch
-			{ }
-			return "";
+			catch (Exception ex2)
+			{
+				Tools.LogInfo     (callingModule+"8]",extraData + responseContent,245);
+				Tools.LogException(callingModule+"9]",extraData + responseContent,ex2);
+			}
+			return responseContent;
+		}
+
+		public static string ImageFolder(string defaultDir="")
+		{
+			string folder = ConfigValue("ImageFolder");
+			if ( folder.Length < 1 )
+				if ( defaultDir.Length < 1 )
+					return "Images/";
+				else
+					folder = defaultDir;
+			if ( folder.EndsWith("/") )
+				return folder;
+			return folder + "/";
 		}
 	}
 }
