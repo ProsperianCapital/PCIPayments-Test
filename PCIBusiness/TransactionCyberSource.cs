@@ -348,16 +348,12 @@ namespace PCIBusiness
 				                  + unsSent
 				                  + "&signature="            + Tools.URLString(sigF);
 
-				Tools.LogInfo("CallWebService/10","Provider="+Tools.BureauCode(Constants.PaymentProvider.CyberSource)
+				Tools.LogInfo("CallWebService/40","Provider="+Tools.BureauCode(Constants.PaymentProvider.CyberSource)
 				                              +" | URL="+url
 				                              +" | TransactionType="+payment.TransactionTypeName
 				                              +" | Profile Id="+profileId
 				                              +" | Access Key="+accessKey
 				                              +" | Secret Key="+secretKey ,222,this);
-				Tools.LogInfo("CallWebService/30","Signature Input="+sigX , 10,this);
-				Tools.LogInfo("CallWebService/40","Signature Output="+sigF, 10,this);
-				Tools.LogInfo("CallWebService/50","Web form="+webForm     , 10,this);
-				Tools.LogInfo("CallWebService/60","URL params="+xmlSent   ,222,this);
 
 				HttpWebRequest webRequest;
 
@@ -379,7 +375,7 @@ namespace PCIBusiness
 					webRequest.Headers["TX_URL"]       = url;
 					webRequest.Headers["TX_TokenExID"] = payment.TokenizerID;
 					webRequest.Headers["TX_APIKey"]    = payment.TokenizerKey;
-					Tools.LogInfo("CallWebService/70","Token Provider="+Tools.BureauCode(Constants.PaymentProvider.TokenEx)
+					Tools.LogInfo("CallWebService/50","Token Provider="+Tools.BureauCode(Constants.PaymentProvider.TokenEx)
 					                              +" | Tx URL="+tURL
 					                              +" | Tx Id="+payment.TokenizerID
 					                              +" | Tx Key="+payment.TokenizerKey,222,this);
@@ -390,6 +386,11 @@ namespace PCIBusiness
 //					webForm    = webForm.Replace("POST-TO-URL",url);
 					webRequest = (HttpWebRequest)WebRequest.Create(url);
 				}
+
+				Tools.LogInfo("CallWebService/60","Signature Input="+sigX , 10,this);
+				Tools.LogInfo("CallWebService/70","Signature Output="+sigF, 10,this);
+				Tools.LogInfo("CallWebService/80","Web form="+webForm     , 10,this);
+				Tools.LogInfo("CallWebService/90","URL params="+xmlSent   ,222,this);
 
 				ret                    = 1220;
 				strResult              = "";
@@ -421,9 +422,6 @@ namespace PCIBusiness
 
 				ret          = 1270;
 				webForm      = "";
-//	Test
-//				resultCode   = Tools.HTMLValue("<input name='SlOd' value='Bozo'>","SLod");
-//	Test
 				resultCode   = Tools.HTMLValue(strResult,"decision");
 				resultStatus = Tools.HTMLValue(strResult,"reason_code");
 				resultMsg    = Tools.HTMLValue(strResult,"message");

@@ -710,9 +710,12 @@ namespace PCIBusiness
 			providerPassword = dbConn.ColString ("MerchantUserPassword",0,0);
 
 		//	Token Provider (if empty, then it is the same as the payment provider)
-			tokenizerID      = dbConn.ColString ("TxID" ,0,0);
-			tokenizerKey     = dbConn.ColString ("TxKey",0,0);
-			tokenizerURL     = dbConn.ColString ("TxURL",0,0);
+			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )
+			{
+				tokenizerID   = dbConn.ColString ("TxID");
+				tokenizerKey  = dbConn.ColString ("TxKey");
+				tokenizerURL  = dbConn.ColString ("TxURL");
+			}
 
 		//	Customer
 			if ( dbConn.ColStatus("lastName") == Constants.DBColumnStatus.ColumnOK )
