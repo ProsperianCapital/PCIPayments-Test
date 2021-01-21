@@ -491,12 +491,15 @@ namespace PCIBusiness
 		{
 			get
 			{
-				if ( transactionType == (byte)Constants.TransactionType.CardPayment      ) return "Card Payment";
-				if ( transactionType == (byte)Constants.TransactionType.DeleteToken      ) return "Delete Token";
-				if ( transactionType == (byte)Constants.TransactionType.GetToken         ) return "Get Token";
-				if ( transactionType == (byte)Constants.TransactionType.ManualPayment    ) return "Manual Payment (3d)";
-				if ( transactionType == (byte)Constants.TransactionType.TokenPayment     ) return "Token Payment";
-				if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken ) return "Get Card Number from Token";
+				if ( transactionType == (byte)Constants.TransactionType.CardPayment           ) return "Card Payment";
+				if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty ) return "Payment via 3rd Party";
+				if ( transactionType == (byte)Constants.TransactionType.DeleteToken           ) return "Delete Token";
+				if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken      ) return "Get Card from Token";
+				if ( transactionType == (byte)Constants.TransactionType.GetToken              ) return "Get Token from Card";
+				if ( transactionType == (byte)Constants.TransactionType.ManualPayment         ) return "Manual Payment";
+				if ( transactionType == (byte)Constants.TransactionType.ThreeDSecurePayment   ) return "3d Secure Payment";
+				if ( transactionType == (byte)Constants.TransactionType.TokenPayment          ) return "Token Payment";
+				if ( transactionType == (byte)Constants.TransactionType.Test                  ) return "Test";
 				return "Unknown (transactionType=" + transactionType.ToString() + ")";
 			}
 		}

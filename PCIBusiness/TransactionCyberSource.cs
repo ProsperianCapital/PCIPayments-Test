@@ -5,7 +5,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.ServiceModel;
-using System.Xml;
 
 namespace PCIBusiness
 {
@@ -349,13 +348,16 @@ namespace PCIBusiness
 				                  + unsSent
 				                  + "&signature="            + Tools.URLString(sigF);
 
-				Tools.LogInfo("CallWebService/10","Profile Id="+profileId ,222,this);
-				Tools.LogInfo("CallWebService/20","Access Key="+accessKey , 10,this);
-				Tools.LogInfo("CallWebService/30","Secret Key="+secretKey , 10,this);
-				Tools.LogInfo("CallWebService/40","Signature Input="+sigX , 10,this);
-				Tools.LogInfo("CallWebService/50","Signature Output="+sigF, 10,this);
-				Tools.LogInfo("CallWebService/60","Web form="+webForm     ,222,this);
-				Tools.LogInfo("CallWebService/70","URL params="+xmlSent   ,222,this);
+				Tools.LogInfo("CallWebService/10","Provider="+Tools.BureauCode(Constants.PaymentProvider.CyberSource)
+				                              +" | URL="+url
+				                              +" | TransactionType="+payment.TransactionTypeName
+				                              +" | Profile Id="+profileId
+				                              +" | Access Key="+accessKey
+				                              +" | Secret Key="+secretKey ,222,this);
+				Tools.LogInfo("CallWebService/30","Signature Input="+sigX , 10,this);
+				Tools.LogInfo("CallWebService/40","Signature Output="+sigF, 10,this);
+				Tools.LogInfo("CallWebService/50","Web form="+webForm     , 10,this);
+				Tools.LogInfo("CallWebService/60","URL params="+xmlSent   ,222,this);
 
 				HttpWebRequest webRequest;
 
@@ -377,6 +379,10 @@ namespace PCIBusiness
 					webRequest.Headers["TX_URL"]       = url;
 					webRequest.Headers["TX_TokenExID"] = payment.TokenizerID;
 					webRequest.Headers["TX_APIKey"]    = payment.TokenizerKey;
+					Tools.LogInfo("CallWebService/70","Token Provider="+Tools.BureauCode(Constants.PaymentProvider.TokenEx)
+					                              +" | Tx URL="+tURL
+					                              +" | Tx Id="+payment.TokenizerID
+					                              +" | Tx Key="+payment.TokenizerKey,222,this);
 				}
 				else
 				{
@@ -444,32 +450,32 @@ namespace PCIBusiness
 
 //	Code from CyberSource
 //	Start
-		private string GenerateDigest(string jsonData)
-		{
-			try
-			{
-//				string jsonData = "{ your JSON payload }";
-				using (SHA256 sha256hash = SHA256.Create())
-				{
-					byte[] payloadBytes = sha256hash.ComputeHash(Encoding.UTF8.GetBytes(jsonData));
-					string digest       = Convert.ToBase64String(payloadBytes);
-					return "SHA-256=" + digest;
-				}
-			}
-			catch (Exception ex)
-			{
-				Tools.LogException("GenerateDigest",jsonData,ex,this);
-			}
-			return "";
-		}
-		private string GenerateSignatureV1(string signatureParams, string secretKey)
-		{
-			var sigBytes      = Encoding.UTF8.GetBytes(signatureParams);
-			var decodedSecret = Convert.FromBase64String(secretKey);
-			var hmacSha256    = new HMACSHA256(decodedSecret);
-			var messageHash   = hmacSha256.ComputeHash(sigBytes);
-			return Convert.ToBase64String(messageHash);
-		}
+//		private string GenerateDigestV1(string jsonData)
+//		{
+//			try
+//			{
+//	//		//	string jsonData = "{ your JSON payload }";
+//				using (SHA256 sha256hash = SHA256.Create())
+//				{
+//					byte[] payloadBytes = sha256hash.ComputeHash(Encoding.UTF8.GetBytes(jsonData));
+//					string digest       = Convert.ToBase64String(payloadBytes);
+//					return "SHA-256=" + digest;
+//				}
+//			}
+//			catch (Exception ex)
+//			{
+//				Tools.LogException("GenerateDigest",jsonData,ex,this);
+//			}
+//			return "";
+//		}
+//		private string GenerateSignatureV1(string signatureParams, string secretKey)
+//		{
+//			var sigBytes      = Encoding.UTF8.GetBytes(signatureParams);
+//			var decodedSecret = Convert.FromBase64String(secretKey);
+//			var hmacSha256    = new HMACSHA256(decodedSecret);
+//			var messageHash   = hmacSha256.ComputeHash(sigBytes);
+//			return Convert.ToBase64String(messageHash);
+//		}
 //	End
 
 		public void TestTransactionV2(byte mode)
@@ -701,8 +707,6 @@ namespace PCIBusiness
 
       public override void Close()
 		{
-//			fieldS   = null;
-//			fieldU   = null;
 			fieldSig = null;
 			fieldUns = null;
 			base.Close();
