@@ -722,12 +722,12 @@ namespace PCIBusiness
 				email         = dbConn.ColString ("email");
 				phoneCell     = dbConn.ColString ("mobile");
 				regionalId    = dbConn.ColString ("regionalId");
-				address1      = dbConn.ColString ("address1");
-				address2      = dbConn.ColString ("city");
+				address1      = dbConn.ColUniCode("address1");
+				address2      = dbConn.ColUniCode("city");
 				postalCode    = dbConn.ColString ("zip_code");
 				provinceCode  = dbConn.ColString ("state");
 				countryCode   = dbConn.ColString ("countryCode");
-				ipAddress     = dbConn.ColString ("IPAddress");
+				ipAddress     = dbConn.ColString ("IPAddress",0,0);
 			}
 
 		//	Payment
