@@ -96,7 +96,7 @@ namespace PCIBusiness
 			txnStatus  = "";
 			strResult  = "";
 			resultCode = "99999";
-			resultMsg  = "Internal error connecting to " + url;
+			resultMsg  = "(99999) Internal error connecting to " + url;
 			ret        = 50;
 
 			try

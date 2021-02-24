@@ -1527,6 +1527,28 @@ namespace PCIBusiness
 			return responseContent;
 		}
 
+		public static string CardIssuer(string cardNumber)
+		{
+			cardNumber = Tools.NullToString(cardNumber);
+			if ( cardNumber.Length < 4 )
+				return "Invalid";
+			if ( cardNumber.StartsWith("4") )
+				return "Visa";
+			if ( cardNumber.Substring(0,2).CompareTo("51") >= 0 && cardNumber.Substring(0,2).CompareTo("55") <= 0 )
+				return "MasterCard";
+			if ( cardNumber.Substring(0,4).CompareTo("2221") >= 0 && cardNumber.Substring(0,4).CompareTo("2720") <= 0 )
+				return "MasterCard";
+			if ( cardNumber.StartsWith("34") || cardNumber.StartsWith("37") )
+				return "AmEx";
+			if ( cardNumber.StartsWith("36") )
+				return "Diners";
+			if ( cardNumber.StartsWith("6011") || cardNumber.StartsWith("644") || cardNumber.StartsWith("645") || cardNumber.StartsWith("646") || cardNumber.StartsWith("647") || cardNumber.StartsWith("648") || cardNumber.StartsWith("649") || cardNumber.StartsWith("65") )
+				return "Discover";
+			if ( cardNumber.Substring(0,6).CompareTo("622126") >= 0 && cardNumber.Substring(0,6).CompareTo("622925") <= 0 )
+				return "Discover";
+			return "Unknown";
+		}
+
 		public static string ImageFolder(string defaultDir="")
 		{
 			string folder = ConfigValue("ImageFolder");

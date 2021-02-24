@@ -27,7 +27,7 @@ namespace PCIBusiness
 			strResult   = "";
 			payRef      = "";
 			resultCode  = "999.999.999";
-			resultMsg   = "Internal error";
+			resultMsg   = "(999.999.999) Internal error";
 
 			try
 			{

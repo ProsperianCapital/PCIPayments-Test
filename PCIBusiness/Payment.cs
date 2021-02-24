@@ -18,6 +18,7 @@ namespace PCIBusiness
 		private string   lastName;
 		private string   address1;
 		private string   address2;
+		private string   address3;
 		private string   postalCode;
 		private string   provinceCode;
 		private string   regionalId;
@@ -45,6 +46,7 @@ namespace PCIBusiness
 		private string   providerUserID;
 		private string   providerPassword;
 		private string   providerURL;
+//		private string   providerHost;
 
 //	Token Provider (eg. TokenEx)
 		private string   tokenizerCode;
@@ -110,12 +112,14 @@ namespace PCIBusiness
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
 					return "UMID_858445001";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
-					return "2744639";
-//					return "000000002744639";
+//					return "2744639";
 //					return "testmid";
-
+//					return "absa_test_merchant";
+//					return "thutomoloi4";
+					return "000000002744639";
 				return "";
 			}
+			set { providerAccount = value.Trim(); }
 		}
 		public string    ProviderKey
 		{
@@ -134,7 +138,8 @@ namespace PCIBusiness
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach) )
 					return "OGFjN2E0Yzc3MmI3N2RkZjAxNzJiN2VkMDFmODA2YTF8akE0aEVaOG5ZQQ==";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
-					return "6o/jJqk5K+abVz057+G2X4H5XnkEKqEK0gz53MB0fjQ=";
+					return "IcJSjbVloKPQsS5PJrCdGOz8W/pLOBjzO4QVqKG4Ai8=";
+//					return "6o/jJqk5K+abVz057+G2X4H5XnkEKqEK0gz53MB0fjQ=";
 //					return "Zh24hLoQTpDj1n2g5ahwfDGiLaQryCQHi+DGEl0dcP8=";
 //					return "0123k20MBbIB2t012345678993gHCIZsQKFpf7dR0hY=";
 
@@ -160,7 +165,8 @@ namespace PCIBusiness
 					return "8ac7a4ca72b781310172b7ed08860114"; // Payments
 				//	return "8ac7a4c772b77ddf0172b7ed1cd206df"; // 3d
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
-					return "3C857FA4-ED86-4A08-A119-24170A74C760";
+					return "31c799cd-18da-47c3-be95-f93bd90748e0";
+//					return "3C857FA4-ED86-4A08-A119-24170A74C760";
 //					return "baa4366b-6a39-4a7f-99a2-442a91200a46";
 //					return "410c3964-6c30-4e71-a60e-057cff71a547";
 //					return "01234567-0123-0123-0123-012345678912";
@@ -201,6 +207,25 @@ namespace PCIBusiness
 				}
 
 				return "";
+			}
+		}
+
+		public string    ProviderHost
+		{
+		//	set { providerHost = value.Trim(); }
+			get
+			{
+				string host = Tools.NullToString(ProviderURL);
+				if ( host.Length < 3 )
+					return "";
+				if ( host.ToUpper().StartsWith("HTTPS://") )
+					host = host.Substring(8);
+				else if ( host.ToUpper().StartsWith("HTTP://") )
+					host = host.Substring(7);
+				int k = host.IndexOf("/");
+				if ( k > 0 )
+					return host.Substring(0,k);
+				return host;
 			}
 		}
 
@@ -289,22 +314,41 @@ namespace PCIBusiness
 		public string    PhoneCell
 		{
 			get { return  Tools.NullToString(phoneCell); }
+			set { phoneCell = value.Trim(); }
 		}
 		public string    RegionalId
 		{
 			get { return  Tools.NullToString(regionalId); }
 		}
-		public string    Address1
+		public string    Address1(byte mode=0)
 		{
-			get { return  Tools.NullToString(address1); }
+			if ( mode == 65 && string.IsNullOrWhiteSpace(address1) )
+				return "Care Assist";
+			return Tools.NullToString(address1);
 		}
-		public string    Address2
+		public string    Address2(byte mode=0)
 		{
-			get { return  Tools.NullToString(address2); }
+			if ( mode == 65 && string.IsNullOrWhiteSpace(address2) )
+				return "Cape Town";
+			return Tools.NullToString(address2);
 		}
-		public string    PostalCode
+		public string    Address3(byte mode=0)
 		{
-			get { return  Tools.NullToString(postalCode); }
+			if ( mode == 65 && string.IsNullOrWhiteSpace(address3) )
+				return "Western Cape";
+			return Tools.NullToString(address3);
+		}
+		public string    PostalCode(byte mode=0)
+		{
+			if ( mode == 65 && string.IsNullOrWhiteSpace(postalCode) )
+				return "7530";
+			return Tools.NullToString(postalCode);
+		}
+		public string    CountryCode(byte mode=0)
+		{
+			if ( mode == 65 && string.IsNullOrWhiteSpace(countryCode) )
+				return "ZA";
+			return Tools.NullToString(countryCode);
 		}
 		public string    ProvinceCode
 		{
@@ -320,10 +364,10 @@ namespace PCIBusiness
 				return "";
 			}
 		}
-		public string    CountryCode
-		{
-			get { return  Tools.NullToString(countryCode); }
-		}
+//		public string    CountryCode
+//		{
+//			get { return  Tools.NullToString(countryCode); }
+//		}
 
 //		payment stuff
 //		public string    OrderNumber

@@ -142,7 +142,7 @@ namespace PCIBusiness
 			{
 				HttpWebRequest webReq  = (HttpWebRequest)WebRequest.Create(providerAddress);
 				ret                    = 20;
-				resultMsg              = "Internal error";
+				resultMsg              = "(20) Internal error";
             webReq.ContentType     = "application/json";
             webReq.Method          = "POST";
             webReq.Accept          = "application/json";

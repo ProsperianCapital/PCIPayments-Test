@@ -130,9 +130,9 @@ namespace PCIBusiness
 		{
 			get { return   Tools.NullToString(keyValuePairs); }
 		}
-		public string   ThreeDSecureHTML
+		public string     ThreeDSecureHTML
 		{
-			get { return Tools.NullToString(d3Form); }
+			get { return   Tools.NullToString(d3Form); }
 		}
 
 
@@ -174,6 +174,10 @@ namespace PCIBusiness
 		public virtual int ThreeDSecurePayment(Payment payment,Uri postBackURL,string languageCode="",string languageDialectCode="")
 		{
 			return 14510;
+		}
+		public virtual int ThreeDSecureCheck(string transID)
+		{
+			return 14610;
 		}
 
       public virtual bool EnabledFor3d(byte transactionType)
@@ -226,7 +230,7 @@ namespace PCIBusiness
 				else if ( bureau == Constants.PaymentProvider.FNB )
 					bureauURL = "https://sandbox.ms.fnb.co.za/eCommerce/v2";
 				else if ( bureau == Constants.PaymentProvider.CyberSource )
-					bureauURL = "https://apitest.cybersource.com/tms/v2";
+					bureauURL = "https://apitest.cybersource.com";
 			}
 		}
 

@@ -35,15 +35,15 @@ namespace PCIBusiness
                                           + Tools.XMLSafe(payment.CardNumber)                       
 				                              + Tools.XMLSafe(payment.CardType)                         
 				                              + Tools.XMLSafe(payment.CardCVV)                          
-				                              + Tools.XMLSafe(payment.Address1)                         
-				                              + Tools.XMLSafe(payment.Address2)                         
-				                              + Tools.XMLSafe(payment.CountryCode)                      
+				                              + Tools.XMLSafe(payment.Address1())                         
+				                              + Tools.XMLSafe(payment.Address2())                         
+				                              + Tools.XMLSafe(payment.CountryCode())                      
 				                              + Tools.XMLSafe(payment.EMail)                            
 				                              + Tools.XMLSafe(payment.IPAddress)                          
 				                              + Tools.XMLSafe(payment.FirstName+" "+payment.LastName)   
 				                              + Tools.XMLSafe(payment.PhoneCell)                        
 				                              + Tools.XMLSafe(payment.State)                            
-				                              + Tools.XMLSafe(payment.PostalCode)                       
+				                              + Tools.XMLSafe(payment.PostalCode())                       
 				                              + Tools.XMLSafe("YES")                                                  
 				                              + Tools.XMLSafe(payment.ProviderUserID)                  
 				                              + Tools.XMLSafe(payment.PaymentAmountDecimal)             
@@ -60,15 +60,15 @@ namespace PCIBusiness
 				saleReq.cardNumber           = Tools.XMLSafe(payment.CardNumber);
 				saleReq.cardType             = Tools.XMLSafe(payment.CardType); 
 				saleReq.cardVerificationCode = Tools.XMLSafe(payment.CardCVV); 
-				saleReq.customerAddress      = Tools.XMLSafe(payment.Address1);
-				saleReq.customerCity         = Tools.XMLSafe(payment.Address2);
-				saleReq.customerCountry      = Tools.XMLSafe(payment.CountryCode);
+				saleReq.customerAddress      = Tools.XMLSafe(payment.Address1());
+				saleReq.customerCity         = Tools.XMLSafe(payment.Address2());
+				saleReq.customerCountry      = Tools.XMLSafe(payment.CountryCode());
 				saleReq.customerEmail        = Tools.XMLSafe(payment.EMail);
 				saleReq.customerIP           = Tools.XMLSafe(payment.IPAddress);
 				saleReq.customerName         = Tools.XMLSafe(payment.FirstName+" "+payment.LastName);
 				saleReq.customerPhoneNumber  = Tools.XMLSafe(payment.PhoneCell);
 				saleReq.customerState        = Tools.XMLSafe(payment.State);
-				saleReq.customerZipCode      = Tools.XMLSafe(payment.PostalCode);
+				saleReq.customerZipCode      = Tools.XMLSafe(payment.PostalCode());
 				saleReq.initRecurring        = "YES";
 				saleReq.merchantID           = Tools.XMLSafe(payment.ProviderUserID);
 				saleReq.orderAmount          = Tools.XMLSafe(payment.PaymentAmountDecimal);

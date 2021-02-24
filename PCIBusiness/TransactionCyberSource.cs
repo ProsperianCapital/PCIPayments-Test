@@ -3,24 +3,19 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
-using System.Collections.Generic;
 using System.ServiceModel;
 
 namespace PCIBusiness
 {
 	public class TransactionCyberSource : Transaction
 	{
-//		private string[,]      fieldS; // "Signed" fields
-//		private string[,]      fieldU; // "Unsigned" fields
-		private string         webForm;
-		private List<string[]> fieldSig;
-		private List<string[]> fieldUns;
+		private string webForm;
+		private int    ret;
 
 		public  bool Successful
 		{
-			get { return resultCode.ToUpper() == "ACCEPT"; }
-//			Accept, Reject, Error, Review (CyberSource)
-//			Failed                        (Internal)
+		//	get { return Tools.JSONValue(strResult,"success").ToUpper() == "TRUE"; }
+			get { return resultCode == "0" || resultCode == "00" || resultCode == "000" || resultCode == "0000"; }
 		}
 
 		public override string WebForm
@@ -31,18 +26,527 @@ namespace PCIBusiness
 		public override int CardTest(Payment payment)
 		{
 //			TestTransactionV1();
-//			TestTransactionV2(2);
-			using (Payment x = new Payment())
-			{
-				x.TransactionType = (byte)Constants.TransactionType.TokenPayment;
-				TokenPayment(x);
-			//	x.TransactionType = (byte)Constants.TransactionType.GetToken;
-			//	GetToken(x);
-			}
-			return 0;
+//			TestTransactionV2();
+
+			return CardPayment(null);
 		}
 
-		private string GenerateSignature(string data, string secretKey)
+		private string CardType(string cardNumber)
+		{
+			string issuer = Tools.CardIssuer(cardNumber).ToUpper();
+			if ( issuer.StartsWith("VISA")   ) return "001";
+			if ( issuer.StartsWith("MASTER") ) return "002";
+			if ( issuer.StartsWith("AME") )    return "003";
+			if ( issuer.StartsWith("DISC") )   return "004";
+			if ( issuer.StartsWith("DINE") )   return "005";
+			return "";
+		}
+
+		public override int CardPayment(Payment payment)
+		{
+			ret        = 10;
+			resultCode = "86";
+			resultMsg  = "(86) Internal error";
+
+			try
+			{
+				if ( payment == null || payment.TransactionType == (byte)Constants.TransactionType.Test )
+					xmlSent  = "{"
+						+ "  \"clientReferenceInformation\": {"
+						+ "    \"code\": \"TC50171_3\""
+						+ "  },"
+						+ "  \"processingInformation\": {"
+						+ "    \"commerceIndicator\": \"internet\""
+						+ "  },"
+						+ "  \"paymentInformation\": {"
+						+ "    \"card\": {"
+						+ "      \"number\": \"4111111111111111\","
+						+ "      \"expirationMonth\": \"12\","
+						+ "      \"expirationYear\": \"2024\","
+						+ "      \"securityCode\": \"123\""
+						+ "    }"
+						+ "  },"
+						+ "  \"orderInformation\": {"
+						+ "    \"amountDetails\": {"
+						+ "      \"totalAmount\": \"102.21\","
+						+ "      \"currency\": \"ZAR\""
+						+ "    },"
+						+ "    \"billTo\": {"
+						+ "      \"firstName\": \"John\","
+						+ "      \"lastName\": \"Doe\","
+						+ "      \"company\": \"Visa\","
+						+ "      \"address1\": \"1 Market Str\","
+						+ "      \"address2\": \"Address 2\","
+						+ "      \"locality\": \"san francisco\","
+						+ "      \"administrativeArea\": \"CA\","
+						+ "      \"postalCode\": \"94105\","
+						+ "      \"country\": \"US\","
+						+ "      \"email\": \"test@cybs.com\","
+						+ "      \"phoneNumber\": \"4158880000\""
+						+ "    }"
+						+ "  }"
+						+ "}";
+
+				else
+					xmlSent  = "{"
+						+ "  \"clientReferenceInformation\": {"
+						+ "    \"code\": \"" + payment.MerchantReference + "\""
+						+ "  },"
+						+ "  \"processingInformation\": {"
+						+ "    \"commerceIndicator\": \"internet\""
+						+ "  },"
+						+ "  \"paymentInformation\": {"
+						+ "    \"card\": {"
+						+ "      \"number\": \""          + payment.CardNumber + "\","
+						+ "      \"expirationMonth\": \"" + payment.CardExpiryMM + "\","
+						+ "      \"expirationYear\": \""  + payment.CardExpiryYYYY + "\","
+						+ "      \"securityCode\": \""    + payment.CardCVV + "\""
+						+ "    }"
+						+ "  },"
+						+ "  \"orderInformation\": {"
+						+ "    \"amountDetails\": {"
+						+ "      \"totalAmount\": \"" + payment.PaymentAmountDecimal + "\","
+						+ "      \"currency\": \"ZAR\""
+						+ "    },"
+						+ "    \"billTo\": {"
+						+ "      \"firstName\": \""    + payment.FirstName       + "\","
+						+ "      \"lastName\": \""     + payment.LastName        + "\","
+						+ "      \"address1\": \""     + payment.Address1(65)    + "\","
+						+ "      \"address2\": \""     + payment.Address2(65)    + "\","
+						+ "      \"locality\": \""     + payment.Address3(65)    + "\","
+						+ "      \"postalCode\": \""   + payment.PostalCode(65)  + "\","
+						+ "      \"country\": \""      + payment.CountryCode(65) + "\","
+						+ "      \"email\": \""        + payment.EMail           + "\","
+						+ "      \"phoneNumber\": \""  + payment.PhoneCell       + "\""
+						+ "    }"
+						+ "  }"
+						+ "}";
+				ret        = CallWebService(null,(byte)Constants.TransactionType.CardPayment);
+				resultCode = Tools.JSONValue(strResult,"responseCode");
+				resultMsg  = Tools.JSONValue(strResult,"status");
+
+				return ret;
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo("CardPayment/98",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,255,this);
+				Tools.LogException("CardPayment/99",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,ex,this);
+			}
+			return 203;
+		}
+
+
+		public override int TokenPayment(Payment payment)
+		{
+			ret        = 10;
+			resultCode = "87";
+			resultMsg  = "(87) Internal error";
+
+			try
+			{
+				if ( payment == null || payment.TransactionType == (byte)Constants.TransactionType.Test )
+					xmlSent  = "{"
+						+ "  \"clientReferenceInformation\": {"
+						+ "    \"code\": \"TC50171_3\""
+						+ "  },"
+						+ "  \"processingInformation\": {"
+						+ "    \"capture\": \"true\""
+						+ "  },"
+					   + "  \"paymentInstrument\": {"
+						+ "    \"id\": \"BC02545C464225DFE05341588E0AE7C9\""
+						+ "  },"
+						+ "  \"paymentInformation\": {"
+						+ "    \"card\": {"
+						+ "      \"securityCode\": \"123\""
+						+ "    }"
+						+ "  },"
+						+ "  \"orderInformation\": {"
+						+ "    \"amountDetails\": {"
+						+ "      \"totalAmount\": \"14.21\","
+						+ "      \"currency\": \"ZAR\""
+						+ "    }"
+						+ "  }"
+						+ "}";
+
+				else
+					xmlSent  = "{ \"clientReferenceInformation\": { \"code\": \"" + payment.MerchantReference + "\" },"
+						      +   "\"processingInformation\": { \"capture\": \"true\" },"
+					         +   "\"paymentInformation\": {"
+						      +      "\"card\": { \"securityCode\": \"" + payment.CardCVV + "\" },"
+					         +      "\"paymentInstrument\": { \"id\": \"" + payment.CardToken + "\" }"
+						      + "},"
+						      + "\"orderInformation\": {"
+					         +      "\"amountDetails\": { \"totalAmount\": \"" + payment.PaymentAmountDecimal + "\","
+						      +                           "\"currency\": \"ZAR\" }}}";
+
+				ret        = CallWebService(null,(byte)Constants.TransactionType.TokenPayment);
+				resultMsg  = Tools.JSONValue(strResult,"message");
+				resultCode = Tools.JSONValue(strResult,"status");
+				resultCode = resultCode + ( resultCode.Length > 0 ? "/" : "" ) + Tools.JSONValue(strResult,"reason");
+				if ( resultCode.EndsWith("/") && resultCode.Length > 1 )
+					resultCode = resultCode.Substring(0,resultCode.Length-1);
+
+				return ret;
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo("TokenPayment/98",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,255,this);
+				Tools.LogException("TokenPayment/99",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,ex,this);
+			}
+			return 203;
+		}
+
+		public override int GetToken(Payment payment)
+		{
+			ret          = 10;
+			resultCode   = "85";
+			resultMsg    = "(85) Internal error";
+			payToken     = "";
+			string payId = "";
+
+			try
+			{
+				Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
+// v1
+//				xmlSent  = "{ \"creditCard\" : " + Tools.JSONPair("number"     ,payment.CardNumber,1,"{")
+//				                                 + Tools.JSONPair("cardHolder" ,payment.CardName,1)
+//				                                 + Tools.JSONPair("expiryYear" ,payment.CardExpiryYYYY,11)
+//				                                 + Tools.JSONPair("expiryMonth",payment.CardExpiryMonth.ToString(),11) // Not padded, so 7 not 07
+//				                                 + Tools.JSONPair("type"       ,payment.CardType,1)
+//				                                 + Tools.JSONPair("cvv"        ,payment.CardCVV,1,"","}") // Changed to STRING from NUMERIC
+
+//				xmlSent  = "{ \"card\" : " + Tools.JSONPair("number"         ,payment.CardNumber,1,"{")
+//				                           + Tools.JSONPair("expirationYear" ,payment.CardExpiryYYYY,11)
+//				                           + Tools.JSONPair("expirationMonth",payment.CardExpiryMonth.ToString(),11) // Not padded, so 7 not 07
+//				                           + Tools.JSONPair("securityCode"   ,payment.CardCVV,1,"","}") // Changed to STRING from NUMERIC
+//				         + "}";
+
+//	First create an Instrument Identifier
+
+				xmlSent  = "{ \"card\" : " + Tools.JSONPair("number",payment.CardNumber,1,"{","}") + "}";
+				ret      = 20;
+				ret      = CallWebService(payment,(byte)Constants.TransactionType.GetToken,1);
+				ret      = 30;
+				payToken = "";
+				payId    = Tools.JSONValue(XMLResult,"id"); // Instrument id
+	
+				if ( payId.Length < 1 )
+					return 40;
+
+//	Now create a Payment Instrument
+
+				ret      = 60;
+				xmlSent = "{ \"card\": { \"expirationMonth\": \"" + payment.CardExpiryMM   + "\""
+				        +             ", \"expirationYear\": \""  + payment.CardExpiryYYYY + "\""
+				        +             ", \"type\": \""            + payment.CardType       + "\""
+				        +             "}"
+				        + ", \"billTo\": { \"firstName\": \""          + payment.FirstName       + "\""
+				        +               ", \"lastName\": \""           + payment.LastName        + "\""
+				        +               ", \"address1\": \""           + payment.Address1(65)    + "\""
+				        +               ", \"locality\": \""           + payment.Address2(65)    + "\""
+				        +               ", \"administrativeArea\": \"" + payment.Address3(65)    + "\""
+				        +               ", \"postalCode\": \""         + payment.PostalCode(65)  + "\""
+				        +               ", \"country\": \""            + payment.CountryCode(65) + "\""
+				        +               ", \"email\": \""              + payment.EMail           + "\""
+				        +               ", \"phoneNumber\": \""        + payment.PhoneCell       + "\""
+				        +             "}"
+				        + ", \"instrumentIdentifier\": { \"id\": \"" + payId + "\" } }";
+				ret      = 70;
+				ret      = CallWebService(payment,(byte)Constants.TransactionType.GetToken,2);
+				ret      = 80;
+				payToken = Tools.JSONValue(XMLResult,"id"); // Payment instrument
+				ret      = 90;
+				if ( payToken.Length > 0 && payId.Length > 0 && payToken != payId )
+					ret   = 0;
+				else
+					Tools.LogInfo("GetToken/50","JSON Sent="+xmlSent+", JSON Rec="+XMLResult,199,this);
+			}
+			catch (Exception ex)
+			{
+				payId = resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + payId + " | " + payToken + " | " + xmlSent;
+				Tools.LogInfo     ("GetToken/98",payId,255,this);
+				Tools.LogException("GetToken/99",payId,ex ,this);
+			}
+			return ret;
+		}
+
+		public int TokenPaymentV1(Payment payment)
+		{
+			if ( ! EnabledFor3d(payment.TransactionType) )
+				return 590;
+
+			ret    = 10;
+			payRef = "";
+
+			Tools.LogInfo("TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
+
+			try
+			{
+				xmlSent = "{ \"creditCard\" : "  + Tools.JSONPair("token"    ,payment.CardToken,1,"{","}")
+				        + ", \"transaction\" : " + Tools.JSONPair("reference",payment.MerchantReference,1,"{")
+				                                 + Tools.JSONPair("currency" ,payment.CurrencyCode,1)
+				                                 + Tools.JSONPair("amount"   ,payment.PaymentAmount.ToString(),11,"","}")
+				        + ", "                   + Tools.JSONPair("threeDSecure","false",12,"","")
+				        + "}";
+
+				ret     = 20;
+				ret     = CallWebService(payment,(byte)Constants.TransactionType.TokenPayment);
+				ret     = 30;
+				payRef  = Tools.JSONValue(XMLResult,"reference");
+				ret     = 40;
+				if ( Successful && payRef.Length > 0 )
+					ret  = 0;
+//				else
+//					Tools.LogInfo("TransactionPayGenius.TokenPayment/50","JSON Sent="+xmlSent+", JSON Rec="+XMLResult,199);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo("TokenPayment/98","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255,this);
+				Tools.LogException("TokenPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex,this);
+			}
+			return ret;
+		}
+
+		public override int ThreeDSecureCheck(string transID)
+		{
+			return 0; // All ok
+		}
+
+		private int CallWebService(Payment payment,byte transactionType,byte subType=0)
+      {
+			if ( payment == null )
+			{
+				payment              = new Payment();
+				payment.BureauCode   = Tools.BureauCode(Constants.PaymentProvider.CyberSource);
+				payment.ProviderURL  = "https://apitest.cybersource.com";
+			}
+
+			string url      = payment.ProviderURL;
+			string urlPart  = "/pts/v2/payments/";
+			string tranDesc = "";
+			ret             = 10;
+			resultCode      = "89";
+			resultMsg       = "(89) Internal error";
+
+			if ( Tools.NullToString(url).Length == 0 )
+				url = BureauURL;
+
+			ret = 20;
+			if ( url.EndsWith("/") )
+				url = url.Substring(0,url.Length-1);
+
+			ret = 30;
+			if ( transactionType == (byte)Constants.TransactionType.GetToken && subType == 1 )
+			{
+				urlPart  = "/tms/v1/instrumentidentifiers";
+				tranDesc = "Create Instrument Id";
+			}
+			if ( transactionType == (byte)Constants.TransactionType.GetToken && subType == 2 )
+			{
+				urlPart  = "/tms/v1/paymentinstruments";
+				tranDesc = "Create Payment Instrument (Token)";
+			}
+			else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
+				tranDesc = "Token Payment";
+
+			else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
+				tranDesc = "Card Payment";
+
+			else if ( transactionType == (byte)Constants.TransactionType.ThreeDSecurePayment )
+				tranDesc = "3d Secure Payment";
+
+			else
+			{ }
+
+			ret        = 60;
+			url        = url + urlPart;
+			strResult  = "";
+			resultCode = "88";
+			resultMsg  = "(88) Internal error connecting to " + url;
+			ret        = 70;
+
+//			payment.ProviderAccount = "2744639";
+//	v2
+//			payment.ProviderUserID  = "faaf4d2bcc42365d90f853daa4096cdc";
+//			payment.ProviderKey     = "73004ef0b7c041be93e03c995261fddb651b0d62b2e34ec093452c706da8c08bd8dd69ff8747423f9f27f05b01f3e9d2efb12af5a2834989b08b0ed461dfe55df4d43a7cb81942439fd3496724037cce5d62874a64fe450380f037603e120b5e9caebdf35d1d4fb98c2c52202ea0aae7fc640bd9b8f64709b2dd1598e6c5dd4f";
+//	v3
+//			payment.ProviderUserID  = "49a43334-5803-487c-abbc-f2fa4bca2e45";
+//			payment.ProviderKey     = "2Xhlp9hCsul/s99nVwQEbpeAoWWO02uUJqDcmUBN29w=";
+//	v4
+//			payment.ProviderUserID  = "234b0d4c-f2e7-4312-b5bc-0f2f825fda71";
+//			payment.ProviderKey     = "Filiak+xbEPMWulenj8GHkDcjkogkUjvgV8klH4Wzgs=";
+//	v5
+//			payment.ProviderUserID  = "0271670f-9c1e-4759-a049-74c1b17b4070";
+//			payment.ProviderKey     = "bK40sZ9HH0wWxCOi3m15DO2F08eUrB0TrRE6+k0PwJk=";
+//	v6
+//			payment.ProviderUserID  = "a4580757-bbe4-47f4-ae1e-2943cfbef816";
+//			payment.ProviderKey     = "wyWzapqLVUgp55dnJFhEZ7hPbKouhp2PvQSFY8lAoL0=";
+//	v7
+//			payment.ProviderUserID  = "3469c4b4-1dd0-4841-844d-8f7c94d64e4a";
+//			payment.ProviderKey     = "ItvjUJ+a9+/HRGFcEYS8iGoDO+eza5XALeIt2/Bdm1A=";
+//	v8
+//	This one works (TEST site)!
+//			payment.ProviderAccount = "000000002744639";
+//			payment.ProviderUserID  = "31c799cd-18da-47c3-be95-f93bd90748e0";
+//			payment.ProviderKey     = "IcJSjbVloKPQsS5PJrCdGOz8W/pLOBjzO4QVqKG4Ai8=";
+//			payment.ProviderURL     = "https://apitest.cybersource.com";
+
+			try
+			{
+				string         digest;
+				string         sigCoded;
+				string         sigSource;
+				string         sep                = "\"";
+				byte[]         page               = Encoding.UTF8.GetBytes(xmlSent);
+				DateTime       theDate            = System.DateTime.UtcNow;
+				HttpWebRequest webReq             = (HttpWebRequest)WebRequest.Create(url);
+				webReq.ContentType                = "application/json";
+//				webReq.Accept                     = "application/json";
+				webReq.Method                     = "POST";
+				webReq.Date                       = theDate;
+				webReq.Host                       = payment.ProviderHost;
+				ret                               = 160;
+				digest                            = GenerateDigestV3(xmlSent);
+				ret                               = 170;
+//	Set headers
+				webReq.Headers["v-c-merchant-id"] = payment.ProviderAccount;
+//				webReq.Headers["Date"]            = theDate.ToString(); // "Fri, 11 Dec 2020 07:18:03 GMT";
+//				webReq.Headers["Host"]            = "apitest.cybersource.com";
+				webReq.Headers["Digest"]          = digest;
+
+//				ret                               = 173;
+//				sigSource                         = "host: "            + webRequest.Host            + "\n"
+//				                                  + "date: "            + webRequest.Headers["Date"] + "\n"
+//				                                  + "(request-target): post /pts/v2/payments/"       + "\n"
+//				                                  + "digest: "          + digest                     + "\n"
+//				                                  + "v-c-merchant-id: " + payment.ProviderAccount;
+
+				ret                               = 177;
+				sigSource                         = "v-c-merchant-id: " + payment.ProviderAccount    + "\n"
+				                                  + "date: "            + webReq.Headers["Date"]     + "\n"
+				                                  + "host: "            + webReq.Host                + "\n"
+				                                  + "digest: "          + digest                     + "\n"
+				                                  + "(request-target): post " + urlPart;
+
+				ret                               = 180;
+				sigCoded                          = GenerateSignatureV3(sigSource,payment.ProviderKey);
+
+				webReq.Headers["Signature"]       =   "keyid="     + sep + payment.ProviderUserID + sep
+				                                  + ", algorithm=" + sep + "HmacSHA256" + sep
+				                                  + ", headers="   + sep + "v-c-merchant-id date host digest (request-target)" + sep
+//				                                  + ", headers="   + sep + "host date (request-target) digest v-c-merchant-id" + sep
+				                                  + ", signature=" + sep + sigCoded + sep;
+				ret                               = 200;
+
+				Tools.LogInfo("CallWebService/20", "Transaction Type=" + tranDesc                + Environment.NewLine
+				                                 + "URL="              + url                     + Environment.NewLine
+				                                 + "Merchant Id="      + payment.ProviderAccount + Environment.NewLine
+				                                 + "Key Detail/Id="    + payment.ProviderUserID  + Environment.NewLine
+				                                 + "Secret Key="       + payment.ProviderKey     + Environment.NewLine
+				                                 + "JSON Sent="        + xmlSent                 + Environment.NewLine
+				                                 + "Signature Input="  + sigSource               + Environment.NewLine
+				                                 + "Signature Output=" + sigCoded                + Environment.NewLine
+				                                 + "Request Header[v-c-merchant-id]=" + webReq.Headers["v-c-merchant-id"] + Environment.NewLine
+				                                 + "Request Header[Date]="            + webReq.Headers["Date"]            + Environment.NewLine
+				                                 + "Request Header[Host]="            + webReq.Host                       + Environment.NewLine
+				                                 + "Request Header[Digest]="          + webReq.Headers["Digest"]          + Environment.NewLine
+				                                 + "Request Header[Signature]="       + webReq.Headers["Signature"]
+				                                 , 220, this);
+
+				using (Stream stream = webReq.GetRequestStream())
+				{
+					ret = 310;
+					stream.Write(page, 0, page.Length);
+					stream.Flush();
+					stream.Close();
+				}
+
+				ret = 320;
+				using (WebResponse webResponse = webReq.GetResponse())
+				{
+					ret = 330;
+					using (StreamReader rd = new StreamReader(webResponse.GetResponseStream()))
+					{
+						ret        = 340;
+						strResult  = rd.ReadToEnd();
+					}
+					if ( strResult.Length == 0 )
+					{
+						ret        = 350;
+						resultMsg  = "No data returned from " + url;
+						Tools.LogInfo("CallWebService/30","Failed, JSON Rec=(empty)",199,this);
+					}
+					else
+						ret = 0;
+
+//					else
+//					{
+//						ret        = 360;
+//						resultCode = Tools.JSONValue(strResult,"responseCode");
+//						resultMsg  = Tools.JSONValue(strResult,"status");
+//
+//						if (Successful)
+//						{
+//							ret        = 370;
+//							resultCode = "00";
+//							Tools.LogInfo("CallWebService/40","Successful, JSON Rec=" + strResult,255,this);
+//						}
+//						else
+//						{
+//							ret = 380;
+//							Tools.LogInfo("CallWebService/50","Failed, JSON Rec=" + strResult,199,this);
+//							if ( Tools.StringToInt(resultCode) == 0 )
+//								resultCode = "99";
+//						}
+//					}
+//				}
+//				ret = 0;
+
+				}
+			}
+			catch (WebException ex1)
+			{
+				Tools.DecodeWebException(ex1,ClassName+".CallWebService/597","ret="+ret.ToString());
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogInfo     ("CallWebService/598","ret="+ret.ToString(),220,this);
+				Tools.LogException("CallWebService/599","ret="+ret.ToString(),ex2,this);
+			}
+			return ret;
+		}
+
+//	Code from CyberSource
+//	Start
+		private string GenerateDigestV3(string jsonData)
+		{
+			try
+			{
+				using (SHA256 sha256hash = SHA256.Create())
+				{
+					byte[] payloadBytes = sha256hash.ComputeHash(Encoding.UTF8.GetBytes(jsonData));
+					string digest       = Convert.ToBase64String(payloadBytes);
+					return "SHA-256=" + digest;
+				}
+			}
+			catch (Exception ex)
+			{
+				Tools.LogException("GenerateDigest",jsonData,ex,this);
+			}
+			return "";
+		}
+
+		private string GenerateSignatureV3(string signatureParams, string secretKey)
+		{
+			var sigBytes      = Encoding.UTF8.GetBytes(signatureParams);
+			var decodedSecret = Convert.FromBase64String(secretKey);
+			var hmacSha256    = new HMACSHA256(decodedSecret);
+			var messageHash   = hmacSha256.ComputeHash(sigBytes);
+			return Convert.ToBase64String(messageHash);
+		}
+//	End
+
+		private string GenerateSignatureV2(string data, string secretKey)
 		{
 			UTF8Encoding encoding     = new System.Text.UTF8Encoding();
 			byte[]       keyByte      = encoding.GetBytes(secretKey);
@@ -51,477 +555,67 @@ namespace PCIBusiness
 			return Convert.ToBase64String(hmacsha256.ComputeHash(messageBytes));
 		}
 
-		private void SetUpPaymentData(Payment payment)
+		public void TestTransactionV3() // REST
 		{
-			string tranType    = "sale";
-			string cardOrToken = payment.CardNumber;
-  			if ( payment.TransactionType == (byte)Constants.TransactionType.CardPaymentThirdParty )
-				cardOrToken = "{{{" + payment.CardToken + "}}}";
-  			else if ( payment.TransactionType == (byte)Constants.TransactionType.GetToken )
-				tranType    = "create_payment_token";
-
-			fieldSig = new List<string[]>();
-//	Signed, mandatory
-			fieldSig.Add(new string[] { "transaction_type" , tranType });
-			fieldSig.Add(new string[] { "currency"         , payment.CurrencyCode }); // Must be ZAR
-			fieldSig.Add(new string[] { "amount"           , payment.PaymentAmountDecimal });
-
-			if ( payment.TransactionType == (byte)Constants.TransactionType.TokenPayment )
-			{
-				fieldSig.Add(new string[] { "payment_token" , payment.CardToken });
-				fieldUns = null;
-				return;
-			}
-
-			fieldSig.Add(new string[] { "payment_method"          , "card" });
-			fieldSig.Add(new string[] { "card_cvn"                , payment.CardCVV });
-			fieldSig.Add(new string[] { "bill_to_forename"        , payment.FirstName });
-			fieldSig.Add(new string[] { "bill_to_surname"         , payment.LastName });
-			fieldSig.Add(new string[] { "bill_to_address_line1"   , payment.Address1 });
-			fieldSig.Add(new string[] { "bill_to_address_city"    , payment.Address2 });
-			fieldSig.Add(new string[] { "bill_to_address_country" , payment.CountryCode });
-
-//	Signed, optional
-			if ( payment.PostalCode.Length > 0 )
-				fieldSig.Add(new string[] { "bill_to_address_postal_code" , payment.PostalCode });
-			if ( payment.EMail.Length > 0 )
-				fieldSig.Add(new string[] { "bill_to_email"               , payment.EMail });
-			if ( payment.PhoneCell.Length > 0 )
-				fieldSig.Add(new string[] { "bill_to_phone"               , payment.PhoneCell });
-
-			fieldUns = new List<string[]>();
-//	Unsigned, mandatory
-			fieldUns.Add(new string[] { "card_type"        , payment.CardType });
-			fieldUns.Add(new string[] { "card_number"      , cardOrToken });
-			fieldUns.Add(new string[] { "card_expiry_date" , payment.CardExpiryMM + "-" + payment.CardExpiryYYYY });
-
-//			fieldS = new string[,] { { "transaction_type"            , tranType }
-//			                       , { "currency"                    , payment.CurrencyCode } // Must be ZAR
-//			                       , { "amount"                      , payment.PaymentAmountDecimal }
-//			                       , { "payment_method"              , "card" }
-//			                       , { "card_cvn"                    , payment.CardCVV }
-//			                       , { "bill_to_forename"            , payment.FirstName }
-//			                       , { "bill_to_surname"             , payment.LastName }
-//			                       , { "bill_to_email"               , payment.EMail }
-//			                       , { "bill_to_phone"               , payment.PhoneCell }
-//			                       , { "bill_to_address_line1"       , payment.Address1 }
-//			                       , { "bill_to_address_city"        , payment.Address2 }
-//			                       , { "bill_to_address_postal_code" , payment.PostalCode }
-//			                       , { "bill_to_address_country"     , payment.CountryCode } };
-//			fieldU = new string[,] { { "card_type"                   , payment.CardType } // 001 = VISA, 002 = MC, 003 = AmEx, 005 = Diners
-//			                       , { "card_number"                 , cardOrToken }
-//			                       , { "card_expiry_date"            , payment.CardExpiryMM + "-" + payment.CardExpiryYYYY } };
+			CardPayment(null);
 		}
 
-		public override int CardPayment(Payment payment)
-		{
-			int ret = 10;
-			try
-			{
-				SetUpPaymentData(payment);
-				ret = 50;
-				ret = CallWebService(payment);
-			}
-			catch (Exception ex)
-			{
-				Tools.LogInfo     ("CardPayment/298","ret="+ret.ToString(),220,this);
-				Tools.LogException("CardPayment/299","ret="+ret.ToString(),ex ,this);
-			}
-			return ret;
-		}
-		public override int CardPayment3rdParty(Payment payment)
-		{
-			return CardPayment(payment);
-		}
-		public override int TokenPayment(Payment payment)
-		{
-			return CardPayment(payment);
-		}
-		public override int GetToken(Payment payment)
-		{
-			return CardPayment(payment);
-		}
-
-/*
-		public override int GetToken(Payment payment)
-		{
-			int ret = 10;
-			try
-			{
-			//	Sample values that work
-			//	fieldS = new string[,] { { "reference_number"            , "123456" }
-			//	                       , { "transaction_type"            , "create_payment_token" }
-			//	                       , { "currency"                    , "ZAR" }
-			//	                       , { "amount"                      , "1.00" }
-			//	                       , { "transaction_uuid"            , System.Guid.NewGuid().ToString() }
-			//	                       , { "payment_method"              , "card" }
-			//	                       , { "card_cvn"                    , "005" }
-			//	                       , { "bill_to_forename"            , "Pete" }
-			//	                       , { "bill_to_surname"             , "Smith" }
-			//	                       , { "bill_to_email"               , "test@hotmail.com" }
-			//	                       , { "bill_to_phone"               , "0885556666" }
-			//	                       , { "bill_to_address_line1"       , "133 Fiddlers Lane" }
-			//	                       , { "bill_to_address_city"        , "Knysna" }
-			//	                       , { "bill_to_address_postal_code" , "4083" }
-			//	                       , { "bill_to_address_country"     , "ZA" } };
-			//	fieldU = new string[,] { { "card_type"                   , "001" }
-			//	                       , { "card_number"                 , "4111111111111111" }
-			//	                       , { "card_expiry_date"            , "12-2022" } };
-
-				fieldS = new string[,] { { "transaction_type"            , "create_payment_token" }
-				                       , { "currency"                    , payment.CurrencyCode } // Must be ZAR
-				                       , { "amount"                      , "1.00" }
-				                       , { "payment_method"              , "card" }
-				                       , { "card_cvn"                    , payment.CardCVV }
-				                       , { "bill_to_forename"            , payment.FirstName }
-				                       , { "bill_to_surname"             , payment.LastName }
-				                       , { "bill_to_email"               , payment.EMail }
-				                       , { "bill_to_phone"               , payment.PhoneCell }
-				                       , { "bill_to_address_line1"       , payment.Address1 }
-				                       , { "bill_to_address_city"        , payment.Address2 }
-				                       , { "bill_to_address_postal_code" , payment.PostalCode }
-				                       , { "bill_to_address_country"     , payment.CountryCode } };
-				ret    = 20;
-				fieldU = new string[,] { { "card_type"                   , payment.CardType } // 001 = VISA, 002 = MC, 003 = AmEx, 005 = Diners
-				                       , { "card_number"                 , payment.CardNumber }
-				                       , { "card_expiry_date"            , payment.CardExpiryMM + "-" + payment.CardExpiryYYYY } };
-				ret      = 30;
-				ret      = CallWebService(payment); // ,payment.TransactionType);
-				payToken = Tools.XMLNode(xmlResult,"payment_token");
-			}
-			catch (Exception ex)
-			{
-				Tools.LogInfo     ("GetToken/298","ret="+ret.ToString(),220,this);
-				Tools.LogException("GetToken/299","ret="+ret.ToString(),ex ,this);
-			}
-			return ret;
-		}
-
-		public override int TokenPayment(Payment payment)
-		{
-			if ( ! EnabledFor3d(payment.TransactionType) )
-				return 590;
-
-			int ret = 10;
-			try
-			{
-				fieldS = new string[,] { { "transaction_type" , "sale" }
-				                       , { "currency"         , payment.CurrencyCode }
-				                       , { "amount"           , payment.PaymentAmountDecimal }
-				                       , { "payment_token"    , payment.CardToken } };
-				fieldU = null;
-				ret    = 30;
-				ret    = CallWebService(payment);
-			}
-			catch (Exception ex)
-			{
-				Tools.LogInfo     ("TokenPayment/298","ret="+ret.ToString(),220,this);
-				Tools.LogException("TokenPayment/299","ret="+ret.ToString(),ex ,this);
-			}
-			return ret;
-		}
-*/
-		private int CallWebService(Payment payment)
-      {
-			resultCode   = "Failed";
-			resultStatus = "999";
-			resultMsg    = "Internal error";
-			payRef       = "";
-
-			if ( payment == null )
-				return 1010;
-
-			int    k;
-			int    ret       = 1020;
-			string sigX      = "";
-			string sigF      = "";
-			string sigS      = "";
-			string sigU      = "";
-			string unsForm   = "";
-			string unsSent   = "";
-			string url       = payment.ProviderURL;
-			string profileId = payment.ProviderUserID;
-			string accessKey = payment.ProviderPassword;
-			string secretKey = payment.ProviderKey;
-
-			if ( ! Tools.SystemIsLive() )
-			{
-				if ( url.Length       < 5 ) url       = "https://testsecureacceptance.cybersource.com/silent";
-				if ( profileId.Length < 5 ) profileId = "3C857FA4-ED86-4A08-A119-24170A74C760";
-				if ( accessKey.Length < 5 ) accessKey = "8b031c20a1ad343c97afe1869e2e7994";
-				if ( secretKey.Length < 5 ) secretKey = "2ea6c71fa7e04304a78f417c1e4d95677abb9673c7cd45ec803a08696041ea62b5eae10527704f4580ae8da223c295c0b42f97808adf4b6db1a2bf032eb74bd7376d9d1393f1443aaf8bcba7cd4d1148b3157119169c404fa74be9e4cd5cf9cacc34f76976f54bfa93136e4de6b1f53750a5e9d4b1cc4fcebd67a14bbcc156c3";
-			}
-
-			if ( url.Length < 5 )
-				return ret;
-			if ( url.EndsWith("/") )
-				url = url.Substring(0,url.Length-1);
-
-			ret = 1030;
-
-			try
-			{
-				string[,] fieldX = new string[,] { { "profile_id"       , profileId }
-				                                 , { "access_key"       , accessKey }
-				                                 , { "signed_date_time" , DateTime.Now.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") }
-				                                 , { "locale"           , "en" }
-				                                 , { "transaction_uuid" , System.Guid.NewGuid().ToString() }
-				                                 , { "reference_number" , payment.MerchantReference } };
-
-				ret = 1040;
-
-				if ( payment.TransactionType == (byte)Constants.TransactionType.GetToken )
-					url  = url + "/token/create";
-				else
-					url  = url + "/pay";
-				xmlSent = "";
-				webForm = "<html><body onload='document.forms[\"frmX\"].submit()'>" + Environment.NewLine
-				        + "<form name='frmX' method='POST' action='" + url + "'>" + Environment.NewLine;
-				ret     = 1050;
-
-//	Standard signed fields
-				for ( k = 0 ; k < fieldX.GetLength(0) ; k++ )
-				{
-					ret     = 1060;
-					xmlSent = xmlSent + "&" + fieldX[k,0] + "=" + Tools.URLString(fieldX[k,1],1);
-					webForm = webForm + "<input type='hidden' id='" + fieldX[k,0] + "' name='" + fieldX[k,0] + "' value='" + fieldX[k,1] + "' />" + Environment.NewLine;
-					sigX    = sigX + fieldX[k,0] + "=" + fieldX[k,1] + ",";
-					sigS    = sigS + fieldX[k,0] + ",";
-				}
-
-//	Transaction-specific signed fields
-// v1
-//				if ( fieldS != null )
-//					for ( k = 0 ; k < fieldS.GetLength(0) ; k++ )
-//					{
-//						ret     = 1080;
-//						xmlSent = xmlSent + "&" + fieldS[k,0] + "=" + Tools.URLString(fieldS[k,1],1);
-//						webForm = webForm + "<input type='hidden' id='" + fieldS[k,0] + "' name='" + fieldS[k,0] + "' value='" + fieldS[k,1] + "' />" + Environment.NewLine;
-//						sigX    = sigX + fieldS[k,0] + "=" + fieldS[k,1] + ",";
-//						sigS    = sigS + fieldS[k,0] + ",";
-//					}
-
-				if ( fieldSig != null )
-					foreach ( string[] fld in fieldSig )
-					{
-						ret     = 1080;
-						xmlSent = xmlSent + "&" + fld[0] + "=" + Tools.URLString(fld[1],1);
-						webForm = webForm + "<input type='hidden' id='" + fld[0] + "' name='" + fld[0] + "' value='" + fld[1] + "' />" + Environment.NewLine;
-						sigX    = sigX + fld[0] + "=" + fld[1] + ",";
-						sigS    = sigS + fld[0] + ",";
-					}
-
-//	Transaction-specific unsigned fields
-// v1
-//				if ( fieldU != null )
-//					for ( k = 0 ; k < fieldU.GetLength(0) ; k++ )
-//					{
-//						ret     = 1110;
-//						unsSent = unsSent + "&" + fieldU[k,0] + "=" + Tools.URLString(fieldU[k,1],1);
-//						unsForm = unsForm + "<input type='hidden' id='" + fieldU[k,0] + "' name='" + fieldU[k,0] + "' value='" + fieldU[k,1] + "' />" + Environment.NewLine;
-//						sigU    = sigU + fieldU[k,0] + ",";
-//					}
-
-				if ( fieldUns != null )
-					foreach ( string[] fld in fieldUns )
-					{
-						ret     = 1110;
-						unsSent = unsSent + "&" + fld[0] + "=" + Tools.URLString(fld[1],1);
-						unsForm = unsForm + "<input type='hidden' id='" + fld[0] + "' name='" + fld[0] + "' value='" + fld[1] + "' />" + Environment.NewLine;
-						sigU    = sigU + fld[0] + ",";
-					}
-
-				ret     = 1160;
-				sigS    = sigS + "signed_field_names,unsigned_field_names";
-				sigX    = sigX + "signed_field_names=" + sigS + ",unsigned_field_names=" + sigU;
-				xmlSent = xmlSent.Substring(1);
-				sigF    = GenerateSignature(sigX,secretKey);
-				ret     = 1170;
-				webForm = webForm + "<input type='hidden' id='signed_field_names' name='signed_field_names' value='" + sigS + "' />" + Environment.NewLine
-				                  + "<input type='hidden' id='unsigned_field_names' name='unsigned_field_names' value='" + sigU + "' />" + Environment.NewLine
-				                  + unsForm
-				                  + "<input type='hidden' id='signature' name='signature' value='" + sigF + "' />" + Environment.NewLine
-				                  + "</form></body></html>";
-				ret     = 1180;
-				xmlSent = xmlSent + "&signed_field_names="   + Tools.URLString(sigS)
-				                  + "&unsigned_field_names=" + Tools.URLString(sigU)
-				                  + unsSent
-				                  + "&signature="            + Tools.URLString(sigF);
-
-				Tools.LogInfo("CallWebService/40","Provider="+Tools.BureauCode(Constants.PaymentProvider.CyberSource)
-				                              +" | URL="+url
-				                              +" | TransactionType="+payment.TransactionTypeName
-				                              +" | Profile Id="+profileId
-				                              +" | Access Key="+accessKey
-				                              +" | Secret Key="+secretKey ,222,this);
-
-				HttpWebRequest webRequest;
-
-				if ( payment.TransactionType == (byte)Constants.TransactionType.CardPaymentThirdParty )
-				{
-					ret         = 1190;
-					string tURL = payment.TokenizerURL; // The TOKENIZER/THIRD PARTY (TokenEx)
-					if ( tURL.Length < 1 || bureauCodeTokenizer.Length < 1 )
-					{
-						Tools.LogInfo("CardPayment3rdParty/20","Unknown Third Party Tokenizer (" + bureauCodeTokenizer + "), data=" + xmlSent,221,this);
-						return ret;
-					}
-					if ( ! tURL.ToUpper().EndsWith("DETOKENIZE") )
-						tURL = tURL + "/TransparentGatewayAPI/Detokenize";
-
-					ret                                = 1200;
-//					webForm                            = webForm.Replace("POST-TO-URL",tURL);
-					webRequest                         = (HttpWebRequest)WebRequest.Create(tURL);
-					webRequest.Headers["TX_URL"]       = url;
-					webRequest.Headers["TX_TokenExID"] = payment.TokenizerID;
-					webRequest.Headers["TX_APIKey"]    = payment.TokenizerKey;
-					Tools.LogInfo("CallWebService/50","Token Provider="+Tools.BureauCode(Constants.PaymentProvider.TokenEx)
-					                              +" | Tx URL="+tURL
-					                              +" | Tx Id="+payment.TokenizerID
-					                              +" | Tx Key="+payment.TokenizerKey,222,this);
-				}
-				else
-				{
-					ret        = 1210;
-//					webForm    = webForm.Replace("POST-TO-URL",url);
-					webRequest = (HttpWebRequest)WebRequest.Create(url);
-				}
-
-				Tools.LogInfo("CallWebService/60","Signature Input="+sigX , 10,this);
-				Tools.LogInfo("CallWebService/70","Signature Output="+sigF, 10,this);
-				Tools.LogInfo("CallWebService/80","Web form="+webForm     , 10,this);
-				Tools.LogInfo("CallWebService/90","URL params="+xmlSent   ,222,this);
-
-				ret                    = 1220;
-				strResult              = "";
-				webRequest.Method      = "POST";
-				webRequest.ContentType = "application/x-www-form-urlencoded";
-				webRequest.Accept      = "application/x-www-form-urlencoded";
-				byte[] page            = Encoding.UTF8.GetBytes(xmlSent);
-				ret                    = 1230;
-
-				using (Stream stream = webRequest.GetRequestStream())
-				{
-					stream.Write(page, 0, page.Length);
-//					stream.Flush();
-					stream.Close();
-				}
-
-				ret = 1240;
-				using (WebResponse webResponse = webRequest.GetResponse())
-				{
-					ret = 1250;
-					using (StreamReader rd = new StreamReader(webResponse.GetResponseStream()))
-					{
-						ret       = 1260;
-						strResult = rd.ReadToEnd();
-					}
-				}
-
-				Tools.LogInfo("CallWebService/160","XML Rec=" + strResult.ToString(),222,this);
-
-				ret          = 1270;
-				webForm      = "";
-				resultCode   = Tools.HTMLValue(strResult,"decision");
-				resultStatus = Tools.HTMLValue(strResult,"reason_code");
-				resultMsg    = Tools.HTMLValue(strResult,"message");
-				payRef       = Tools.HTMLValue(strResult,"transaction_id");
-				sigX         = Tools.HTMLValue(strResult,"payment_token");
-				if ( sigX.Length > 0 )
-					payToken  = sigX;
-				ret          = 1290;
-
-				if ( Successful && payRef.Length > 0 )
-					ret = 0;
-			}
-			catch (WebException ex1)
-			{
-				Tools.DecodeWebException(ex1,ClassName+".CallWebService/297","ret="+ret.ToString());
-			}
-			catch (Exception ex2)
-			{
-				Tools.LogInfo     ("CallWebService/298","ret="+ret.ToString(),220,this);
-				Tools.LogException("CallWebService/299","ret="+ret.ToString(),ex2,this);
-			}
-			return ret;
-		}
-
-//	Code from CyberSource
-//	Start
-//		private string GenerateDigestV1(string jsonData)
-//		{
-//			try
-//			{
-//	//		//	string jsonData = "{ your JSON payload }";
-//				using (SHA256 sha256hash = SHA256.Create())
-//				{
-//					byte[] payloadBytes = sha256hash.ComputeHash(Encoding.UTF8.GetBytes(jsonData));
-//					string digest       = Convert.ToBase64String(payloadBytes);
-//					return "SHA-256=" + digest;
-//				}
-//			}
-//			catch (Exception ex)
-//			{
-//				Tools.LogException("GenerateDigest",jsonData,ex,this);
-//			}
-//			return "";
-//		}
-//		private string GenerateSignatureV1(string signatureParams, string secretKey)
-//		{
-//			var sigBytes      = Encoding.UTF8.GetBytes(signatureParams);
-//			var decodedSecret = Convert.FromBase64String(secretKey);
-//			var hmacSha256    = new HMACSHA256(decodedSecret);
-//			var messageHash   = hmacSha256.ComputeHash(sigBytes);
-//			return Convert.ToBase64String(messageHash);
-//		}
-//	End
-
-		public void TestTransactionV2(byte mode)
+		public int TestTransactionV2(byte mode=2)
 		{
 		//	Mode = 1 : Web form submit
 		//	Mode = 2 : URL fields
 
-			string url       = "https://testsecureacceptance.cybersource.com/silent/token/create";
-//			string url       = "https://testsecureacceptance.cybersource.com/silent/pay";
-//			string profileId = "466381AB-5F66-4679-AFD4-5035EA9077A7";
-//			string accessKey = "faaf4d2bcc42365d90f853daa4096cdc";
-//			string secretKey = "73004ef0b7c041be93e03c995261fddb651b0d62b2e34ec093452c706da8c08bd8dd69ff8747423f9f27f05b01f3e9d2efb12af5a2834989b08b0ed461dfe55df4d43a7cb81942439fd3496724037cce5d62874a64fe450380f037603e120b5e9caebdf35d1d4fb98c2c52202ea0aae7fc640bd9b8f64709b2dd1598e6c5dd4f";
-			string profileId = "3C857FA4-ED86-4A08-A119-24170A74C760";
-			string accessKey = "8b031c20a1ad343c97afe1869e2e7994";
-			string secretKey = "2ea6c71fa7e04304a78f417c1e4d95677abb9673c7cd45ec803a08696041ea62b5eae10527704f4580ae8da223c295c0b42f97808adf4b6db1a2bf032eb74bd7376d9d1393f1443aaf8bcba7cd4d1148b3157119169c404fa74be9e4cd5cf9cacc34f76976f54bfa93136e4de6b1f53750a5e9d4b1cc4fcebd67a14bbcc156c3";
-			int    ret       = 10;
+		   ret                 = 10;
+//			string    url       = "https://testsecureacceptance.cybersource.com/silent/token/create";
+//			string    url       = "https://testsecureacceptance.cybersource.com/silent/embedded/pay";
+			string    url       = "https://testsecureacceptance.cybersource.com/silent/pay";
+//			string    profileId = "466381AB-5F66-4679-AFD4-5035EA9077A7";
+//			string    accessKey = "faaf4d2bcc42365d90f853daa4096cdc";
+//			string    secretKey = "73004ef0b7c041be93e03c995261fddb651b0d62b2e34ec093452c706da8c08bd8dd69ff8747423f9f27f05b01f3e9d2efb12af5a2834989b08b0ed461dfe55df4d43a7cb81942439fd3496724037cce5d62874a64fe450380f037603e120b5e9caebdf35d1d4fb98c2c52202ea0aae7fc640bd9b8f64709b2dd1598e6c5dd4f";
+			string    profileId = "3C857FA4-ED86-4A08-A119-24170A74C760";
+			string    accessKey = "8b031c20a1ad343c97afe1869e2e7994";
+			string    secretKey = "2ea6c71fa7e04304a78f417c1e4d95677abb9673c7cd45ec803a08696041ea62b5eae10527704f4580ae8da223c295c0b42f97808adf4b6db1a2bf032eb74bd7376d9d1393f1443aaf8bcba7cd4d1148b3157119169c404fa74be9e4cd5cf9cacc34f76976f54bfa93136e4de6b1f53750a5e9d4b1cc4fcebd67a14bbcc156c3";
+			DateTime  dt        = DateTime.Now.ToUniversalTime();
+			string[,] fieldS;
+			string[,] fieldU;
 
 			try
 			{
-				DateTime   dt    = DateTime.Now.ToUniversalTime();
-				string[,] fieldS = new string[,] { { "reference_number"            , "123456" }
-				                                 , { "transaction_type"            , "sale" }
-				                                 , { "currency"                    , "ZAR" }
-				                                 , { "amount"                      , "19.37" }
-				                                 , { "locale"                      , "en" }
-				                                 , { "profile_id"                  , profileId }
-				                                 , { "access_key"                  , accessKey }
-				                                 , { "transaction_uuid"            , System.Guid.NewGuid().ToString() }
-				                                 , { "signed_date_time"            , dt.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") }
-				                                 , { "payment_method"              , "card" }
-				                                 , { "card_cvn"                    , "005" }
-				                                 , { "bill_to_forename"            , "Pete" }
-				                                 , { "bill_to_surname"             , "Smith" }
-				                                 , { "bill_to_email"               , "test@hotmail.com" }
-				                                 , { "bill_to_phone"               , "0885556666" }
-				                                 , { "bill_to_address_line1"       , "133 Fiddlers Lane" }
-				                                 , { "bill_to_address_city"        , "Knysna" }
-				                                 , { "bill_to_address_postal_code" , "4083" }
-				                                 , { "bill_to_address_country"     , "ZA" } };
-				string[,] fieldU = new string[,] { { "card_type"                   , "001" }
-				                                 , { "card_number"                 , "4111111111111111" }
-				                                 , { "card_expiry_date"            , "12-2022" } };
 				string sigX    = "";
 				string sigF    = "";
 				string sigS    = "";
 				string sigU    = "";
 				string unsForm = "";
 				string unsSent = "";
+
+				fieldS = new string[,] { { "reference_number"                   , "123456" } // Merchant ref num
+				                       , { "transaction_type"                   , "sale,create_payment_token" }
+				                       , { "currency"                           , "ZAR" }
+				                       , { "amount"                             , "19.37" }
+				                       , { "locale"                             , "en" }
+				                       , { "profile_id"                         , profileId }
+				                       , { "access_key"                         , accessKey }
+				                       , { "transaction_uuid"                   , System.Guid.NewGuid().ToString() } // MUST be unique
+				                       , { "signed_date_time"                   , dt.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } // "2021-01-10T03:16:54Z"
+				                       , { "payment_method"                     , "card" }
+				                       , { "card_cvn"                           , "005" }
+				                       , { "bill_to_forename"                   , "Pete" }
+				                       , { "bill_to_surname"                    , "Smith" }
+				                       , { "bill_to_email"                      , "test@hotmail.com" }
+				                       , { "bill_to_phone"                      , "0885556666" }
+				                       , { "bill_to_address_line1"              , "133 Fiddlers Lane" }
+				                       , { "bill_to_address_city"               , "Knysna" }
+				                       , { "bill_to_address_postal_code"        , "4083" }
+				                       , { "bill_to_address_country"            , "ZA" }
+				                       , { "payer_authentication_challenge_code", "03" } // Force 3d Secure
+				                       , { "payer_authentication_merchant_name" , "CareAssist" }
+				                       , { "override_custom_cancel_page"        , "http://www.paulkilfoil.co.za/Leisure.aspx" }
+				                       , { "override_custom_receipt_page"       , "http://www.paulkilfoil.co.za/Travelogues.aspx" } };
+				fieldU = new string[,] { { "card_type"                          , "001" }
+				                       , { "card_number"                        , "4456530000000007" }
+				                       , { "card_expiry_date"                   , "12-2022" } };
+//				                       , { "card_number"                        , "4111111111111111" } // Visa
+//				                       , { "card_number"                        , "5555555555554444" } // MasterCard
 
 				ret     = 20;
 				xmlSent = "";
@@ -550,7 +644,7 @@ namespace PCIBusiness
 				sigS    = sigS.Substring(1) + ",signed_field_names,unsigned_field_names";
 				sigX    = sigX.Substring(1) + ",signed_field_names=" + sigS + ",unsigned_field_names=" + sigU;
 				xmlSent = xmlSent.Substring(1);
-				sigF    = GenerateSignature(sigX,secretKey);
+				sigF    = GenerateSignatureV2(sigX,secretKey);
 				ret     = 60;
 				webForm = webForm + "<input type='hidden' id='signed_field_names' name='signed_field_names' value='" + sigS + "' />" + Environment.NewLine
 				                  + "<input type='hidden' id='unsigned_field_names' name='unsigned_field_names' value='" + sigU + "' />" + Environment.NewLine
@@ -571,15 +665,15 @@ namespace PCIBusiness
 				Tools.LogInfo("TestTransactionV2/60","Web form="+webForm,222,this);
 				Tools.LogInfo("TestTransactionV2/70","URL params="+xmlSent,222,this);
 
-				if ( mode == 1 ) //	Web form
-					return;
+//				if ( mode == 1 ) //	Web form
+//					return;
 
 				HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
 				ret                       = 110;
-				strResult                 = "";
 				webRequest.Method         = "POST";
 				webRequest.ContentType    = "application/x-www-form-urlencoded";
 				webRequest.Accept         = "application/x-www-form-urlencoded";
+				strResult                 = "";
 				byte[] page               = Encoding.UTF8.GetBytes(xmlSent);
 
 				ret = 120;
@@ -601,11 +695,15 @@ namespace PCIBusiness
 					}
 				}
 
-				Tools.LogInfo("TestTransactionV2/160","XML Rec=" + strResult.ToString(),222,this);
-				ret       = 160;
-				webForm   = "";
-			//	xmlResult = new XmlDocument();
-			//	xmlResult.LoadXml(strResult.ToString());
+				Tools.LogInfo("TestTransactionV2/160","XML Rec=" + strResult,222,this);
+				ret = 160;
+				if ( strResult.ToUpper().Contains("<HTML") && strResult.ToUpper().Contains("<FORM") )
+				{
+					d3Form = strResult;
+					return 0;
+				}
+//				xmlResult = new XmlDocument();
+//				xmlResult.LoadXml(xmlReceived.ToString());
 			}
 			catch (WebException ex1)
 			{
@@ -616,6 +714,12 @@ namespace PCIBusiness
 				Tools.LogInfo     ("TestTransactionV2/298","ret="+ret.ToString(),220,this);
 				Tools.LogException("TestTransactionV2/299","ret="+ret.ToString(),ex2,this);
 			}
+			finally
+			{
+				fieldS = null;
+				fieldU = null;
+			}
+			return ret;
 		}
 
 		public void TestTransactionV1() // SOAP
@@ -679,40 +783,197 @@ namespace PCIBusiness
 
 				CyberSource.ReplyMessage reply = proc.runTransaction(request);
 
-				Tools.LogInfo("TestTransaction/5","decision = " + reply.decision
-				                              + ", reasonCode = " + reply.reasonCode
-				                              + ", requestID = " + reply.requestID
-				                              + ", requestToken = " + reply.requestToken
-				                              + ", ccAuthReply.reasonCode = " + reply.ccAuthReply.reasonCode,244);
+				Tools.LogInfo("TestTransactionV1/5","decision = " + reply.decision
+				                                + ", reasonCode = " + reply.reasonCode
+				                                + ", requestID = " + reply.requestID
+				                                + ", requestToken = " + reply.requestToken
+				                                + ", ccAuthReply.reasonCode = " + reply.ccAuthReply.reasonCode,244);
 			}
 			catch (TimeoutException ex)
 			{
-				Tools.LogException("TestTransaction/10","TimeoutException",ex,this);
+				Tools.LogException("TestTransactionV1/10","TimeoutException",ex,this);
 			}
 			catch (FaultException ex)
 			{
-				Tools.LogException("TestTransaction/15","FaultException",ex,this);
+				Tools.LogException("TestTransactionV1/15","FaultException",ex,this);
 			}
 			catch (CommunicationException ex)
 			{
-				Tools.LogException("TestTransaction/20","CommunicationException",ex,this);
+				Tools.LogException("TestTransactionV1/20","CommunicationException",ex,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("TestTransaction/25","Exception",ex,this);
+				Tools.LogException("TestTransactionV1/25","Exception",ex,this);
 			}
 		}
 
-      public override void Close()
+		public override int ThreeDSecurePayment(Payment payment,Uri postBackURL,string languageCode="",string languageDialectCode="")
 		{
-			fieldSig = null;
-			fieldUns = null;
-			base.Close();
+			ret                 = 10;
+			string    url       = "https://testsecureacceptance.cybersource.com/silent/embedded/pay";
+			string    profileId = "3C857FA4-ED86-4A08-A119-24170A74C760";
+			string    accessKey = "8b031c20a1ad343c97afe1869e2e7994";
+			string    secretKey = "2ea6c71fa7e04304a78f417c1e4d95677abb9673c7cd45ec803a08696041ea62b5eae10527704f4580ae8da223c295c0b42f97808adf4b6db1a2bf032eb74bd7376d9d1393f1443aaf8bcba7cd4d1148b3157119169c404fa74be9e4cd5cf9cacc34f76976f54bfa93136e4de6b1f53750a5e9d4b1cc4fcebd67a14bbcc156c3";
+			string    ccNo      = payment.CardNumber;
+			string    ccType    = CardType(payment.CardNumber);
+			DateTime  dt        = DateTime.Now.ToUniversalTime();
+			string[,] fieldS;
+			string[,] fieldU;
+
+			try
+			{
+				string sigX      = "";
+				string sigF      = "";
+				string sigS      = "";
+				string sigU      = "";
+				string unsForm   = "";
+				string unsSent   = "";
+				string urlReturn = "";
+
+				if ( postBackURL == null )
+					urlReturn = Tools.ConfigValue("SystemURL");
+				else
+					urlReturn = postBackURL.GetLeftPart(UriPartial.Authority);
+				if ( ! urlReturn.EndsWith("/") )
+					urlReturn = urlReturn + "/";
+				ret       = 20;
+				urlReturn = urlReturn + "RegisterThreeD.aspx?ProviderCode="+Tools.BureauCode(Constants.PaymentProvider.CyberSource)
+                                  +                    "&TransRef="+Tools.XMLSafe(payment.MerchantReference);
+
+				if ( payment.TokenizerCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
+					ccNo = "{{{" + payment.CardToken + "}}}";
+
+				d3Form = "";
+				ret    = 30;
+				fieldS = new string[,] { { "reference_number"                   , payment.MerchantReference }
+				                       , { "transaction_type"                   , "sale,create_payment_token" }
+				                       , { "currency"                           , "ZAR" }
+				                       , { "amount"                             , "0.10" }
+				                       , { "locale"                             , "en" }
+				                       , { "profile_id"                         , profileId }
+				                       , { "access_key"                         , accessKey }
+				                       , { "transaction_uuid"                   , System.Guid.NewGuid().ToString() } // MUST be unique
+				                       , { "signed_date_time"                   , dt.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } // "2021-01-10T03:16:54Z"
+				                       , { "payment_method"                     , "card" }
+				                       , { "card_cvn"                           , payment.CardCVV }
+				                       , { "bill_to_forename"                   , payment.FirstName }
+				                       , { "bill_to_surname"                    , payment.LastName }
+				                       , { "bill_to_email"                      , payment.EMail }
+				                       , { "bill_to_phone"                      , payment.PhoneCell }
+				                       , { "bill_to_address_line1"              , payment.Address1(65) }
+				                       , { "bill_to_address_city"               , payment.Address2(65) }
+				                       , { "bill_to_address_postal_code"        , payment.PostalCode(65) }
+				                       , { "bill_to_address_country"            , "ZA" }
+				                       , { "payer_authentication_challenge_code", "03" } // Force 3d Secure
+				                       , { "payer_authentication_merchant_name" , "CareAssist" }
+				                       , { "override_custom_cancel_page"        , urlReturn }
+				                       , { "override_custom_receipt_page"       , urlReturn } };
+				ret    = 40;
+				fieldU = new string[,] { { "card_type"                          , ccType }
+				                       , { "card_number"                        , ccNo }
+				                       , { "card_expiry_date"                   , payment.CardExpiryMM+"-"+payment.CardExpiryYYYY } };
+
+				ret     = 50;
+				xmlSent = "";
+
+				for ( int k = 0 ; k < fieldS.GetLength(0) ; k++ )
+				{
+					ret     = 60;
+					xmlSent = xmlSent + "&" + fieldS[k,0] + "=" + Tools.URLString(fieldS[k,1]);
+					sigX    = sigX + "," + fieldS[k,0] + "=" + fieldS[k,1];
+					sigS    = sigS + "," + fieldS[k,0];
+				}
+
+				for ( int k = 0 ; k < fieldU.GetLength(0) ; k++ )
+				{
+					ret     = 70;
+					unsSent = unsSent + "&" + fieldU[k,0] + "=" + Tools.URLString(fieldU[k,1]);
+					unsForm = unsForm + "<input type='hidden' id='" + fieldU[k,0] + "' name='" + fieldU[k,0] + "' value='" + fieldU[k,1] + "' />" + Environment.NewLine;
+					sigU    = sigU + "," + fieldU[k,0];
+				}
+
+				ret     = 80;
+				sigU    = sigU.Substring(1);
+				sigS    = sigS.Substring(1) + ",signed_field_names,unsigned_field_names";
+				sigX    = sigX.Substring(1) + ",signed_field_names=" + sigS + ",unsigned_field_names=" + sigU;
+				xmlSent = xmlSent.Substring(1);
+				sigF    = GenerateSignatureV2(sigX,secretKey);
+				ret     = 100;
+				xmlSent = xmlSent + "&signed_field_names="   + Tools.URLString(sigS)
+				                  + "&unsigned_field_names=" + Tools.URLString(sigU)
+				                  + unsSent
+				                  + "&signature="            + Tools.URLString(sigF);
+
+				Tools.LogInfo("ThreeDSecurePayment/10","Profile Id="+profileId, 10,this);
+				Tools.LogInfo("ThreeDSecurePayment/20","Access Key="+accessKey, 10,this);
+				Tools.LogInfo("ThreeDSecurePayment/30","Secret Key="+secretKey, 10,this);
+				Tools.LogInfo("ThreeDSecurePayment/40","Signature Input="+sigX, 10,this);
+				Tools.LogInfo("ThreeDSecurePayment/50","Signature Output="+sigF,10,this);
+				Tools.LogInfo("ThreeDSecurePayment/70","URL params="+xmlSent,   10,this);
+
+				HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+				ret                       = 110;
+				webRequest.Method         = "POST";
+				webRequest.ContentType    = "application/x-www-form-urlencoded";
+				webRequest.Accept         = "application/x-www-form-urlencoded";
+				strResult                 = "";
+				byte[] page               = Encoding.UTF8.GetBytes(xmlSent);
+
+				ret = 120;
+				using (Stream stream = webRequest.GetRequestStream())
+				{
+					ret = 130;
+					stream.Write(page, 0, page.Length);
+//					stream.Flush();
+					stream.Close();
+				}
+
+				ret = 140;
+				using (WebResponse webResponse = webRequest.GetResponse())
+				{
+					ret = 150;
+					using (StreamReader rd = new StreamReader(webResponse.GetResponseStream()))
+					{
+						ret       = 160;
+						strResult = rd.ReadToEnd();
+					}
+				}
+
+				Tools.LogInfo("ThreeDSecurePayment/170","strResult=" + strResult,222,this);
+				ret = 170;
+
+				if ( strResult.ToUpper().Contains("<HTML") && strResult.ToUpper().Contains("<FORM") && strResult.ToUpper().Contains("NAME=\"TERMURL") )
+				{
+					ret        = 180;
+					d3Form     = strResult;
+
+//					string sql = "exec sp_WP_PaymentRegister3DSecA @ContractCode="    + Tools.DBString(payment.MerchantReference)
+//				              +                                 ",@ReferenceNumber=" + Tools.DBString(WhatShouldIPutHere)
+//				              +                                 ",@Status='77'"; // Means payment pending
+//					using (MiscList mList = new MiscList())
+//						mList.ExecQuery(sql,0,"",false,true);
+//					Tools.LogInfo("ThreeDSecurePayment/180","PayRef=" + payRef + "; SQL=" + sql + "; " + d3Form,10,this);
+
+					return 0;
+				}
+
+				ret        = 190;
+				resultCode = Tools.HTMLValue(strResult,"reason_code");
+				resultMsg  = Tools.HTMLValue(strResult,"invalid_fields");
+				resultMsg  = Tools.HTMLValue(strResult,"message") + ( resultMsg.Length > 0 ? " (" + resultMsg + ")" : "" );
+				ret        = 210;
+			}
+			catch (Exception ex)
+			{
+				Tools.LogException("ThreeDSecurePayment/199","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex,this);
+			}
+			return ret;
 		}
 
 		public TransactionCyberSource() : base()
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.CyberSource);
+			xmlResult                             = null;
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
 		}

@@ -129,8 +129,8 @@ namespace PCIBusiness
 
 			ret        = 60;
 			strResult  = "";
-			resultCode = "99";
-			resultMsg  = "Internal error connecting to " + url;
+			resultCode = "98";
+			resultMsg  = "(98) Internal error connecting to " + url;
 			ret        = 70;
 
 			try
