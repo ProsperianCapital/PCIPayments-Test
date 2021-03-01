@@ -253,18 +253,8 @@ namespace PCIBusiness
 					Tools.LogInfo("CardPayment3rdParty/20","Unknown Third Party Tokenizer (" + bureauCodeTokenizer + "), data=" + xmlSent,221,this);
 					return ret;
 				}
-				if ( ! payment.TokenizerURL.ToUpper().EndsWith("DETOKENIZE") )
-					tURL = payment.TokenizerURL + "/TransparentGatewayAPI/Detokenize";
-
-//				if ( payment.TokenizerURL.Length > 0 ) // The TOKENIZER/THIRD PARTY (TokenEx)
-//					tURL = payment.TokenizerURL + "/TransparentGatewayAPI/Detokenize";
-//	//			else if ( bureauCodeTokenizer == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
-//	//				tURL = "https://test-api.tokenex.com/TransparentGatewayAPI/Detokenize";
-//				else
-//				{
-//					Tools.LogInfo("CardPaymentThirdParty/20","Unknown Third Party Tokenizer (" + bureauCodeTokenizer + "), data=" + xmlSent,221,this);
-//					return ret;
-//			}
+				if ( ! tURL.ToUpper().EndsWith("DETOKENIZE") )
+					tURL = tURL + "/TransparentGatewayAPI/Detokenize";
 
 				ret = 30;
 				SetUpPaymentXML(payment,(byte)Constants.TransactionType.CardPaymentThirdParty);

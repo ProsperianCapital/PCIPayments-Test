@@ -134,11 +134,12 @@ namespace PCIBusiness
 		public enum TransactionType : byte
 		{
 			GetToken              =   1,
-			TokenPayment          =   2,
+			GetTokenThirdParty    =   8,
 			CardPayment           =   3,
+			CardPaymentThirdParty =   6,
+			TokenPayment          =   2,
 			DeleteToken           =   4,
 			GetCardFromToken      =   5,
-			CardPaymentThirdParty =   6,
 			ThreeDSecurePayment   =   7,
 			ManualPayment         =  73,
 			Test                  = 197

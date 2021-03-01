@@ -102,7 +102,7 @@ namespace PCIBusiness
 
 			try
 			{
-				if ( payment.ProviderURL.Length > 0 )
+				if ( url.Length < 1 && payment.ProviderURL.Length > 0 )
 					url = payment.ProviderURL;
 
 				Tools.LogInfo("PostJSON/10","Post="+xmlSent+", Key="+payment.ProviderKey,10,this);
@@ -135,12 +135,14 @@ namespace PCIBusiness
 					resultCode           = Tools.JSONValue(strResult,"Success");
 					ret                  = 130;
 					resultMsg            = Tools.JSONValue(strResult,"Error");
-					ret                  = 140;
+					ret                  = 150;
 					payRef               = Tools.JSONValue(strResult,"ReferenceNumber");
-					if ( Successful )
-						ret = 0;
-					else
-						Tools.LogInfo("PostJSON/110","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
+
+					if ( Successful && strResult.Length > 0 )
+						return 0;
+
+					ret = 170;
+					Tools.LogInfo("PostJSON/110","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
 				}
 			}
 			catch (WebException ex1)
@@ -249,6 +251,88 @@ namespace PCIBusiness
 			int ret          = PostJSON(url,payment);
 			if ( ret == 0 )
 				payToken = Tools.JSONValue(strResult,"Token");
+			return ret;
+		}
+
+		public override int Detokenize(Payment payment)
+		{
+//	Live
+			xmlSent    = Tools.JSONPair("APIKey"   , payment.ProviderKey,    0, "{")
+			           + Tools.JSONPair("TokenExID", payment.ProviderUserID, 0)
+			           + Tools.JSONPair("Token"    , payment.CardToken,      0, "", "}");
+
+// Test, v1
+//			xmlSent    = Tools.JSONPair("APIKey"   , "54md8h1OmLe9oJwYdp182pCxKF0MUnWzikTZSnOi" ,0, "{")
+//			           + Tools.JSONPair("TokenExID", "4311038889209736", 0)
+//			           + Tools.JSONPair("Token"    , payment.CardToken, 0, "", "}");
+
+			cardNumber = "";
+			int  ret   = PostJSON(BureauURL + "/TokenServices.svc/REST/Detokenize",payment);
+			if ( ret  == 0 && strResult.ToUpper().Contains("VALUE") ) // Success
+				cardNumber = Tools.JSONValue(strResult,"Value");
+			else if ( ret == 0 )
+				ret = 817;
+			return ret;
+		}
+
+		public int DetokenizeV2(Payment payment)
+		{
+			int ret = 10;
+			xmlSent = "BureauCode="     + Tools.URLString(payment.BureauCode)
+			        + "&ContractCode="  + Tools.URLString(payment.MerchantReference)
+			        + "&Token="         + Tools.URLString(payment.CardToken)
+			        + "&CardNumber={{{" + Tools.URLString(payment.CardToken) + "}}}";
+
+			try
+			{
+				string         tURL            = "https://test-api.tokenex.com/TransparentGatewayAPI/Detokenize";
+//				string         tURL            = payment.TokenizerURL + "/TransparentGatewayAPI/Detokenize";
+				byte[]         buffer          = Encoding.UTF8.GetBytes(xmlSent);
+				HttpWebRequest webReq          = (HttpWebRequest)HttpWebRequest.Create(tURL);
+//				webReq.Headers["TX_URL"]       = "https://www.eservsecureafrica.com/Detokenize.aspx";
+//				webReq.Headers["TX_URL"]       = "https://www.eservsecure.com/UIApplicationQuery.aspx?QueryName=Detokenize";
+				webReq.Headers["TX_URL"]       = "https://www.eservsecureafrica.com/RTR.aspx";
+//				webReq.Headers["TX_TokenExID"] = payment.TokenizerID;  // "4311038889209736";
+//				webReq.Headers["TX_APIKey"]    = payment.TokenizerKey; // "54md8h1OmLe9oJwYdp182pCxKF0MUnWzikTZSnOi";
+				webReq.Headers["TX_TokenExID"] = "4311038889209736";
+				webReq.Headers["TX_APIKey"]    = "54md8h1OmLe9oJwYdp182pCxKF0MUnWzikTZSnOi";
+				webReq.Method                  = "POST";
+				webReq.ContentType             = "application/x-www-form-urlencoded";
+				ret                            = 50;
+
+				using (Stream postData = webReq.GetRequestStream())
+				{
+					ret = 70;
+					postData.Write(buffer, 0, buffer.Length);
+					postData.Close();
+				}
+
+				ret = 80;
+
+				using (HttpWebResponse response = (HttpWebResponse)webReq.GetResponse())
+				{
+					ret                     = 100;
+					Stream       dataStream = response.GetResponseStream();
+					ret                     = 110;
+					StreamReader reader     = new StreamReader(dataStream);
+					ret                     = 120;
+					strResult               = reader.ReadToEnd();
+					ret                     = 130;
+					reader.Close();
+					dataStream.Close();
+				}
+			}
+			catch (WebException ex1)
+			{
+				strResult = Tools.DecodeWebException(ex1,"TransactionTokenEx.Detokenize/197",xmlSent);
+			}
+			catch (Exception ex2)
+			{
+				if ( strResult == null )
+					strResult = "";
+				Tools.LogInfo     ("Detokenize/198","Ret="+ret.ToString()+", Result="+strResult,222,this);
+				Tools.LogException("Detokenize/199","Ret="+ret.ToString()+", Result="+strResult,ex2,this);
+			}
 			return ret;
 		}
 

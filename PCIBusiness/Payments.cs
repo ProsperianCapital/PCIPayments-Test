@@ -123,6 +123,11 @@ namespace PCIBusiness
 				sql  = "exec sp_Get_CardToToken " + Tools.DBString(bureauCode);
 				desc = "Get Token";
 			}
+			else if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty )
+    		{
+				sql  = "exec sp_Get_CardToToken " + Tools.DBString(bureauCode);
+				desc = "(TokenEx) Get Token";
+			}
 			else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
     		{
 				sql  = "exec sp_Get_TokenPayment " + Tools.DBString(bureauCode);
@@ -131,7 +136,7 @@ namespace PCIBusiness
 			else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
     		{
 				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
-				desc = "(Direct) Card Payment)";
+				desc = "Card Payment";
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty )
     		{
@@ -145,7 +150,9 @@ namespace PCIBusiness
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken )
     		{
-				sql  = "exec sp_Get_TokenToDecrypt " + Tools.DBString(bureauCode);
+			//	sql  = "exec sp_Get_TokenToDecrypt " + Tools.DBString(bureauCode);
+				sql  = "exec sp_TokenEx_Detoken " + Tools.DBString(bureauCode);
+			//	sql  = "select '4111117223051111' as PaymentBureauToken,'XYZ' as ContractCode,'https://test-api.tokenex.com' as URL";
 				desc = "Get Card from Token";
 			}
 			else
@@ -183,15 +190,21 @@ namespace PCIBusiness
 							err = payment.ProcessPayment();
 						else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
 							err = payment.ProcessPayment();
+						else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
+							err = payment.DeleteToken();
+						else if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken )
+							err = payment.Detokenize();
+						else if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty )
+						{
+							payment.TokenizerCode = bureaCodeTokenize;
+							err                   = payment.GetToken(); 
+						}
 						else if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty )
 						{
 							payment.TokenizerCode = bureaCodeTokenize;
 							err                   = payment.ProcessPayment(); 
 						}
-						else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
-							err = payment.DeleteToken();
-						else if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken )
-							err = payment.Detokenize();
+
 						if ( err == 0 )
 							success++;
 						else

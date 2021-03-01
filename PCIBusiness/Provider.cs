@@ -110,17 +110,7 @@ namespace PCIBusiness
 			get
 			{
 				if ( transaction == null )
-					if      ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU)        ) transaction = new TransactionPayU();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24)         ) transaction = new TransactionT24();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)      ) transaction = new TransactionMyGate();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius)   ) transaction = new TransactionPayGenius();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)     ) transaction = new TransactionPayGate();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB)         ) transaction = new TransactionFNB();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)    ) transaction = new TransactionEcentric();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)       ) transaction = new TransactionENets();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)       ) transaction = new TransactionPeach();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx)     ) transaction = new TransactionTokenEx();
-				   else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) ) transaction = new TransactionCyberSource();
+					transaction = Tools.CreateTransaction(bureauCode);
 				return transaction;
 			}
 		}

@@ -161,6 +161,8 @@ namespace PCIBusiness
 					return "";
 
 //	Testing
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
+					return "4311038889209736";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach) )
 					return "8ac7a4ca72b781310172b7ed08860114"; // Payments
 				//	return "8ac7a4c772b77ddf0172b7ed1cd206df"; // 3d
@@ -540,6 +542,7 @@ namespace PCIBusiness
 				if ( transactionType == (byte)Constants.TransactionType.DeleteToken           ) return "Delete Token";
 				if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken      ) return "Get Card from Token";
 				if ( transactionType == (byte)Constants.TransactionType.GetToken              ) return "Get Token from Card";
+				if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty    ) return "Token via 3rd Party";
 				if ( transactionType == (byte)Constants.TransactionType.ManualPayment         ) return "Manual Payment";
 				if ( transactionType == (byte)Constants.TransactionType.ThreeDSecurePayment   ) return "3d Secure Payment";
 				if ( transactionType == (byte)Constants.TransactionType.TokenPayment          ) return "Token Payment";
@@ -550,7 +553,32 @@ namespace PCIBusiness
 
 		public int Detokenize() // ToDo
 		{
-			return 0;
+//			int processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
+			int retProc     = 87020;
+			int retSQL      = 87020;
+			sql             = "";
+			Tools.LogInfo("Detokenize/10","Token=" + CardToken,10,this);
+
+			if ( transaction == null || transaction.BureauCode != bureauCode )
+				transaction = Tools.CreateTransaction(bureauCode);
+			if ( transaction == null )
+				return retProc;
+			if ( CardToken.Length < 1 )
+				return 87030;
+
+			retProc = transaction.Detokenize(this);
+
+			if ( retProc == 0 )
+			{
+				sql = "exec sp_TokenEx_UpdateVault @PaymentBureauCode = "  + Tools.DBString(bureauCode) 
+			                                  + ",@PaymentBureauToken = " + Tools.DBString(CardToken)
+			                                  + ",@ContractCode = "       + Tools.DBString(transaction.PaymentReference)
+			                                  + ",@CardNumber = "         + Tools.DBString(transaction.CardNumber);
+				Tools.LogInfo("Detokenize/20","SQL=" + sql,20,this);
+				retSQL = ExecuteSQLUpdate();
+			}
+			Tools.LogInfo("Detokenize/90","retProc=" + retProc.ToString()+", retSQL=" + retSQL.ToString(),40,this);
+			return retProc;
 		}
 
 		public int DeleteToken()
@@ -561,12 +589,9 @@ namespace PCIBusiness
 			Tools.LogInfo("DeleteToken/10","Token=" + CardToken,10,this);
 
 			if ( transaction == null || transaction.BureauCode != bureauCode )
-			{
-				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
-					transaction = new TransactionPayGate();
-				else
-					return retProc;
-			}
+				transaction = Tools.CreateTransaction(bureauCode);
+			if ( transaction == null )
+				return retProc;
 
 			retProc = transaction.DeleteToken(this);
 
@@ -593,35 +618,14 @@ namespace PCIBusiness
 			Tools.LogInfo("GetToken/10","Merchant Ref=" + merchantReference,10,this);
 
 			if ( transaction == null || transaction.BureauCode != bureauCode )
-			{
-				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
-					transaction = new TransactionPayU();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ikajo) )
-					transaction = new TransactionIkajo();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24) )
-					transaction = new TransactionT24();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
-					transaction = new TransactionMyGate();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
-					transaction = new TransactionPayGate();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
-					transaction = new TransactionFNB();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
-					transaction = new TransactionPayGenius();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
-					transaction = new TransactionEcentric();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-					return retProc; // eNETS does not have tokenization ... yet
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach) )
-					transaction = new TransactionPeach();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
-					transaction = new TransactionTokenEx();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
-					transaction = new TransactionCyberSource();
-				else
-					return retProc;
-			}
-			retProc = transaction.GetToken(this);
+				transaction = Tools.CreateTransaction(bureauCode);
+			if ( transaction == null )
+				return retProc;
+
+			if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty )
+				retProc = transaction.GetToken3rdParty(this);
+			else
+				retProc = transaction.GetToken(this);
 
 			if ( processMode == (int)Constants.ProcessMode.FullUpdate ||
 			     processMode == (int)Constants.ProcessMode.UpdateToken )
@@ -648,36 +652,9 @@ namespace PCIBusiness
 			Tools.LogInfo("ProcessPayment/10","Merchant Ref=" + merchantReference,10,this);
 
 			if ( transaction == null || transaction.BureauCode != bureauCode )
-			{
-				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
-					transaction = new TransactionPayU();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ikajo) )
-					transaction = new TransactionIkajo();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24) )
-					transaction = new TransactionT24();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
-					transaction = new TransactionMyGate();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
-					transaction = new TransactionPayGate();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
-					transaction = new TransactionFNB();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) )
-					transaction = new TransactionPayGenius();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric) )
-					transaction = new TransactionEcentric();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
-					transaction = new TransactionENets();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach) )
-					transaction = new TransactionPeach();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
-					transaction = new TransactionTokenEx();
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
-					transaction = new TransactionCyberSource();
-//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayFast) )
-//					transaction = new TransactionPayFast();
-				else
-					return retProc;
-			}
+				transaction = Tools.CreateTransaction(bureauCode);
+			if ( transaction == null )
+				return retProc;
 
 			if ( transactionType == (byte)Constants.TransactionType.ManualPayment ) // Manual card payment
 				Tools.LogInfo("ProcessPayment/20","Manual card payment",20,this);
@@ -746,20 +723,22 @@ namespace PCIBusiness
 
 		public override void LoadData(DBConn dbConn)
 		{
+			if ( dbConn.ColStatus("PaymentBureauToken") == Constants.DBColumnStatus.ColumnOK )
+			{
+				ccToken           = dbConn.ColString("PaymentBureauToken");
+				merchantReference = dbConn.ColString("ContractCode");
+				providerUserID    = dbConn.ColString ("TxID");
+				providerKey       = dbConn.ColString ("TxKey");
+				providerURL       = dbConn.ColString ("TxURL");
+				return;
+			}
+
 		//	Payment Provider
 			providerKey      = dbConn.ColString ("Safekey");
 			providerURL      = dbConn.ColString ("url");
 			providerAccount  = dbConn.ColString ("MerchantAccount",0,0);
 			providerUserID   = dbConn.ColString ("MerchantUserId",0,0);
 			providerPassword = dbConn.ColString ("MerchantUserPassword",0,0);
-
-		//	Token Provider (if empty, then it is the same as the payment provider)
-			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )
-			{
-				tokenizerID   = dbConn.ColString ("TxID");
-				tokenizerKey  = dbConn.ColString ("TxKey");
-				tokenizerURL  = dbConn.ColString ("TxURL");
-			}
 
 		//	Customer
 			if ( dbConn.ColStatus("lastName") == Constants.DBColumnStatus.ColumnOK )
@@ -794,6 +773,16 @@ namespace PCIBusiness
 			ccToken       = dbConn.ColString("token",0,0);
 			ccPIN         = dbConn.ColString("PIN",0,0);
 			transactionID = dbConn.ColString("transactionId",0,0);
+
+		//	Token Provider (if empty, then it is the same as the payment provider)
+			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )
+			{
+				tokenizerID  = dbConn.ColString ("TxID");
+				tokenizerKey = dbConn.ColString ("TxKey");
+				tokenizerURL = dbConn.ColString ("TxURL");
+			}
+			if ( dbConn.ColStatus("TxToken") == Constants.DBColumnStatus.ColumnOK )
+				ccToken      = dbConn.ColString ("TxToken");
 		}
 
 		public override void CleanUp()

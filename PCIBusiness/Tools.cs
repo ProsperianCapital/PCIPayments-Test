@@ -1561,5 +1561,22 @@ namespace PCIBusiness
 				return folder;
 			return folder + "/";
 		}
+
+		public static Transaction CreateTransaction(string bureauCode)
+		{
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU)        ) return new TransactionPayU();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ikajo)       ) return new TransactionIkajo();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24)         ) return new TransactionT24();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)      ) return new TransactionMyGate();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)     ) return new TransactionPayGate();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB)         ) return new TransactionFNB();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius)   ) return new TransactionPayGenius();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)    ) return new TransactionEcentric();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)       ) return new TransactionENets();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)       ) return new TransactionPeach();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx)     ) return new TransactionTokenEx();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) ) return new TransactionCyberSource();
+			return null;
+		}
 	}
 }
