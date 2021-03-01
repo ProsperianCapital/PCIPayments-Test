@@ -574,9 +574,13 @@ namespace PCIBusiness
 			                                  + ",@PaymentBureauToken = " + Tools.DBString(CardToken)
 			                                  + ",@ContractCode = "       + Tools.DBString(transaction.PaymentReference)
 			                                  + ",@CardNumber = "         + Tools.DBString(transaction.CardNumber);
-				Tools.LogInfo("Detokenize/20","SQL=" + sql,20,this);
+				Tools.LogInfo("Detokenize/20","SQL=" + sql,218,this);
 				retSQL = ExecuteSQLUpdate();
 			}
+			else
+				Tools.LogInfo("Detokenize/30","retProc=" + retProc.ToString() + " | data="
+				            + CardToken + " | " + transaction.PaymentReference + " | " + transaction.CardNumber,218,this);
+
 			Tools.LogInfo("Detokenize/90","retProc=" + retProc.ToString()+", retSQL=" + retSQL.ToString(),40,this);
 			return retProc;
 		}
