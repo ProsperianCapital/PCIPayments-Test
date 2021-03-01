@@ -256,6 +256,16 @@ namespace PCIWebRTR
 			ProcessCards((byte)Constants.TransactionType.GetToken);
 		}
 
+		protected void btnProcess6_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.GetTokenThirdParty);
+		}
+
+		protected void btnProcess7_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.GetCardFromToken);
+		}
+
 		protected void btnProcess2_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)Constants.TransactionType.TokenPayment);
