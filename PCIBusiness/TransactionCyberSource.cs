@@ -385,37 +385,10 @@ namespace PCIBusiness
 			}
 
 //	TESTING
-//			payment.ProviderAccount = "2744639";
-//	v2
-//			payment.ProviderUserID  = "faaf4d2bcc42365d90f853daa4096cdc";
-//			payment.ProviderKey     = "73004ef0b7c041be93e03c995261fddb651b0d62b2e34ec093452c706da8c08bd8dd69ff8747423f9f27f05b01f3e9d2efb12af5a2834989b08b0ed461dfe55df4d43a7cb81942439fd3496724037cce5d62874a64fe450380f037603e120b5e9caebdf35d1d4fb98c2c52202ea0aae7fc640bd9b8f64709b2dd1598e6c5dd4f";
-//	v3
-//			payment.ProviderUserID  = "49a43334-5803-487c-abbc-f2fa4bca2e45";
-//			payment.ProviderKey     = "2Xhlp9hCsul/s99nVwQEbpeAoWWO02uUJqDcmUBN29w=";
-//	v4
-//			payment.ProviderUserID  = "234b0d4c-f2e7-4312-b5bc-0f2f825fda71";
-//			payment.ProviderKey     = "Filiak+xbEPMWulenj8GHkDcjkogkUjvgV8klH4Wzgs=";
-//	v5
-//			payment.ProviderUserID  = "0271670f-9c1e-4759-a049-74c1b17b4070";
-//			payment.ProviderKey     = "bK40sZ9HH0wWxCOi3m15DO2F08eUrB0TrRE6+k0PwJk=";
-//	v6
-//			payment.ProviderUserID  = "a4580757-bbe4-47f4-ae1e-2943cfbef816";
-//			payment.ProviderKey     = "wyWzapqLVUgp55dnJFhEZ7hPbKouhp2PvQSFY8lAoL0=";
-//	v7
-//			payment.ProviderUserID  = "3469c4b4-1dd0-4841-844d-8f7c94d64e4a";
-//			payment.ProviderKey     = "ItvjUJ+a9+/HRGFcEYS8iGoDO+eza5XALeIt2/Bdm1A=";
-//	v8
-//	This one works (TEST site)!
 //			payment.ProviderAccount = "000000002744639";
 //			payment.ProviderUserID  = "31c799cd-18da-47c3-be95-f93bd90748e0";
 //			payment.ProviderKey     = "IcJSjbVloKPQsS5PJrCdGOz8W/pLOBjzO4QVqKG4Ai8=";
 //			payment.ProviderURL     = "https://apitest.cybersource.com";
-
-//	LIVE keys
-//			payment.ProviderAccount = "000000002744639";
-//			payment.ProviderUserID  = "0271670f-9c1e-4759-a049-74c1b17b4070";
-//			payment.ProviderKey     = "bK40sZ9HH0wWxCOi3m15DO2F08eUrB0TrRE6+k0PwJk=";
-//			payment.ProviderURL     = "https://api.cybersource.com";
 //	TESTING
 
 			string tURL     = payment.TokenizerURL;
