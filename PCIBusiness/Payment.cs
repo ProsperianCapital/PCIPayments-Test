@@ -572,7 +572,7 @@ namespace PCIBusiness
 			{
 				sql = "exec sp_TokenEx_UpdateVault @PaymentBureauCode = "  + Tools.DBString(bureauCode) 
 			                                  + ",@PaymentBureauToken = " + Tools.DBString(CardToken)
-			                                  + ",@ContractCode = "       + Tools.DBString(transaction.PaymentReference)
+			                                  + ",@ContractCode = "       + Tools.DBString(MerchantReference)
 			                                  + ",@CardNumber = "         + Tools.DBString(transaction.CardNumber);
 				Tools.LogInfo("Detokenize/20","SQL=" + sql,218,this);
 				retSQL = ExecuteSQLUpdate();
