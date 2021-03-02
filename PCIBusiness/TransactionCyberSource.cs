@@ -15,7 +15,12 @@ namespace PCIBusiness
 		public  bool Successful
 		{
 		//	get { return Tools.JSONValue(strResult,"success").ToUpper() == "TRUE"; }
-			get { return resultCode == "0" || resultCode == "00" || resultCode == "000" || resultCode == "0000"; }
+		//	get { return resultCode == "0" || resultCode == "00" || resultCode == "000" || resultCode == "0000"; }
+			get
+			{
+				string p = Tools.NullToString(resultCode).ToUpper();
+				return ( p == "AUTHORIZED" || p.StartsWith("AUTHORIZED/") || p == "ACTIVE" );
+			}
 		}
 
 		public override string WebForm
@@ -185,23 +190,29 @@ namespace PCIBusiness
 					         +      "\"amountDetails\": { \"totalAmount\": \"" + payment.PaymentAmountDecimal + "\","
 						      +                           "\"currency\": \"ZAR\" }}}";
 
-				ret        = CallWebService(payment,payment.TransactionType);
-				payRef     = Tools.JSONValue(strResult,"transactionId");
-				resultMsg  = Tools.JSONValue(strResult,"message");
-				resultCode = Tools.JSONValue(strResult,"status");
-				resultCode = resultCode + ( resultCode.Length > 0 ? "/" : "" ) + Tools.JSONValue(strResult,"responseCode");
-				resultCode = resultCode + ( resultCode.Length > 0 ? "/" : "" ) + Tools.JSONValue(strResult,"reason");
-				if ( resultCode.EndsWith("/") && resultCode.Length > 1 )
-					resultCode = resultCode.Substring(0,resultCode.Length-1);
-
-				return ret;
+				ret           = CallWebService(payment,payment.TransactionType);
+				payRef        = Tools.JSONValue(strResult,"transactionId");
+				resultCode    = Tools.JSONValue(strResult,"status");
+				string reason = Tools.JSONValue(strResult,"reason");
+				resultMsg     = Tools.JSONValue(strResult,"message");
+				string respCd = Tools.JSONValue(strResult,"responseCode");
+				if ( reason.Length > 0 )
+					resultCode = resultCode + ( resultCode.Length > 0 ? "/" : "" ) + reason;
+				if ( respCd.Length > 0 )
+					resultMsg  = resultMsg  + ( resultMsg.Length  > 0 ? "/" : "" ) + respCd;
+				if ( ret == 0 && Successful )
+					return 0;
+				else if ( ret == 0 )
+					ret = 64;
 			}
 			catch (Exception ex)
 			{
+				if ( ret == 0 )
+					ret = 93;
 				Tools.LogInfo("TokenPayment/98",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,255,this);
 				Tools.LogException("TokenPayment/99",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,ex,this);
 			}
-			return 203;
+			return ret;
 		}
 
 		public override int GetToken3rdParty(Payment payment)

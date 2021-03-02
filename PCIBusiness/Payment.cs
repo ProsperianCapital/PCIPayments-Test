@@ -731,18 +731,18 @@ namespace PCIBusiness
 			{
 				ccToken           = dbConn.ColString("PaymentBureauToken");
 				merchantReference = dbConn.ColString("ContractCode");
-				providerUserID    = dbConn.ColString ("TxID");
-				providerKey       = dbConn.ColString ("TxKey");
-				providerURL       = dbConn.ColString ("TxURL");
+				providerUserID    = dbConn.ColString("TxID");
+				providerKey       = dbConn.ColString("TxKey");
+				providerURL       = dbConn.ColString("TxURL");
 				return;
 			}
 
 		//	Payment Provider
-			providerKey      = dbConn.ColString ("Safekey");
-			providerURL      = dbConn.ColString ("url");
-			providerAccount  = dbConn.ColString ("MerchantAccount",0,0);
-			providerUserID   = dbConn.ColString ("MerchantUserId",0,0);
-			providerPassword = dbConn.ColString ("MerchantUserPassword",0,0);
+			providerKey      = dbConn.ColString("Safekey");
+			providerURL      = dbConn.ColString("url");
+			providerAccount  = dbConn.ColString("MerchantAccount",0,0);
+			providerUserID   = dbConn.ColString("MerchantUserId",0,0);
+			providerPassword = dbConn.ColString("MerchantUserPassword",0,0);
 
 		//	Customer
 			if ( dbConn.ColStatus("lastName") == Constants.DBColumnStatus.ColumnOK )
@@ -781,12 +781,12 @@ namespace PCIBusiness
 		//	Token Provider (if empty, then it is the same as the payment provider)
 			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )
 			{
-				tokenizerID  = dbConn.ColString ("TxID");
-				tokenizerKey = dbConn.ColString ("TxKey");
-				tokenizerURL = dbConn.ColString ("TxURL");
+				tokenizerID  = dbConn.ColString("TxID");
+				tokenizerKey = dbConn.ColString("TxKey");
+				tokenizerURL = dbConn.ColString("TxURL");
 			}
 			if ( dbConn.ColStatus("TxToken") == Constants.DBColumnStatus.ColumnOK )
-				ccToken      = dbConn.ColString ("TxToken");
+				ccToken      = dbConn.ColString("TxToken");
 		}
 
 		public override void CleanUp()
