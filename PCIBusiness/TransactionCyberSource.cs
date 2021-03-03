@@ -14,12 +14,10 @@ namespace PCIBusiness
 
 		public  bool Successful
 		{
-		//	get { return Tools.JSONValue(strResult,"success").ToUpper() == "TRUE"; }
-		//	get { return resultCode == "0" || resultCode == "00" || resultCode == "000" || resultCode == "0000"; }
 			get
 			{
 				string p = Tools.NullToString(resultCode).ToUpper();
-				return ( p == "AUTHORIZED" || p.StartsWith("AUTHORIZED/") || p == "ACTIVE" );
+				return ( p == "AUTHORIZED" || p.StartsWith("AUTHORIZED/") || p == "ACTIVE" || p.StartsWith("ACTIVE/") );
 			}
 		}
 
@@ -50,7 +48,7 @@ namespace PCIBusiness
 		public override int CardPayment(Payment payment)
 		{
 			ret        = 10;
-			resultCode = "86";
+			resultCode = "ERROR/Internal (86)";
 			resultMsg  = "(86) Internal error";
 
 			try
@@ -95,7 +93,7 @@ namespace PCIBusiness
 				else
 					xmlSent  = "{"
 						+ "  \"clientReferenceInformation\": {"
-						+ "    \"code\": \"" + payment.MerchantReference + "\""
+						+ "    \"code\": \"" + Tools.JSONSafe(payment.MerchantReference) + "\""
 						+ "  },"
 						+ "  \"processingInformation\": {"
 						+ "    \"commerceIndicator\": \"internet\""
@@ -114,21 +112,24 @@ namespace PCIBusiness
 						+ "      \"currency\": \"ZAR\""
 						+ "    },"
 						+ "    \"billTo\": {"
-						+ "      \"firstName\": \""    + payment.FirstName       + "\","
-						+ "      \"lastName\": \""     + payment.LastName        + "\","
-						+ "      \"address1\": \""     + payment.Address1(65)    + "\","
-						+ "      \"address2\": \""     + payment.Address2(65)    + "\","
-						+ "      \"locality\": \""     + payment.Address3(65)    + "\","
-						+ "      \"postalCode\": \""   + payment.PostalCode(65)  + "\","
-						+ "      \"country\": \""      + payment.CountryCode(65) + "\","
-						+ "      \"email\": \""        + payment.EMail           + "\","
-						+ "      \"phoneNumber\": \""  + payment.PhoneCell       + "\""
+						+ "      \"firstName\": \""    + Tools.JSONSafe(payment.FirstName)       + "\","
+						+ "      \"lastName\": \""     + Tools.JSONSafe(payment.LastName)        + "\","
+						+ "      \"address1\": \""     + Tools.JSONSafe(payment.Address1(65))    + "\","
+						+ "      \"address2\": \""     + Tools.JSONSafe(payment.Address2(65))    + "\","
+						+ "      \"locality\": \""     + Tools.JSONSafe(payment.Address3(65))    + "\","
+						+ "      \"postalCode\": \""   + Tools.JSONSafe(payment.PostalCode(65))  + "\","
+						+ "      \"country\": \""      + Tools.JSONSafe(payment.CountryCode(65)) + "\","
+						+ "      \"email\": \""        + Tools.JSONSafe(payment.EMail,1)         + "\","
+						+ "      \"phoneNumber\": \""  + Tools.JSONSafe(payment.PhoneCell)       + "\""
 						+ "    }"
 						+ "  }"
 						+ "}";
 				ret        = CallWebService(null,(byte)Constants.TransactionType.CardPayment);
 				resultCode = Tools.JSONValue(strResult,"responseCode");
 				resultMsg  = Tools.JSONValue(strResult,"status");
+//	To Do
+//				if ( resultCode.Length == 0 )
+//					resultCode = "ERROR";
 
 				return ret;
 			}
@@ -144,7 +145,7 @@ namespace PCIBusiness
 		public override int TokenPayment(Payment payment)
 		{
 			ret        = 10;
-			resultCode = "87";
+			resultCode = "ERROR/Internal (87)";
 			resultMsg  = "(87) Internal error";
 
 //	TESTING
@@ -181,7 +182,7 @@ namespace PCIBusiness
 						+ "}";
 
 				else
-					xmlSent  = "{ \"clientReferenceInformation\": { \"code\": \"" + payment.MerchantReference + "\" },"
+					xmlSent  = "{ \"clientReferenceInformation\": { \"code\": \"" + Tools.JSONSafe(payment.MerchantReference) + "\" },"
 						      +   "\"processingInformation\": { \"capture\": \"true\" },"
 					         +   "\"paymentInformation\": {"
 						      +      "\"card\": { \"securityCode\": \"" + payment.CardCVV + "\" },"
@@ -196,8 +197,13 @@ namespace PCIBusiness
 				string reason = Tools.JSONValue(strResult,"reason");
 				resultMsg     = Tools.JSONValue(strResult,"message");
 				string respCd = Tools.JSONValue(strResult,"responseCode");
+
+				if ( resultCode.Length == 0 )
+					resultCode = "ERROR";
 				if ( reason.Length > 0 )
 					resultCode = resultCode + ( resultCode.Length > 0 ? "/" : "" ) + reason;
+				else if ( resultCode == "ERROR" )
+					resultCode = resultCode + "/Internal (64)";
 				if ( respCd.Length > 0 )
 					resultMsg  = resultMsg  + ( resultMsg.Length  > 0 ? "/" : "" ) + respCd;
 				if ( ret == 0 && Successful )
@@ -228,7 +234,7 @@ namespace PCIBusiness
 		private int CreateToken(Payment payment,Constants.TransactionType transactionType)
 		{
 			ret          = 10;
-			resultCode   = "85";
+			resultCode   = "ERROR/Internal (85)";
 			resultMsg    = "(85) Internal error";
 			payToken     = "";
 			string payId = "";
@@ -287,39 +293,47 @@ namespace PCIBusiness
 				ret        = 20;
 				ret        = CallWebService(payment,(byte)transactionType,1);
 				payId      = Tools.JSONValue(strResult,"id"); // Instrument id
+				resultCode = Tools.JSONValue(strResult,"state");
 
-				if ( ret  != 0 || payId.Length < 1 )
+				if ( ret  != 0 || payId.Length < 1 || resultCode.Length == 0 )
 				{
+					resultCode = ( resultCode.Length == 0 ? "ERROR/Instrument Id" : resultCode );
+					resultMsg  = "Unable to create instrument identifier";
 					Tools.LogInfo("CreateToken/20","ret="+ret.ToString()+" | "+xmlSent+" | "+strResult,222,this);
 					return ret;
 				}
 
 //	Now create a Payment Instrument
 
-				ret      = 60;
-				payToken = "";
-				xmlSent  = "{ \"card\": { \"expirationMonth\": \""      + payment.CardExpiryMM    + "\""
-				         +             ", \"expirationYear\": \""       + payment.CardExpiryYYYY  + "\""
-				         +             ", \"type\": \""                 + payment.CardType        + "\" }"
-				         + ", \"billTo\": { \"firstName\": \""          + payment.FirstName       + "\""
-				         +               ", \"lastName\": \""           + payment.LastName        + "\""
-				         +               ", \"address1\": \""           + payment.Address1(65)    + "\""
-				         +               ", \"locality\": \""           + payment.Address2(65)    + "\""
-				         +               ", \"administrativeArea\": \"" + payment.Address3(65)    + "\""
-				         +               ", \"postalCode\": \""         + payment.PostalCode(65)  + "\""
-				         +               ", \"country\": \""            + payment.CountryCode(65) + "\""
-				         +               ", \"email\": \""              + payment.EMail           + "\""
-				         +               ", \"phoneNumber\": \""        + payment.PhoneCell       + "\" }"
-				         + ", \"instrumentIdentifier\": { \"id\": \""   + payId                   + "\" } }";
-				ret      = 70;
-				ret      = CallWebService(payment,(byte)Constants.TransactionType.GetToken,2);
-				payToken = Tools.JSONValue(strResult,"id"); // Payment instrument
+				ret        = 60;
+				payToken   = "";
+				xmlSent    = "{ \"card\": { \"expirationMonth\": \""      + payment.CardExpiryMM                    + "\""
+				           +             ", \"expirationYear\": \""       + payment.CardExpiryYYYY                  + "\""
+				           +             ", \"type\": \""                 + Tools.JSONSafe(payment.CardType)        + "\" }"
+				           + ", \"billTo\": { \"firstName\": \""          + Tools.JSONSafe(payment.FirstName)       + "\""
+				           +               ", \"lastName\": \""           + Tools.JSONSafe(payment.LastName)        + "\""
+				           +               ", \"address1\": \""           + Tools.JSONSafe(payment.Address1(65))    + "\""
+				           +               ", \"locality\": \""           + Tools.JSONSafe(payment.Address2(65))    + "\""
+				           +               ", \"administrativeArea\": \"" + Tools.JSONSafe(payment.Address3(65))    + "\""
+				           +               ", \"postalCode\": \""         + Tools.JSONSafe(payment.PostalCode(65))  + "\""
+				           +               ", \"country\": \""            + Tools.JSONSafe(payment.CountryCode(65)) + "\""
+				           +               ", \"email\": \""              + Tools.JSONSafe(payment.EMail,1)         + "\""
+				           +               ", \"phoneNumber\": \""        + Tools.JSONSafe(payment.PhoneCell)       + "\" }"
+				           + ", \"instrumentIdentifier\": { \"id\": \""   + payId                                   + "\" } }";
+				ret        = 70;
+				ret        = CallWebService(payment,(byte)Constants.TransactionType.GetToken,2);
+				payToken   = Tools.JSONValue(strResult,"id"); // Payment instrument
+				resultCode = Tools.JSONValue(strResult,"state");
+				resultMsg  = "";
+				if ( resultCode.Length == 0 )
+					resultCode = "ERROR/Payment Instrument";
 
 				if ( ret == 0 && payToken.Length > 0 && payId.Length > 0 && payToken != payId )
 					return 0;
 				else if ( ret == 0 )
 					ret = 90;
 
+				resultMsg = "Unable to create payment instrument";
 				Tools.LogInfo("CreateToken/90","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
@@ -375,7 +389,9 @@ namespace PCIBusiness
 
 		private int CallWebService(Payment payment,byte transactionType,byte subType=0)
       {
-			strResult = "";
+			strResult = Tools.JSONPair("status","ERROR",1,"{")
+			          + Tools.JSONPair("state" ,"ERROR/Internal (71)")
+			          + Tools.JSONPair("reason","Internal (71)",1,"","}");
 
 			if ( payment == null )
 			{
@@ -396,8 +412,6 @@ namespace PCIBusiness
 			string pURLPart = "/pts/v2/payments";
 			string tranDesc = "";
 			ret             = 10;
-			resultCode      = "89";
-			resultMsg       = "(89) Internal error";
 
 			if ( Tools.NullToString(pURL).Length == 0 )
 				pURL = BureauURL;
@@ -434,11 +448,8 @@ namespace PCIBusiness
 			else
 			{ }
 
-			ret        = 60;
-			pURL       = pURL + pURLPart;
-			resultCode = "88";
-			resultMsg  = "(88) Internal error connecting to " + pURL;
-			ret        = 70;
+			ret  = 60;
+			pURL = pURL + pURLPart;
 
 			try
 			{
@@ -463,8 +474,6 @@ namespace PCIBusiness
 						tURL = tURL + "/TransparentGatewayAPI/Detokenize";
 
 					ret                            = 83;
-					resultCode                     = "83";
-					resultMsg                      = "(83) Internal error connecting to " + tURL;
 					webReq                         = (HttpWebRequest)HttpWebRequest.Create(tURL);
 					webReq.Headers["TX_URL"]       = pURL;
 					webReq.Headers["TX_TokenExID"] = payment.TokenizerID;  // "4311038889209736";
@@ -538,6 +547,7 @@ namespace PCIBusiness
 				}
 
 				ret = 320;
+
 				using (HttpWebResponse webResponse = (HttpWebResponse)webReq.GetResponse())
 				{
 					ret = 330;
@@ -549,40 +559,21 @@ namespace PCIBusiness
 					if ( strResult.Length == 0 )
 					{
 						ret        = 350;
+						strResult  = Tools.JSONPair("status","ERROR",1,"{")
+									  + Tools.JSONPair("state" ,"ERROR/Empty response")
+									  + Tools.JSONPair("reason","Empty response",1,"","}");
 						resultMsg  = "No data returned from " + pURL + ( tURL.Length > 0 ? " (or " + tURL + ")" : "");
 						Tools.LogInfo("CallWebService/30","Failed, JSON Rec=(empty)",199,this);
 					}
 					else
 						ret = 0;
-
-//					else
-//					{
-//						ret        = 360;
-//						resultCode = Tools.JSONValue(strResult,"responseCode");
-//						resultMsg  = Tools.JSONValue(strResult,"status");
-//
-//						if (Successful)
-//						{
-//							ret        = 370;
-//							resultCode = "00";
-//							Tools.LogInfo("CallWebService/40","Successful, JSON Rec=" + strResult,255,this);
-//						}
-//						else
-//						{
-//							ret = 380;
-//							Tools.LogInfo("CallWebService/50","Failed, JSON Rec=" + strResult,199,this);
-//							if ( Tools.StringToInt(resultCode) == 0 )
-//								resultCode = "99";
-//						}
-//					}
-//				}
-//				ret = 0;
-
 				}
 			}
 			catch (WebException ex1)
 			{
-				Tools.DecodeWebException(ex1,ClassName+".CallWebService/597","ret="+ret.ToString());
+				tURL = Tools.DecodeWebException(ex1,ClassName+".CallWebService/597","ret="+ret.ToString());
+				if ( tURL.Length > 0 )
+					strResult = tURL;
 			}
 			catch (Exception ex2)
 			{
@@ -921,7 +912,7 @@ namespace PCIBusiness
 
 				d3Form = "";
 				ret    = 30;
-				fieldS = new string[,] { { "reference_number"                   , payment.MerchantReference }
+				fieldS = new string[,] { { "reference_number"                   , Tools.JSONSafe(payment.MerchantReference) }
 				                       , { "transaction_type"                   , "sale,create_payment_token" }
 				                       , { "currency"                           , "ZAR" }
 				                       , { "amount"                             , "0.10" }
@@ -931,14 +922,14 @@ namespace PCIBusiness
 				                       , { "transaction_uuid"                   , System.Guid.NewGuid().ToString() } // MUST be unique
 				                       , { "signed_date_time"                   , dt.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } // "2021-01-10T03:16:54Z"
 				                       , { "payment_method"                     , "card" }
-				                       , { "card_cvn"                           , payment.CardCVV }
-				                       , { "bill_to_forename"                   , payment.FirstName }
-				                       , { "bill_to_surname"                    , payment.LastName }
-				                       , { "bill_to_email"                      , payment.EMail }
-				                       , { "bill_to_phone"                      , payment.PhoneCell }
-				                       , { "bill_to_address_line1"              , payment.Address1(65) }
-				                       , { "bill_to_address_city"               , payment.Address2(65) }
-				                       , { "bill_to_address_postal_code"        , payment.PostalCode(65) }
+				                       , { "card_cvn"                           , Tools.JSONSafe(payment.CardCVV) }
+				                       , { "bill_to_forename"                   , Tools.JSONSafe(payment.FirstName) }
+				                       , { "bill_to_surname"                    , Tools.JSONSafe(payment.LastName) }
+				                       , { "bill_to_email"                      , Tools.JSONSafe(payment.EMail,1) }
+				                       , { "bill_to_phone"                      , Tools.JSONSafe(payment.PhoneCell) }
+				                       , { "bill_to_address_line1"              , Tools.JSONSafe(payment.Address1(65)) }
+				                       , { "bill_to_address_city"               , Tools.JSONSafe(payment.Address2(65)) }
+				                       , { "bill_to_address_postal_code"        , Tools.JSONSafe(payment.PostalCode(65)) }
 				                       , { "bill_to_address_country"            , "ZA" }
 				                       , { "payer_authentication_challenge_code", "03" } // Force 3d Secure
 				                       , { "payer_authentication_merchant_name" , "CareAssist" }

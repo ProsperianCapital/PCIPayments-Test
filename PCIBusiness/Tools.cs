@@ -303,6 +303,15 @@ namespace PCIBusiness
 			return str;
 		}
 
+		public static string JSONSafe(string value,byte mode=0)
+		{
+			if ( string.IsNullOrWhiteSpace(value) )
+				return "";
+			if ( mode == 1 ) // Email or Web address
+				return value.Trim().Replace("\"","").Replace("'","");
+			return value.Trim().Replace("\"","'");
+		}
+
 		public static string JSONPair(string name,string value,byte dataType=1,string prefix="",string suffix=",")
 		{
 		//	dataType =  1 means STRING
@@ -1489,13 +1498,14 @@ namespace PCIBusiness
 		{
 			string responseContent = "";
 			callingModule = callingModule + "[DecodeWebException/";
+			extraData     = extraData.Trim() + " ";
 
 			try
 			{
 				System.Net.HttpWebResponse errorResponse = ex1.Response as System.Net.HttpWebResponse;
 				if ( errorResponse == null )
 				{
-					Tools.LogInfo     (callingModule+"1]",extraData + " (" + ex1.Message + ")",245);
+					Tools.LogInfo     (callingModule+"1]",extraData + "(" + ex1.Message + ")",245);
 					Tools.LogException(callingModule+"2]",extraData,ex1);
 					return "";
 				}
