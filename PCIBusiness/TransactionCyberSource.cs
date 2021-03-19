@@ -135,8 +135,8 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("CardPayment/98",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,255,this);
-				Tools.LogException("CardPayment/99",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,ex,this);
+				Tools.LogInfo     ("CardPayment/198",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,255,this);
+				Tools.LogException("CardPayment/199",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,ex,this);
 			}
 			return 203;
 		}
@@ -215,8 +215,8 @@ namespace PCIBusiness
 			{
 				if ( ret == 0 )
 					ret = 93;
-				Tools.LogInfo("TokenPayment/98",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,255,this);
-				Tools.LogException("TokenPayment/99",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,ex,this);
+				Tools.LogInfo     ("TokenPayment/198",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,255,this);
+				Tools.LogException("TokenPayment/199",resultCode + " | " + resultMsg + " | " + ret.ToString() + " | " + xmlSent,ex,this);
 			}
 			return ret;
 		}
@@ -334,7 +334,7 @@ namespace PCIBusiness
 					ret = 90;
 
 				resultMsg = "Unable to create payment instrument";
-				Tools.LogInfo("CreateToken/90","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
+				Tools.LogInfo("CreateToken/90","ret="+ret.ToString()+" | "+xmlSent+" | "+strResult,222,this);
 			}
 			catch (Exception ex)
 			{
@@ -371,13 +371,11 @@ namespace PCIBusiness
 				ret     = 40;
 				if ( Successful && payRef.Length > 0 )
 					ret  = 0;
-//				else
-//					Tools.LogInfo("TransactionPayGenius.TokenPayment/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TokenPayment/98","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255,this);
-				Tools.LogException("TokenPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex,this);
+				Tools.LogInfo     ("TokenPayment/198","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255,this);
+				Tools.LogException("TokenPayment/199","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex,this);
 			}
 			return ret;
 		}
@@ -522,21 +520,23 @@ namespace PCIBusiness
 				                                  + ", signature=" + sep + sigCoded + sep;
 				ret                               = 200;
 
-				Tools.LogInfo("CallWebService/20", "Transaction Type=" + tranDesc                + Environment.NewLine
-				                                 + "pURL="             + pURL                    + Environment.NewLine
-				                                 + "tURL="             + tURL                    + Environment.NewLine
-				                                 + "Merchant Id="      + payment.ProviderAccount + Environment.NewLine
-				                                 + "Key Detail/Id="    + payment.ProviderUserID  + Environment.NewLine
-				                                 + "Secret Key="       + payment.ProviderKey     + Environment.NewLine
-				                                 + "JSON Sent="        + xmlSent                 + Environment.NewLine
-				                                 + "Signature Input="  + sigSource               + Environment.NewLine
-				                                 + "Signature Output=" + sigCoded                + Environment.NewLine
-				                                 + "Request Header[v-c-merchant-id]=" + webReq.Headers["v-c-merchant-id"] + Environment.NewLine
-				                                 + "Request Header[Date]="            + webReq.Headers["Date"]            + Environment.NewLine
-				                                 + "Request Header[Host]="            + webReq.Host                       + Environment.NewLine
-				                                 + "Request Header[Digest]="          + webReq.Headers["Digest"]          + Environment.NewLine
-				                                 + "Request Header[Signature]="       + webReq.Headers["Signature"]
-				                                 , 220, this);
+				Tools.LogInfo("CallWebService/200", "Tran="             + tranDesc                + Environment.NewLine
+				                                  + "pURL="             + pURL                    + Environment.NewLine
+				                                  + "tURL="             + tURL                    + Environment.NewLine
+				                                  + "Merchant Id="      + payment.ProviderAccount + Environment.NewLine
+				                                  + "Key Detail/Id="    + payment.ProviderUserID  + Environment.NewLine
+				                                  + "Secret Key="       + payment.ProviderKey     + Environment.NewLine
+				                                  + "JSON Sent="        + xmlSent                 + Environment.NewLine
+				                                  + "Signature Input="  + sigSource               + Environment.NewLine
+				                                  + "Signature Output=" + sigCoded                + Environment.NewLine
+				                                  + "Request Header[v-c-merchant-id]=" + webReq.Headers["v-c-merchant-id"] + Environment.NewLine
+				                                  + "Request Header[Date]="            + webReq.Headers["Date"]            + Environment.NewLine
+				                                  + "Request Header[Host]="            + webReq.Host                       + Environment.NewLine
+				                                  + "Request Header[Digest]="          + webReq.Headers["Digest"]          + Environment.NewLine
+				                                  + "Request Header[Signature]="       + webReq.Headers["Signature"]
+				                                  , 10, this);
+
+				Tools.LogInfo("CallWebService/203", "(In) Tran=" + tranDesc + Environment.NewLine + xmlSent, 220, this);
 
 				using (Stream stream = webReq.GetRequestStream())
 				{
@@ -563,10 +563,12 @@ namespace PCIBusiness
 									  + Tools.JSONPair("state" ,"ERROR/Empty response")
 									  + Tools.JSONPair("reason","Empty response",1,"","}");
 						resultMsg  = "No data returned from " + pURL + ( tURL.Length > 0 ? " (or " + tURL + ")" : "");
-						Tools.LogInfo("CallWebService/30","Failed, JSON Rec=(empty)",199,this);
+//						Tools.LogInfo("CallWebService/30","Failed, JSON Rec=(empty)",199,this);
 					}
 					else
 						ret = 0;
+
+					Tools.LogInfo("CallWebService/353", "(Out) Tran=" + tranDesc + Environment.NewLine + strResult, 220, this);
 				}
 			}
 			catch (WebException ex1)
@@ -877,10 +879,18 @@ namespace PCIBusiness
 		public override int ThreeDSecurePayment(Payment payment,Uri postBackURL,string languageCode="",string languageDialectCode="")
 		{
 			ret                 = 10;
-			string    url       = "https://testsecureacceptance.cybersource.com/silent/embedded/pay";
-			string    profileId = "3C857FA4-ED86-4A08-A119-24170A74C760";
-			string    accessKey = "8b031c20a1ad343c97afe1869e2e7994";
-			string    secretKey = "2ea6c71fa7e04304a78f417c1e4d95677abb9673c7cd45ec803a08696041ea62b5eae10527704f4580ae8da223c295c0b42f97808adf4b6db1a2bf032eb74bd7376d9d1393f1443aaf8bcba7cd4d1148b3157119169c404fa74be9e4cd5cf9cacc34f76976f54bfa93136e4de6b1f53750a5e9d4b1cc4fcebd67a14bbcc156c3";
+
+//	Testing [Start]
+//			string    url       = "https://testsecureacceptance.cybersource.com/silent/embedded/pay";
+//			string    profileId = "3C857FA4-ED86-4A08-A119-24170A74C760";
+//			string    accessKey = "8b031c20a1ad343c97afe1869e2e7994";
+//			string    secretKey = "2ea6c71fa7e04304a78f417c1e4d95677abb9673c7cd45ec803a08696041ea62b5eae10527704f4580ae8da223c295c0b42f97808adf4b6db1a2bf032eb74bd7376d9d1393f1443aaf8bcba7cd4d1148b3157119169c404fa74be9e4cd5cf9cacc34f76976f54bfa93136e4de6b1f53750a5e9d4b1cc4fcebd67a14bbcc156c3";
+//	Testing [End]
+
+			string    url       = payment.ProviderURL;
+			string    profileId = payment.ProviderAccount;
+			string    accessKey = payment.ProviderUserID;
+			string    secretKey = payment.ProviderKey;
 			string    ccNo      = payment.CardNumber;
 			string    ccType    = CardType(payment.CardNumber);
 			DateTime  dt        = DateTime.Now.ToUniversalTime();
@@ -915,7 +925,7 @@ namespace PCIBusiness
 				fieldS = new string[,] { { "reference_number"                   , Tools.JSONSafe(payment.MerchantReference) }
 				                       , { "transaction_type"                   , "sale,create_payment_token" }
 				                       , { "currency"                           , "ZAR" }
-				                       , { "amount"                             , "0.10" }
+				                       , { "amount"                             , "1.49" }
 				                       , { "locale"                             , "en" }
 				                       , { "profile_id"                         , profileId }
 				                       , { "access_key"                         , accessKey }
@@ -971,12 +981,12 @@ namespace PCIBusiness
 				                  + unsSent
 				                  + "&signature="            + Tools.URLString(sigF);
 
-				Tools.LogInfo("ThreeDSecurePayment/10","Profile Id="+profileId, 10,this);
-				Tools.LogInfo("ThreeDSecurePayment/20","Access Key="+accessKey, 10,this);
-				Tools.LogInfo("ThreeDSecurePayment/30","Secret Key="+secretKey, 10,this);
-				Tools.LogInfo("ThreeDSecurePayment/40","Signature Input="+sigX, 10,this);
-				Tools.LogInfo("ThreeDSecurePayment/50","Signature Output="+sigF,10,this);
-				Tools.LogInfo("ThreeDSecurePayment/70","URL params="+xmlSent,   10,this);
+				Tools.LogInfo("ThreeDSecurePayment/10","Profile Id="+profileId
+				                                   + ", Access Key="+accessKey
+				                                   + ", Secret Key="+secretKey
+				                                   + ", Signature Input="+sigX
+				                                   + ", Signature Output="+sigF
+				                                   + ", URL params="+xmlSent,222,this);
 
 				HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
 				ret                       = 110;
@@ -1030,9 +1040,13 @@ namespace PCIBusiness
 				resultMsg  = Tools.HTMLValue(strResult,"message") + ( resultMsg.Length > 0 ? " (" + resultMsg + ")" : "" );
 				ret        = 210;
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
 			{
-				Tools.LogException("ThreeDSecurePayment/199","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex,this);
+				Tools.DecodeWebException(ex1,ClassName+".ThreeDSecurePayment/298","ret="+ret.ToString());
+			}
+			catch (Exception ex2)
+			{
+				Tools.LogException("ThreeDSecurePayment/299","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex2,this);
 			}
 			return ret;
 		}

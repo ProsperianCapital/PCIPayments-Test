@@ -1588,5 +1588,59 @@ namespace PCIBusiness
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) ) return new TransactionCyberSource();
 			return null;
 		}
+
+		public static string LoadGoogleAnalytics(string productCode)
+		{
+			string sql = "";
+
+			using (MiscList miscList = new MiscList())
+				try
+				{
+					sql = "exec sp_WP_Get_GoogleACA @ProductCode=" + Tools.DBString(productCode);
+
+					if ( miscList.ExecQuery(sql,0) == 0 && ! miscList.EOF )
+					{
+						string gaCode = miscList.GetColumn("GoogleAnalyticCode");
+						string url    = miscList.GetColumn("URL");
+						return Environment.NewLine
+					          + "<script>" + Environment.NewLine
+						       + "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){"
+						       + "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),"
+						       + "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)"
+						       + "})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');" + Environment.NewLine
+						       + "ga('create', '" + gaCode + "', 'auto', {'allowLinker': true});" + Environment.NewLine
+						       + "ga('require', 'linker');" + Environment.NewLine
+						       + "ga('linker:autoLink', ['" + url + "'] );" + Environment.NewLine
+						       + "ga('send', 'pageview');" + Environment.NewLine
+						       + "</script>" + Environment.NewLine;
+					}
+					else
+						LogException("Tools.LoadGoogleAnalytics/1","Failed to load Google UA code ("+sql+")");
+				}
+				catch (Exception ex)
+				{
+					LogException("Tools.LoadGoogleAnalytics/2",sql,ex);
+				}
+			return "";
+		}
+
+		public static string LoadChat(string productCode)
+		{
+			string sql = "";
+
+			using (MiscList miscList = new MiscList())
+				try
+				{
+					sql = "exec sp_WP_Get_ChatSnip @ProductCode=" + Tools.DBString(productCode);
+					if ( miscList.ExecQuery(sql,0) == 0 && ! miscList.EOF )
+						return miscList.GetColumn("ChatSnippet");
+					LogException("Tools.LoadChat/1","Failed to load Chat widget ("+sql+")");
+				}
+				catch (Exception ex)
+				{
+					LogException("Tools.LoadChat/2",sql,ex);
+				}
+			return "";
+		}
 	}
 }

@@ -10,10 +10,12 @@ namespace PCIBusiness
 		{
 			return new   MenuItem();
 		}
-		public List<MenuItem> LoadMenu(string userCode, string applicationCode)
+		public List<MenuItem> LoadMenu(string userCode,string applicationCode,string languageCode,string languageDialectCode)
 		{
-			sql = "exec sp_Get_BackOfficeMenuB @UserCode="        + Tools.DBString(userCode)
-	                                     + ",@ApplicationCode=" + Tools.DBString(applicationCode);
+			sql = "exec sp_Get_BackOfficeMenuB @UserCode="            + Tools.DBString(userCode)
+	                                     + ",@ApplicationCode="     + Tools.DBString(applicationCode)
+	                                     + ",@LanguageCode="        + Tools.DBString(languageCode)
+	                                     + ",@LanguageDialectCode=" + Tools.DBString(languageDialectCode);
 			err = ExecuteSQL(null,false,true);
 			if ( err > 0 )
 			{

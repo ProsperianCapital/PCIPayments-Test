@@ -551,7 +551,7 @@ namespace PCIBusiness
 			}
 		}
 
-		public int Detokenize() // ToDo
+		public int Detokenize()
 		{
 //			int processMode = Tools.StringToInt(Tools.ConfigValue("ProcessMode"));
 			int retProc     = 87020;

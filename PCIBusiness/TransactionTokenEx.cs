@@ -105,7 +105,7 @@ namespace PCIBusiness
 				if ( url.Length < 1 && payment.ProviderURL.Length > 0 )
 					url = payment.ProviderURL;
 
-				Tools.LogInfo("PostJSON/10","Post="+xmlSent+", Key="+payment.ProviderKey,10,this);
+				Tools.LogInfo("PostJSON/10","Post="+xmlSent+", Key="+payment.ProviderKey+", URL="+url,222,this);
 
 				ret                     = 20;
 				byte[]         buffer   = Encoding.UTF8.GetBytes(xmlSent);
@@ -142,7 +142,8 @@ namespace PCIBusiness
 						return 0;
 
 					ret = 170;
-					Tools.LogInfo("PostJSON/110","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
+					Tools.LogInfo("PostJSON/110",strResult,221,this);
+//					Tools.LogInfo("PostJSON/110","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
 				}
 			}
 			catch (WebException ex1)
@@ -341,7 +342,6 @@ namespace PCIBusiness
 			payToken = "";
 			xmlSent  = Tools.XMLCell("Data",payment.CardNumber)
 			         + Tools.XMLCell("TokenScheme","sixTOKENfour");
-//			int ret  = PostXML("https://test-api.tokenex.com/TokenServices.svc/REST/Tokenize",payment);
 			int ret  = PostXML(BureauURL + "/TokenServices.svc/REST/Tokenize",payment);
 			if ( ret == 0 )
 				payToken = Tools.XMLNode(xmlResult,"Token");
