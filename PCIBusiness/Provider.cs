@@ -41,6 +41,7 @@ namespace PCIBusiness
 		}
 		public  string  BureauURL
 		{
+			set { bureauURL = value.Trim(); }
 			get { return Tools.NullToString(bureauURL); }
 		}
 		public  int     Port
@@ -61,15 +62,16 @@ namespace PCIBusiness
 			{
 				bureauStatus = 1; // Development
 				if ( bureauType == "PAYMENT" )
-					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU)      ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24)       ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)    ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius) ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)   ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)     ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)     ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)  ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU)       ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24)        ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)     ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius)  ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)    ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)      ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)      ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)   ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx)    ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
 						bureauStatus = 3; // Live
 //					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
 //						bureauStatus = 2; // Disabled
@@ -94,6 +96,7 @@ namespace PCIBusiness
 //		}
 		public  string  MerchantKey
 		{
+			set { merchantKey = value.Trim(); }
 			get { return Tools.NullToString(merchantKey); }
 		}
 		public  string  MerchantUserID

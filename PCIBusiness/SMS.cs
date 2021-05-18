@@ -39,7 +39,14 @@ namespace PCIBusiness
 				return 10;
 
 			if ( provider == null )
-				if ( LoadProvider() != 0 )
+				if ( mode == (byte)Constants.TransactionType.Test ) // Testing
+				{
+					provider             = new Provider();
+					provider.BureauCode  = ((int)Constants.MessageProvider.ClickaTell).ToString().PadLeft(3,'0');
+					provider.MerchantKey = "E8gSxksaQpmEDZ4OvabmlQ==";
+					provider.BureauURL   = "https://platform.clickatell.com/messages/http/send";
+				}
+				else if ( LoadProvider() != 0 )
 					return 15;
 
 			try

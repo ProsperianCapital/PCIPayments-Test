@@ -71,7 +71,7 @@ namespace PCIBusiness
 						+ "  },"
 						+ "  \"orderInformation\": {"
 						+ "    \"amountDetails\": {"
-						+ "      \"totalAmount\": \"102.21\","
+						+ "      \"totalAmount\": \"93.21\","
 						+ "      \"currency\": \"ZAR\""
 						+ "    },"
 						+ "    \"billTo\": {"
@@ -100,10 +100,10 @@ namespace PCIBusiness
 						+ "  },"
 						+ "  \"paymentInformation\": {"
 						+ "    \"card\": {"
-						+ "      \"number\": \""          + payment.CardNumber + "\","
-						+ "      \"expirationMonth\": \"" + payment.CardExpiryMM + "\","
+						+ "      \"number\": \""          + payment.CardNumber     + "\","
+						+ "      \"expirationMonth\": \"" + payment.CardExpiryMM   + "\","
 						+ "      \"expirationYear\": \""  + payment.CardExpiryYYYY + "\","
-						+ "      \"securityCode\": \""    + payment.CardCVV + "\""
+						+ "      \"securityCode\": \""    + payment.CardCVV        + "\""
 						+ "    }"
 						+ "  },"
 						+ "  \"orderInformation\": {"
@@ -394,7 +394,8 @@ namespace PCIBusiness
 			if ( payment == null )
 			{
 				payment              = new Payment();
-				payment.BureauCode   = Tools.BureauCode(Constants.PaymentProvider.CyberSource);
+				payment.BureauCode   = bureauCode;
+			//	payment.BureauCode   = Tools.BureauCode(Constants.PaymentProvider.CyberSource);
 				payment.ProviderURL  = "https://apitest.cybersource.com";
 			}
 
@@ -795,7 +796,7 @@ namespace PCIBusiness
 		{
 			CyberSource.RequestMessage request = new CyberSource.RequestMessage();
 
-			request.merchantID = "2744639";
+			request.merchantID            = "2744639";
 			request.merchantReferenceCode = "A1-TEST-82348687";
 
 		//	Help with trouble-shooting
@@ -803,42 +804,42 @@ namespace PCIBusiness
 			request.clientLibraryVersion = Environment.Version.ToString();
 			request.clientEnvironment    = Environment.OSVersion.Platform + Environment.OSVersion.Version.ToString();
 
-			request.ccAuthService = new CyberSource.CCAuthService();
+			request.ccAuthService     = new CyberSource.CCAuthService();
 			request.ccAuthService.run = "true";
 
 			CyberSource.BillTo billTo = new CyberSource.BillTo();
-			billTo.firstName = "John";
-			billTo.lastName = "Doe";
-			billTo.street1 = "1295 Charleston Road";
-			billTo.city = "Mountain View";
-			billTo.state = "CA";
-			billTo.postalCode = "94043";
-			billTo.country = "US";
-			billTo.email = "null@cybersource.com";
-			billTo.ipAddress = "10.7.111.111";
-			request.billTo = billTo;
+			billTo.firstName          = "John";
+			billTo.lastName           = "Doe";
+			billTo.street1            = "1295 Charleston Road";
+			billTo.city               = "Mountain View";
+			billTo.state              = "CA";
+			billTo.postalCode         = "94043";
+			billTo.country            = "US";
+			billTo.email              = "null@cybersource.com";
+			billTo.ipAddress          = "10.7.111.111";
+			request.billTo            = billTo;
 
-			CyberSource.Card card = new CyberSource.Card();
-			card.accountNumber = "4111111111111111";
-			card.expirationMonth = "12";
-			card.expirationYear = "2020";
-			request.card = card;
+			CyberSource.Card card     = new CyberSource.Card();
+			card.accountNumber        = "4111111111111111";
+			card.expirationMonth      = "12";
+			card.expirationYear       = "2022";
+			request.card              = card;
 
 			CyberSource.PurchaseTotals purchaseTotals = new CyberSource.PurchaseTotals();
-			purchaseTotals.currency = "USD";
-			request.purchaseTotals = purchaseTotals;
+			purchaseTotals.currency   = "USD";
+			request.purchaseTotals    = purchaseTotals;
 
-			request.item = new CyberSource.Item[2];
+			request.item              = new CyberSource.Item[2];
 
-			CyberSource.Item item = new CyberSource.Item();
-			item.id = "0";
-			item.unitPrice = "12.34";
-			request.item[0] = item;
+			CyberSource.Item item     = new CyberSource.Item();
+			item.id                   = "0";
+			item.unitPrice            = "12.34";
+			request.item[0]           = item;
 
-			item = new CyberSource.Item();
-			item.id = "1";
-			item.unitPrice = "56.78";
-			request.item[1] = item;
+			item                      = new CyberSource.Item();
+			item.id                   = "1";
+			item.unitPrice            = "56.78";
+			request.item[1]           = item;
 
 			try
 			{
@@ -914,8 +915,10 @@ namespace PCIBusiness
 				if ( ! urlReturn.EndsWith("/") )
 					urlReturn = urlReturn + "/";
 				ret       = 20;
-				urlReturn = urlReturn + "RegisterThreeD.aspx?ProviderCode="+Tools.BureauCode(Constants.PaymentProvider.CyberSource)
-                                  +                    "&TransRef="+Tools.XMLSafe(payment.MerchantReference);
+				urlReturn = urlReturn + "RegisterThreeD.aspx?ProviderCode="+bureauCode
+				                      +                    "&TransRef="+Tools.XMLSafe(payment.MerchantReference);
+//				urlReturn = urlReturn + "RegisterThreeD.aspx?ProviderCode="+Tools.BureauCode(Constants.PaymentProvider.CyberSource)
+//				                      +                    "&TransRef="+Tools.XMLSafe(payment.MerchantReference);
 
 				if ( payment.TokenizerCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
 					ccNo = "{{{" + payment.CardToken + "}}}";
@@ -1056,6 +1059,13 @@ namespace PCIBusiness
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
 			base.LoadBureauDetails(Constants.PaymentProvider.CyberSource);
+		}
+
+		public TransactionCyberSource(Constants.PaymentProvider provider) : base()
+		{
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
+			base.LoadBureauDetails(provider);
 		}
 	}
 }

@@ -99,6 +99,7 @@ namespace PCIBusiness
 					provider = (new Providers()).LoadOne(1,providerID,userID);
 
 			if ( provider == null || provider.BureauCode != providerID || provider.UserCode != userID )
+//			if ( provider == null || provider.BureauCode != providerID )
 				return 10;
 
 			return 0;
@@ -119,7 +120,6 @@ namespace PCIBusiness
 				string sql = "exec sp_Messaging_Upd_MessageSend"
 				           +     " @MessageID="              + messageID.ToString()
 				           +     ",@MessageBureauReference=" + Tools.DBString(resultCode);
-
 
 				Tools.LogInfo("UpdateStatus/1",sql,Constants.LogSeverity,this);
 

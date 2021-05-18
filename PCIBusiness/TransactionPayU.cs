@@ -78,14 +78,14 @@ namespace PCIBusiness
 				if ( ! url.ToUpper().EndsWith("WSDL") )
 					url = url + "/service/PayUAPI?wsdl";
 
-				Tools.LogInfo("TransactionPayU.SendXML/10","URL=" + url + ", XML Sent=" + xmlSent,10);
+				Tools.LogInfo("SendXML/10","URL=" + url + ", XML Sent=" + xmlSent,10,this);
 
 			// Construct soap object
-				ret = 20;
+				ret                         = 20;
 				XmlDocument soapEnvelopeXml = CreateSoapEnvelope(xmlSent);
 
 			// Create username and password namespace
-				ret = 30;
+				ret                     = 30;
 				XmlNamespaceManager mgr = new XmlNamespaceManager(soapEnvelopeXml.NameTable);
 				mgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
 				XmlNode userName        = soapEnvelopeXml.SelectSingleNode("//wsse:Username",mgr);
@@ -94,39 +94,41 @@ namespace PCIBusiness
 				userPassword.InnerText  = password;
 
 			// Construct web request object
-				Tools.LogInfo("TransactionPayU.SendXML/30","Create/set up web request, URL=" + url,10);
-				ret = 40;
+				Tools.LogInfo("SendXML/30","Create/set up web request, URL=" + url,10,this);
+				ret                       = 40;
 				HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+
+				ret                    = 45;
 				webRequest.Headers.Add(@"SOAP:Action");
 				webRequest.ContentType = "text/xml;charset=\"utf-8\"";
 				webRequest.Accept      = "text/xml";
 				webRequest.Method      = "POST";
 
 			// Insert soap envelope into web request
-				Tools.LogInfo("TransactionPayU.SendXML/35","Save web request",10);
+				Tools.LogInfo("SendXML/35","Save web request",10,this);
 				ret = 50;
 				using (Stream stream = webRequest.GetRequestStream())
 					soapEnvelopeXml.Save(stream);
 
 			// Get the completed web request XML
-				Tools.LogInfo("TransactionPayU.SendXML/40","Get web response",10);
+				Tools.LogInfo("SendXML/40","Get web response",10,this);
 				ret = 60;
 
 				using (WebResponse webResponse = webRequest.GetResponse())
 				{
-					ret = 63;
-					Tools.LogInfo("TransactionPayU.SendXML/45","Read web response stream",10);
+					ret = 65;
+					Tools.LogInfo("SendXML/45","Read web response stream",10,this);
 					using (StreamReader rd = new StreamReader(webResponse.GetResponseStream()))
 					{
-						ret         = 66;
+						ret         = 70;
 						xmlReceived = rd.ReadToEnd();
 					}
 				}
 
-				Tools.LogInfo("TransactionPayU.SendXML/50","XML Rec=" + xmlReceived,255);
+				Tools.LogInfo("SendXML/50","XML Rec=" + xmlReceived,255,this);
 
 			// Create an empty soap result object
-				ret       = 70;
+				ret       = 75;
 				xmlResult = new XmlDocument();
 				xmlResult.LoadXml(xmlReceived.ToString());
 
@@ -141,7 +143,7 @@ namespace PCIBusiness
 				if ( Successful )
 					return 0;
 
-				Tools.LogInfo("TransactionPayU.SendXML/80","URL=" + url + ", XML Sent=" + xmlSent+", XML Rec="+xmlReceived,220);
+				Tools.LogInfo("SendXML/80","URL=" + url + ", XML Sent=" + xmlSent+", XML Rec="+xmlReceived,220,this);
 			}
 			catch (WebException ex1)
 			{
@@ -149,8 +151,8 @@ namespace PCIBusiness
 			}
 			catch (Exception ex2)
 			{
-				Tools.LogInfo     ("TransactionPayU.SendXML/98","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayU.SendXML/99","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex2);
+				Tools.LogInfo     ("SendXML/98","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,255,this);
+				Tools.LogException("SendXML/99","Ret="+ret.ToString()+", URL=" + url + ", XML Sent="+xmlSent,ex2,this);
 			}
 			return ret;
 		}
@@ -160,7 +162,7 @@ namespace PCIBusiness
 			int ret = 300;
 			xmlSent = "";
 
-			Tools.LogInfo("TransactionPayU.GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,10);
+			Tools.LogInfo("GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,10,this);
 
 			try
 			{
@@ -204,8 +206,8 @@ namespace PCIBusiness
 
 				if ( ret == 0 )
 				{
-					Tools.LogInfo("TransactionPayU.GetToken/20","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,30);
-					Tools.LogInfo("TransactionPayU.GetToken/30","RESERVE_CANCEL, Merchant Ref=" + payment.MerchantReference,30);
+					Tools.LogInfo("GetToken/20","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,30,this);
+					Tools.LogInfo("GetToken/30","RESERVE_CANCEL, Merchant Ref=" + payment.MerchantReference,30,this);
 					xmlSent = "<Safekey>" + payment.ProviderKey + "</Safekey>"
 				           + "<Api>ONE_ZERO</Api>"
 				           + "<TransactionType>RESERVE_CANCEL</TransactionType>"
@@ -218,15 +220,15 @@ namespace PCIBusiness
 				           +	"<currencyCode>" + payment.CurrencyCode + "</currencyCode>"
 				           + "</Basket>";
 					ret = SendXML(payment.ProviderURL,payment.ProviderUserID,payment.ProviderPassword);
-					Tools.LogInfo("TransactionPayU.GetToken/40","ResultCode="+ResultCode,30);
+					Tools.LogInfo("GetToken/40","ResultCode="+ResultCode,30,this);
 				}
 				else
-					Tools.LogInfo("TransactionPayU.GetToken/50","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,220);
+					Tools.LogInfo("GetToken/50","ResultCode="+ResultCode + ", payRef=" + payRef + ", payToken=" + payToken,220,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayU.GetToken/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayU.GetToken/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo     ("GetToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("GetToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex ,this);
 			}
 			return ret;
 		}
@@ -240,7 +242,7 @@ namespace PCIBusiness
 			int ret = 600;
 			xmlSent = "";
 
-			Tools.LogInfo("TransactionPayU.TokenPayment/10","PAYMENT, Merchant Ref=" + payment.MerchantReference,10);
+			Tools.LogInfo("TokenPayment/10","PAYMENT, Merchant Ref=" + payment.MerchantReference,10,this);
 
 //		   +   "<secure3d>false</secure3d>"
 //       +   "<storePaymentMethod>true</storePaymentMethod>"
@@ -280,12 +282,12 @@ namespace PCIBusiness
 				ret    = SendXML(payment.ProviderURL,payment.ProviderUserID,payment.ProviderPassword);
 				payRef = Tools.XMLNode(xmlResult,"payUReference");
 
-				Tools.LogInfo("TransactionPayU.TokenPayment/30","ResultCode="+ResultCode,30);
+				Tools.LogInfo("TokenPayment/30","ResultCode="+ResultCode,30,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionPayU.TokenPayment/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionPayU.TokenPayment/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo     ("TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex ,this);
 			}
 			return ret;
 		}

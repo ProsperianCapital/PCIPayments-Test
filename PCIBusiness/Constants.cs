@@ -59,28 +59,28 @@ namespace PCIBusiness
 
 		public enum PaymentProvider : int
 		{
-			MyGate      =  2,
-			T24         =  6,
-			Ikajo       = 15,
-			PayU        = 16,
-			PayGate     = 17,
-			PayGenius   = 18,
-			Ecentric    = 19,
-			eNETS       = 20,
-			Peach       = 21,
-			TokenEx     = 22,
-			SatchelPay  = 23,
-			FNB         = 24,
-			CyberSource = 25
-//	Not implemented yet
-//			DinersClub = xx
-//			PayFast    = xx
+			MyGate           =  2,
+			T24              =  6,
+			Ikajo            = 15,
+			PayU             = 16,
+			PayGate          = 17,
+			PayGenius        = 18,
+			Ecentric         = 19,
+			eNETS            = 20,
+			Peach            = 21,
+			TokenEx          = 22,
+			SatchelPay       = 23,
+			FNB              = 24,
+			CyberSource      = 25,
+			CyberSource_Moto = 26,
+			PaymentsOS       = 27, // PayU Hub
+			Stripe           = 28
 		}
 
 		public enum MessageProvider : int
 		{
-			GlobalSMS  = 1,
-			ClickaTell = 2,
+			ClickaTell = 1,
+			GlobalSMS  = 2,
 			SendGrid   = 3,
 			SocketLabs = 4
 		}

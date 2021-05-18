@@ -9,7 +9,7 @@ namespace PCIBusiness
 	{
 		string currency;
 		string amount;
-		string cardNumber;
+//		string cardNumber;
 		string cardHolder;
 
 		public string   Currency
@@ -20,10 +20,10 @@ namespace PCIBusiness
 		{
 			get { return Tools.NullToString(amount); }
 		}
-		public string   CardNumber
-		{
-			get { return Tools.NullToString(cardNumber); }
-		}
+//		public string   CardNumber
+//		{
+//			get { return Tools.NullToString(cardNumber); }
+//		}
 		public string   CardHolder
 		{
 			get { return Tools.NullToString(cardHolder); }

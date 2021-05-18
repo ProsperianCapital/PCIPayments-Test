@@ -223,6 +223,8 @@ namespace PCIBusiness
 					bureauURL = "https://api.tokenex.com";
 				else if ( bureau == Constants.PaymentProvider.FNB )
 					bureauURL = "https://pay.ms.fnb.co.za/eCommerce/v2";
+				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
+					bureauURL = "https://api.paymentsos.com";
 			}
 			else
 			{
@@ -246,6 +248,10 @@ namespace PCIBusiness
 					bureauURL = "https://sandbox.ms.fnb.co.za/eCommerce/v2";
 				else if ( bureau == Constants.PaymentProvider.CyberSource )
 					bureauURL = "https://apitest.cybersource.com";
+				else if ( bureau == Constants.PaymentProvider.CyberSource_Moto )
+					bureauURL = "https://apitest.cybersource.com";
+				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
+					bureauURL = "https://api.paymentsos.com";
 			}
 		}
 

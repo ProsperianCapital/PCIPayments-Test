@@ -105,7 +105,7 @@ namespace PCIBusiness
 				if ( url.Length < 1 && payment.ProviderURL.Length > 0 )
 					url = payment.ProviderURL;
 
-				Tools.LogInfo("PostJSON/10","Post="+xmlSent+", Key="+payment.ProviderKey+", URL="+url,222,this);
+//				Tools.LogInfo("PostJSON/10","Post="+xmlSent+", Key="+payment.ProviderKey+", URL="+url,10,this);
 
 				ret                     = 20;
 				byte[]         buffer   = Encoding.UTF8.GetBytes(xmlSent);
@@ -142,17 +142,17 @@ namespace PCIBusiness
 						return 0;
 
 					ret = 170;
-					Tools.LogInfo("PostJSON/110",strResult,221,this);
-//					Tools.LogInfo("PostJSON/110","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
+					Tools.LogInfo("PostJSON/170","URL=" + url + " | XML Sent=" + xmlSent + " | Result=" + strResult,221,this);
+//					Tools.LogInfo("PostJSON/170","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
 				}
 			}
 			catch (WebException ex1)
 			{
-				Tools.DecodeWebException(ex1,"TransactionTokenEx.PostJSON/197",xmlSent);
+				Tools.DecodeWebException(ex1,"TransactionTokenEx.PostJSON/197","Ret="+ret.ToString()+" | " + xmlSent);
 			}
 			catch (Exception ex2)
 			{
-				Tools.LogException("PostJSON/199","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex2,this);
+				Tools.LogException("PostJSON/199","Ret="+ret.ToString()+" | " + xmlSent,ex2,this);
 			}
 			return ret;
 		}
