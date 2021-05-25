@@ -496,6 +496,8 @@ namespace PCIBusiness
 //				webReq.Headers["Date"]            = theDate.ToString();        // "Fri, 11 Dec 2020 07:18:03 GMT";
 //				webReq.Headers["Host"]            = "apitest.cybersource.com"; // NO! Cannot set this here
 				webReq.Headers["Digest"]          = digest;
+				if ( payment.ProviderProfileID.Length > 0 )
+					webReq.Headers["profile-id"]   = payment.ProviderProfileID;
 
 //				ret                               = 175;
 //				sigSource                         = "host: "            + webRequest.Host            + "\n"
@@ -521,20 +523,22 @@ namespace PCIBusiness
 				                                  + ", signature=" + sep + sigCoded + sep;
 				ret                               = 200;
 
-				Tools.LogInfo("CallWebService/200", "Tran="             + tranDesc                + Environment.NewLine
-				                                  + "pURL="             + pURL                    + Environment.NewLine
-				                                  + "tURL="             + tURL                    + Environment.NewLine
-				                                  + "Merchant Id="      + payment.ProviderAccount + Environment.NewLine
-				                                  + "Key Detail/Id="    + payment.ProviderUserID  + Environment.NewLine
-				                                  + "Secret Key="       + payment.ProviderKey     + Environment.NewLine
-				                                  + "JSON Sent="        + xmlSent                 + Environment.NewLine
-				                                  + "Signature Input="  + sigSource               + Environment.NewLine
-				                                  + "Signature Output=" + sigCoded                + Environment.NewLine
+				Tools.LogInfo("CallWebService/200", "Tran="             + tranDesc                  + Environment.NewLine
+				                                  + "pURL="             + pURL                      + Environment.NewLine
+				                                  + "tURL="             + tURL                      + Environment.NewLine
+				                                  + "Merchant Id="      + payment.ProviderAccount   + Environment.NewLine
+				                                  + "Profile Id="       + payment.ProviderProfileID + Environment.NewLine
+				                                  + "Key Detail/Id="    + payment.ProviderUserID    + Environment.NewLine
+				                                  + "Secret Key="       + payment.ProviderKey       + Environment.NewLine
+				                                  + "JSON Sent="        + xmlSent                   + Environment.NewLine
+				                                  + "Signature Input="  + sigSource                 + Environment.NewLine
+				                                  + "Signature Output=" + sigCoded                  + Environment.NewLine
 				                                  + "Request Header[v-c-merchant-id]=" + webReq.Headers["v-c-merchant-id"] + Environment.NewLine
 				                                  + "Request Header[Date]="            + webReq.Headers["Date"]            + Environment.NewLine
 				                                  + "Request Header[Host]="            + webReq.Host                       + Environment.NewLine
 				                                  + "Request Header[Digest]="          + webReq.Headers["Digest"]          + Environment.NewLine
-				                                  + "Request Header[Signature]="       + webReq.Headers["Signature"]
+				                                  + "Request Header[Signature]="       + webReq.Headers["Signature"]       + Environment.NewLine
+				                                  + "Request Header[profile-id]="      + payment.ProviderProfileID
 				                                  , 10, this);
 
 				Tools.LogInfo("CallWebService/203", "(In) Tran=" + tranDesc + Environment.NewLine + xmlSent, 220, this);

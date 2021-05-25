@@ -47,7 +47,7 @@ namespace PCIBusiness
 		private string   providerUserID;
 		private string   providerPassword;
 		private string   providerURL;
-//		private string   providerHost;
+		private string   providerProfileID;
 
 //	Token Provider (eg. TokenEx)
 		private string   tokenizerCode;
@@ -151,6 +151,8 @@ namespace PCIBusiness
 					return "IcJSjbVloKPQsS5PJrCdGOz8W/pLOBjzO4QVqKG4Ai8=";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "daea1771-d849-4fa4-a648-230a54186964"; // Public key
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) )
+					return "pk_test_51It78gGmZVKtO2iKc4eB6JveDn9HZAWR7F9cbiISEcYHGquyNoqb1YNnSQuzlJlR8maNlTUmaH0pBHHw4tZAOUBc00KZH2PeKW"; // Public key
 
 				return "";
 			}
@@ -171,6 +173,19 @@ namespace PCIBusiness
 //				return "";
 //			}
 //		}
+		public string    ProviderProfileID
+		{
+			set { providerProfileID = value.Trim(); }
+			get
+			{
+				if ( Tools.NullToString(providerProfileID).Length > 0 )
+					return providerProfileID;
+//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
+//					return "601591F8-04DA-4E9D-94E1-A5D7649C0EB7";
+				return "";
+			}
+		}
+
 		public string    ProviderUserID
 		{
 			set { providerUserID = value.Trim(); }
@@ -215,7 +230,9 @@ namespace PCIBusiness
 				else if ( Tools.SystemIsLive() )
 					return "";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
-					return "3790d1d5-4847-43e6-a29a-f22180cc9fda"; // Private key
+					return "3790d1d5-4847-43e6-a29a-f22180cc9fda"; // Private/secret key
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) )
+					return "sk_test_51It78gGmZVKtO2iKwt179k2NOmHVUNab70RO7EcbRm7AZmvunvtgD4S0srMXQWIpvj3EAWq7QLJ4kcRIMRHPzPxq00n0dLN01U"; // Secret key
 
 				return "";
 			}
@@ -242,6 +259,8 @@ namespace PCIBusiness
 						return "https://secureacceptance.cybersource.com/silent";
 					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 						return "https://api.paymentsos.com";
+//					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) )
+//						return "https://test.stripe.com";
 					return "";
 				}
 
@@ -790,9 +809,9 @@ namespace PCIBusiness
 
 		//	Payment Provider
 			providerKey       = dbConn.ColString("SafeKey");
-		//	providerKeyPublic = dbConn.ColString("PublicKey");
 			providerURL       = dbConn.ColString("url");
 			providerAccount   = dbConn.ColString("MerchantAccount",0,0);
+			providerProfileID = dbConn.ColString("MerchantProfileId",0,0);
 			providerUserID    = dbConn.ColString("MerchantUserId",0,0);
 			providerPassword  = dbConn.ColString("MerchantUserPassword",0,0);
 

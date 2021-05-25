@@ -109,6 +109,7 @@
     <Compile Include="TransactionPaymentsOS.cs" />
     <Compile Include="TransactionPayU.cs" />
     <Compile Include="TransactionPeach.cs" />
+    <Compile Include="TransactionStripe.cs" />
     <Compile Include="TransactionT24.cs" />
     <Compile Include="TransactionTokenEx.cs" />
     <Compile Include="Web References\CyberSource\Reference.cs">

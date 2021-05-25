@@ -252,6 +252,8 @@ namespace PCIBusiness
 					bureauURL = "https://apitest.cybersource.com";
 				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
 					bureauURL = "https://api.paymentsos.com";
+//				else if ( bureau == Constants.PaymentProvider.Stripe )
+//					bureauURL = "https://test.stripe.com";
 			}
 		}
 
