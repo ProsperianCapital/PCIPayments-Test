@@ -496,9 +496,9 @@ namespace PCIBusiness
 //				webReq.Headers["Date"]            = theDate.ToString();        // "Fri, 11 Dec 2020 07:18:03 GMT";
 //				webReq.Headers["Host"]            = "apitest.cybersource.com"; // NO! Cannot set this here
 				webReq.Headers["Digest"]          = digest;
-//	No! Not needed for REST
-//				if ( payment.ProviderProfileID.Length > 0 )
-//					webReq.Headers["profile-id"]   = payment.ProviderProfileID;
+//	Not needed for REST, but include it if supplied
+				if ( payment.ProviderProfileID.Length > 0 )
+					webReq.Headers["profile-id"]   = payment.ProviderProfileID;
 
 //				ret                               = 175;
 //				sigSource                         = "host: "            + webRequest.Host            + "\n"
