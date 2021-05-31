@@ -39,6 +39,8 @@ namespace PCIWebRTR
 				try
 				{
 					userCode = Tools.ObjectToString(ViewState["UserCode"]);
+					if ( lblBureauCode.Text.ToUpper() != lstProvider.SelectedValue.ToUpper() )
+						ProviderDetails();
 				}
 				catch
 				{
@@ -137,7 +139,7 @@ namespace PCIWebRTR
 				for ( int y = System.DateTime.Now.Year ; y < System.DateTime.Now.Year+15 ; y++ )
 					lstCCYear.Items.Add(new ListItem(y.ToString(),y.ToString()));
 			}
-			ProviderDetails();
+		//	ProviderDetails();
 		}
 
 		private void SetAccess(bool allow,string errMsg="")
@@ -191,8 +193,8 @@ namespace PCIWebRTR
 				btnProcess3.Enabled  = false;
 				btnProcess4.Enabled  = false;
 				lblBureauURL.Text    = "";
-				lblMerchantKey.Text  = "";
-				lblMerchantUser.Text = "";
+			//	lblMerchantKey.Text  = "";
+			//	lblMerchantUser.Text = "";
 				lblCards.Text        = "";
 				lblPayments.Text     = "";
 				return;
@@ -215,8 +217,8 @@ namespace PCIWebRTR
 				{
 					provider             = payments.Summary(bureauCode);
 					lblBureauURL.Text    = provider.BureauURL;
-					lblMerchantKey.Text  = provider.MerchantKey;
-					lblMerchantUser.Text = provider.MerchantUserID;
+				//	lblMerchantKey.Text  = provider.MerchantKey;
+				//	lblMerchantUser.Text = provider.MerchantUserID;
 					lblCards.Text        = provider.CardsToBeTokenized.ToString()    + ( provider.CardsToBeTokenized    >= Constants.MaxRowsPayment ? "+" : "" );
 					lblPayments.Text     = provider.PaymentsToBeProcessed.ToString() + ( provider.PaymentsToBeProcessed >= Constants.MaxRowsPayment ? "+" : "" );
 					if ( provider.PaymentType == (byte)Constants.TransactionType.TokenPayment )

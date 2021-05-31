@@ -157,24 +157,6 @@ namespace PCIWebRTR {
         protected global::System.Web.UI.WebControls.Literal lblBureauURL;
         
         /// <summary>
-        /// lblMerchantKey control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal lblMerchantKey;
-        
-        /// <summary>
-        /// lblMerchantUser control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal lblMerchantUser;
-        
-        /// <summary>
         /// lblCards control.
         /// </summary>
         /// <remarks>

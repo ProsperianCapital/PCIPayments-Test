@@ -3,7 +3,7 @@
 	public static class SystemDetails
 	{
 		public static string AppName    = "Prosperian Payment Gateway (Web)";
-		public static string AppVersion = "1.3.017";
-		public static string AppDate    = "2021/05/25 16:54:27";
+		public static string AppVersion = "1.3.018";
+		public static string AppDate    = "2021/05/31 13:42:27";
 	}
 }

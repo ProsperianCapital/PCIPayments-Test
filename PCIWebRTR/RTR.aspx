@@ -74,12 +74,14 @@ function PaySingle(mode)
 	<tr>
 		<td>Payment URL</td>
 		<td> : <asp:Literal runat="server" ID="lblBureauURL"></asp:Literal></td></tr>
+	<!--
 	<tr>
 		<td>Prosperian Account/Key</td>
-		<td> : <asp:Literal runat="server" ID="lblMerchantKey"></asp:Literal></td></tr>
+		<td> : <asp Literal run@t="server" ID="lblMerchantKey"></asp Literal></td></tr>
 	<tr>
 		<td>Prosperian User ID</td>
-		<td> : <asp:Literal runat="server" ID="lblMerchantUser"></asp:Literal></td></tr>
+		<td> : <asp Literal run@t="server" ID="lblMerchantUser"></asp Literal></td></tr>
+	-->
 	<tr>
 		<td>Cards waiting to be tokenized</td>
 		<td> : <asp:Literal runat="server" ID="lblCards"></asp:Literal></td></tr>
