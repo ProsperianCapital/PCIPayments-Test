@@ -76,23 +76,21 @@ namespace PCIBusiness
 			{
 				try
 				{
-					return     xmlResult.InnerXml;
+					if ( xmlResult != null )
+						return  xmlResult.InnerXml;
 				}
 				catch
 				{ }
 				try
 				{
-					return     Tools.NullToString(strResult);
+					if ( strResult != null )
+						return  strResult.Trim();
 				}
 				catch
 				{ }
 				return "";
 			}
 		}
-//		public  XmlDocument XMLResult
-//		{
-//			get { return     xmlResult; }
-//		}
 
 //		public  Constants.BureauStatus ProviderStatus
 //		{
@@ -252,8 +250,6 @@ namespace PCIBusiness
 					bureauURL = "https://apitest.cybersource.com";
 				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
 					bureauURL = "https://api.paymentsos.com";
-//				else if ( bureau == Constants.PaymentProvider.Stripe )
-//					bureauURL = "https://test.stripe.com";
 			}
 		}
 
