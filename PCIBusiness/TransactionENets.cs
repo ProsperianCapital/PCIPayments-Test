@@ -120,7 +120,7 @@ namespace PCIBusiness
 				            ", URL=" + url +
 				            ", MID=" + payment.ProviderAccount +
 				            ", KeyId=" + payment.ProviderKey +
-				            ", SecretKey=" + payment.ProviderPassword +
+//				            ", SecretKey=" + payment.ProviderPassword +
 				            ", Signature=" + sig +
 				            ", JSON Sent=" + xmlSent, 10);
 

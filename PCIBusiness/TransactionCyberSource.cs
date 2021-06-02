@@ -735,7 +735,7 @@ namespace PCIBusiness
 
 				Tools.LogInfo("TestTransactionV2/10","Profile Id="+profileId,222,this);
 				Tools.LogInfo("TestTransactionV2/20","Access Key="+accessKey,222,this);
-				Tools.LogInfo("TestTransactionV2/30","Secret Key="+secretKey,222,this);
+//				Tools.LogInfo("TestTransactionV2/30","Secret Key="+secretKey,222,this);
 				Tools.LogInfo("TestTransactionV2/40","Signature Input="+sigX,222,this);
 				Tools.LogInfo("TestTransactionV2/50","Signature Output="+sigF,222,this);
 				Tools.LogInfo("TestTransactionV2/60","Web form="+webForm,222,this);
@@ -778,8 +778,6 @@ namespace PCIBusiness
 					d3Form = strResult;
 					return 0;
 				}
-//				xmlResult = new XmlDocument();
-//				xmlResult.LoadXml(xmlReceived.ToString());
 			}
 			catch (WebException ex1)
 			{
@@ -989,8 +987,8 @@ namespace PCIBusiness
 				                  + "&signature="            + Tools.URLString(sigF);
 
 				Tools.LogInfo("ThreeDSecurePayment/10","Profile Id="+profileId
-				                                   + ", Access Key="+accessKey
-				                                   + ", Secret Key="+secretKey
+//				                                   + ", Access Key="+accessKey
+//				                                   + ", Secret Key="+secretKey
 				                                   + ", Signature Input="+sigX
 				                                   + ", Signature Output="+sigF
 				                                   + ", URL params="+xmlSent,222,this);
