@@ -923,8 +923,6 @@ namespace PCIBusiness
 				ret       = 20;
 				urlReturn = urlReturn + "RegisterThreeD.aspx?ProviderCode="+bureauCode
 				                      +                    "&TransRef="+Tools.XMLSafe(payment.MerchantReference);
-//				urlReturn = urlReturn + "RegisterThreeD.aspx?ProviderCode="+Tools.BureauCode(Constants.PaymentProvider.CyberSource)
-//				                      +                    "&TransRef="+Tools.XMLSafe(payment.MerchantReference);
 
 				if ( payment.TokenizerCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
 					ccNo = "{{{" + payment.CardToken + "}}}";
@@ -934,7 +932,7 @@ namespace PCIBusiness
 				fieldS = new string[,] { { "reference_number"                   , Tools.JSONSafe(payment.MerchantReference) }
 				                       , { "transaction_type"                   , "sale,create_payment_token" }
 				                       , { "currency"                           , "ZAR" }
-				                       , { "amount"                             , "1.49" }
+				                       , { "amount"                             , "0.00" } // "1.49" }
 				                       , { "locale"                             , "en" }
 				                       , { "profile_id"                         , profileId }
 				                       , { "access_key"                         , accessKey }
@@ -942,8 +940,8 @@ namespace PCIBusiness
 				                       , { "signed_date_time"                   , dt.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } // "2021-01-10T03:16:54Z"
 				                       , { "payment_method"                     , "card" }
 				                       , { "card_cvn"                           , Tools.JSONSafe(payment.CardCVV) }
-				                       , { "bill_to_forename"                   , Tools.JSONSafe(payment.FirstName) }
-				                       , { "bill_to_surname"                    , Tools.JSONSafe(payment.LastName) }
+				                       , { "bill_to_forename"                   , Tools.JSONSafe(payment.CardNameSplit(1)) }
+				                       , { "bill_to_surname"                    , Tools.JSONSafe(payment.CardNameSplit(2)) }
 				                       , { "bill_to_email"                      , Tools.JSONSafe(payment.EMail,1) }
 				                       , { "bill_to_phone"                      , Tools.JSONSafe(payment.PhoneCell) }
 				                       , { "bill_to_address_line1"              , Tools.JSONSafe(payment.Address1(65)) }

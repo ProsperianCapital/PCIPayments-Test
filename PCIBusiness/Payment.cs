@@ -622,6 +622,18 @@ namespace PCIBusiness
 			get { return  Tools.NullToString(ccName); }
 			set { ccName = value.Trim(); }
 		}
+		public  string   CardNameSplit(byte firstLast)
+		{
+			string nm = Tools.NullToString(ccName);
+			if ( nm.Length < 1 )
+				return "";
+			int k = nm.IndexOf(" ");
+			if ( k < 1 )
+				return nm;
+			if ( firstLast <= 1 )
+				return nm.Substring(0,k);
+			return nm.Substring(k).Trim();
+		}
 		public  string   CardCVV
 		{
 			get { return  Tools.NullToString(ccCVV); }
