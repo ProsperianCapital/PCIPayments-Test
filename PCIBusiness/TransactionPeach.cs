@@ -419,7 +419,12 @@ namespace PCIBusiness
 
 		public override int ThreeDSecureCheck(string transID)
 		{
-			int    ret      = 10;
+//	Return
+//	   0     : Payment succeeded
+//	   1-999 : Payment processed but declined or rejected
+// 1001-    : Internal error
+
+			int    ret      = 20010;
 			string key      = Tools.ProviderCredentials("Peach","Key");
 			string entityId = Tools.ProviderCredentials("Peach","Id","3d");
 			strResult       = "";
@@ -447,13 +452,13 @@ namespace PCIBusiness
 				request.Headers["Authorization"] = "Bearer " + key;
 				using ( HttpWebResponse response = (HttpWebResponse)request.GetResponse() )
 				{
-					ret                     = 60;
+					ret                     = 20060;
 					Stream       dataStream = response.GetResponseStream();
-					ret                     = 70;
+					ret                     = 20070;
 					StreamReader reader     = new StreamReader(dataStream);
-					ret                     = 80;
+					ret                     = 20080;
 					strResult               = reader.ReadToEnd();
-					ret                     = 90;
+					ret                     = 20090;
 					reader.Close();
 					dataStream.Close();
 					ret                     = 0;
@@ -484,9 +489,9 @@ namespace PCIBusiness
 			cardHolder = Tools.JSONValue(strResult,"holder");
 
 			if ( ! Successful && ret == 0 )
-				ret = 220;
+				ret = 53;
 			if ( ! Successful || ret != 0 )
-				Tools.LogInfo("ThreeDSecureCheck/220","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
+				Tools.LogInfo("ThreeDSecureCheck/220","ret="+ret.ToString()+", resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
 			return ret;
 		}
 
@@ -587,7 +592,7 @@ namespace PCIBusiness
 
 				short     k       = 1;
 				string[,] d3Parms = new string[100,3];
-				string    d3Parm  = Tools.JSONValue(strResult,"parameters",k);
+				string    d3Parm  = Tools.JSONValue(strResult,"parameters","",k);
 				string    d3URL   = Tools.JSONValue(strResult,"url");
 
 				while ( d3Parm.Length > 0 && k < 100 )
@@ -596,7 +601,7 @@ namespace PCIBusiness
 					d3Parms[k,2] = Tools.JSONValue(d3Parm,"value");
 					d3Form       = d3Form + "<input type='hidden' name='" + d3Parms[k,1] + "' value='" + d3Parms[k,2] + "' />";
 					k++;
-					d3Parm       = Tools.JSONValue(strResult,"parameters",k);
+					d3Parm       = Tools.JSONValue(strResult,"parameters","",k);
 				}
 
 				if ( d3Form.Length > 0 )

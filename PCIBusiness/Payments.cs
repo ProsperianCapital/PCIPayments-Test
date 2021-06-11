@@ -48,7 +48,6 @@ namespace PCIBusiness
 					provider.CardsToBeTokenized = tok;
 
 					sql = "exec sp_Get_TokenPayment " + Tools.DBString(bureau) + "," + Constants.MaxRowsPayment.ToString();
-//					sql = "exec sp_Get_CardPayment "  + Tools.DBString(bureau) + "," + Constants.MaxRowsPayment.ToString();
 					err = ExecuteSQL(null,false,false);
 					if ( err > 0 )
 						Tools.LogException("Summary/20",sql + " failed, return code " + err.ToString(),null,this);

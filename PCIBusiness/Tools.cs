@@ -324,7 +324,31 @@ namespace PCIBusiness
 			     + suffix;
 		}
 
-		public static string JSONValue(string data,string tag,short arrayPosition=0)
+		public static string JSONRaw(string data)
+		{
+			if ( string.IsNullOrWhiteSpace(data) )
+				return "";
+
+			data          = data.Trim();
+			string[,] fix = new string[,] {{ "26", "&"  },
+			                               { "40", "@"  },
+			                               { "3F", "?"  },
+			                               { "2F", "/"  },
+			                               { "5C", "\\" }};
+//			Unicode
+			if ( data.Contains("\\u00") )
+				for ( int k = 0 ; k < fix.GetLength(0) ; k++ )
+					data = data.Replace("\\u00"+fix[k,0],fix[k,1]);
+
+//			ASCII
+			if ( data.Contains("%") )
+				for ( int k = 0 ; k < fix.GetLength(0) ; k++ )
+					data = data.Replace("%"+fix[k,0],fix[k,1]);
+			
+			return data;
+		}
+
+		public static string JSONValue(string data,string tag,string tagOuter="",short arrayPosition=0,byte decode=0)
 		{
 		//	Handle data in the format
 		//	{"key1":"value","key2":"value","key3":"value"}
@@ -341,7 +365,33 @@ namespace PCIBusiness
 				string value = "";
 				tag          = "\"" + tag.ToUpper() + "\"";
 
-//	Find the tag
+//	Find the outer tag
+				if ( tagOuter.Length > 0 ) // So the tag is embedded in another tag
+				{
+					tagOuter = "\"" + tagOuter.ToUpper() + "\"";
+					while ( value.Length == 0 )
+					{
+						k = data.ToUpper().IndexOf(tagOuter,k);
+						if ( k < 0 )
+							return "";
+						for ( j = k+tagOuter.Length ; j < data.Length ; j++ )
+							if ( data.Substring(j,1) == " " )
+								continue;
+							else
+							{
+								if ( data.Substring(j,1) == ":" )
+									value = data.Substring(j+1).Trim();
+								else
+									k = j;
+								break;
+							}
+					}
+					data  = value;
+					value = "";
+					k     = 0;
+				}
+
+//	Find the inner (main) tag
 				while ( value.Length == 0 )
 				{
 					k = data.ToUpper().IndexOf(tag,k);
@@ -375,7 +425,14 @@ namespace PCIBusiness
 							k = value.IndexOf("}",h+1);
 							if ( h >= 0 && k > h )
 								if ( j == arrayPosition )
-									return value.Substring(h+1,k-h-1).Trim();
+								{
+									value = value.Substring(h+1,k-h-1).Trim();
+		  							if ( decode == 1 ) // URL decode
+										return System.Net.WebUtility.UrlDecode(value);
+									if ( decode == 2 ) // HTML decode
+										return System.Net.WebUtility.HtmlDecode(value);
+									return value;
+								}
 								else
 									value = value.Substring(k+1).Trim();
 							else
@@ -398,36 +455,16 @@ namespace PCIBusiness
 				}
 				if ( k <= h )
 					return "";
+
+				value = value.Substring(h,k-h).Trim();
+
+				if ( decode == 1 ) // URL decode
+					return System.Net.WebUtility.UrlDecode(value);
 				
-				return value.Substring(h,k-h).Trim();
-
-//	Version 2
-//				k = data.IndexOf("\"",h);
-//				if ( k < 0 )
-//					k = data.IndexOf(",",h);
-//				if ( k < 0 )
-//					k = data.IndexOf("{",h);
-//				if ( k < 0 )
-//					k = data.IndexOf("}",h);
-//				if ( k < 0 )
-//					return "";
-//				j = data.IndexOf("\"",k+1);
-//				if ( j <= k )
-//					return "";
-//				return data.Substring(k+1,j-k-1).Trim();
-
-//	Version 1
-//				j = data.IndexOf(":",k+tag.Length);
-//					
-//				if ( k < 0 )
-//					return "";
-//				k = data.IndexOf("\"",k+tag.Length);
-//				if ( k < 0 )
-//					return "";
-//				 j = data.IndexOf("\"",k+1);
-//				if ( j <= k )
-//					return "";
-//				return data.Substring(k+1,j-k-1);
+				if ( decode == 2 ) // HTML decode
+					return System.Net.WebUtility.HtmlDecode(value);
+				
+				return value;
 			}
 			catch
 			{ }
@@ -1275,6 +1312,19 @@ namespace PCIBusiness
 				return Constants.SystemMode.Test;
 			return Constants.SystemMode.Development;
 		}
+
+//		public static Constants.PaymentProvider BureauCode(string providerCode)
+//		{
+//			int   provider    = Tools.StringToInt(providerCode);
+//			int[] bureauCodes = (int[])Enum.GetValues(typeof(Constants.PaymentProvider));
+//
+//			for ( int k = 0 ; k < bureauCodes.Length ; k++ )
+//				if ( bureauCodes[k] == provider )
+//					return Constants.PaymentProvider[]
+//				{
+//					base.LoadBureauDetails(Tools.BureauCode()
+//				}
+//		}
 
 		public static string BureauCode(Constants.PaymentProvider providerCode)
 		{

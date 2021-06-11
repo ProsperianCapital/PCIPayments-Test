@@ -8,6 +8,8 @@ namespace PCIBusiness
 	{
 		protected string      payRef;
 		protected string      payToken;
+		protected string      customerId;
+		protected string      paymentMethodId;
 		protected string      cardNumber;
 //		protected string      authCode;
 		protected string      resultCode;
@@ -19,6 +21,8 @@ namespace PCIBusiness
 		protected string      bureauURL;
 		protected string      strResult;
 		protected XmlDocument xmlResult;
+
+
 
 //	3d Stuff
 		protected string      eci;
@@ -33,10 +37,18 @@ namespace PCIBusiness
 		{
 			get { return     Tools.NullToString(payRef); }
 		}
-//		public  string      AuthorizationCode
-//		{
-//			get { return     Tools.NullToString(authCode); }
-//		}
+		public  string      PaymentToken
+		{
+			get { return     Tools.NullToString(payToken); }
+		}
+		public  string      CustomerId
+		{
+			get { return     Tools.NullToString(customerId); }
+		}
+		public  string      PaymentMethodId
+		{
+			get { return     Tools.NullToString(paymentMethodId); }
+		}
 		public  string      BureauCode
 		{
 			get { return     Tools.NullToString(bureauCode); }
@@ -48,10 +60,6 @@ namespace PCIBusiness
 		public  string      CardNumber
 		{
 			get { return     Tools.NullToString(cardNumber); }
-		}
-		public  string      PaymentToken
-		{
-			get { return     Tools.NullToString(payToken); }
 		}
 		public  string      ResultCode
 		{
@@ -251,6 +259,11 @@ namespace PCIBusiness
 				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
 					bureauURL = "https://api.paymentsos.com";
 			}
+
+//	Providers where live and test are the same URL
+
+			if ( bureau == Constants.PaymentProvider.Stripe )
+				bureauURL = "https://api.stripe.com";
 		}
 
       public override void Close()
@@ -271,7 +284,8 @@ namespace PCIBusiness
 			bureauURL           = "";
 			payRef              = "";
 			payToken            = "";
-//			authCode            = "";
+			customerId          = "";
+			paymentMethodId     = "";
 			resultCode          = "";
 			resultMsg           = "";
 			xmlSent             = "";

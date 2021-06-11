@@ -9,32 +9,13 @@ namespace PCIBusiness
 	public class TransactionPayU : Transaction
 	{
 //		static string url      = "https://staging.payu.co.za";
-//		static string userID   = "Staging Enterprise Integration Store 1";
-//		static string password = "j3w8swi5";
+//		static string userID   = "800060";
+//		static string password = "qDRLeKI9";
 
 //		static string url      = "https://staging.payu.co.za";
 //		static string userID   = "200239";
 //		static string password = "5AlTRPoD";
 
-//	Version 1 ... worked then mysteriously stopped working ...
-//		static string soapEnvelopeOLD =
-//			@"<SOAP-ENV:Envelope
-//				xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'
-//				xmlns:ns1='http://soap.api.controller.web.payjar.com/'
-//				xmlns:ns2='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'>
-//				<SOAP-ENV:Header>
-//					<wsse:Security SOAP-ENV:mustUnderstand='1' xmlns:wsse='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'>
-//						<wsse:UsernameToken wsu:Id='UsernameToken-9' xmlns:wsu='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'>
-//							<wsse:Username></wsse:Username>
-//							<wsse:Password Type='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText'></wsse:Password>
-//						</wsse:UsernameToken>
-//					</wsse:Security>
-//				</SOAP-ENV:Header>
-//				<SOAP-ENV:Body>
-//				</SOAP-ENV:Body>
-//			</SOAP-ENV:Envelope>";
-
-//	Version 2
 		static string soapEnvelope =
 			@"<soapenv:Envelope
 					xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'
@@ -164,6 +145,12 @@ namespace PCIBusiness
 
 			Tools.LogInfo("GetToken/10","RESERVE, Merchant Ref=" + payment.MerchantReference,10,this);
 
+//	Testing
+//		payment.ProviderUserID   = "800060";
+//		payment.ProviderPassword = "qDRLeKI9";
+//		payment.ProviderKey      = "{FBEF85FC-F395-4DE2-B17F-F53098D8F978}";
+//	Testing
+
 			try
 			{
 				xmlSent = "<Safekey>" + payment.ProviderKey + "</Safekey>"
@@ -292,6 +279,85 @@ namespace PCIBusiness
 			return ret;
 		}
 
+		public override int ThreeDSecurePayment(Payment payment,Uri postBackURL,string languageCode="",string languageDialectCode="")
+		{
+			int    ret = 10;
+			string url = "";
+			d3Form     = "";
+
+			try
+			{
+				if ( postBackURL == null )
+					url = Tools.ConfigValue("SystemURL");
+				else
+					url = postBackURL.GetLeftPart(UriPartial.Authority);
+				if ( ! url.EndsWith("/") )
+					url = url + "/";
+
+				if ( payment.TokenizerCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
+					xmlSent = "{{{" + Tools.URLString(payment.CardToken) + "}}}";
+				else
+					xmlSent = Tools.URLString(payment.CardNumber);
+
+				xmlSent = "<Safekey>" + payment.ProviderKey + "</Safekey>"
+				        + "<Api>ONE_ZERO</Api>"
+				        + "<TransactionType>RESERVE</TransactionType>"
+				        + "<AdditionalInformation>"
+				        +   "<supportedPaymentMethods>CREDITCARD</supportedPaymentMethods>"
+				        +   "<secure3d>true</secure3d>"
+				        +   "<returnUrl>" + url + "</returnUrl>"
+				        +   "<notificationUrl>" + url + "</notificationUrl>"
+				        +   "<merchantReference>" + payment.MerchantReference + "</merchantReference>"
+				        + "</AdditionalInformation>"
+				        + "<Customer>"
+				        +   "<merchantUserId>" + payment.ProviderUserID + "</merchantUserId>"
+				        +   "<countryCode>" + payment.CountryCode() + "</countryCode>"
+				        +   "<email>" + payment.EMail + "</email>"
+				        +   "<firstName>" + payment.FirstName + "</firstName>"
+				        +   "<lastName>" + payment.LastName + "</lastName>"
+				        +   "<mobile>" + payment.PhoneCell + "</mobile>"
+				        +   "<regionalId>" + payment.RegionalId + "</regionalId>"
+				        + "</Customer>"
+				        + "<Basket>"
+				        +   "<amountInCents>" + payment.PaymentAmount.ToString() + "</amountInCents>"
+				        +   "<currencyCode>" + payment.CurrencyCode + "</currencyCode>"
+				        +   "<description>" + payment.PaymentDescription + "</description>"
+				        + "</Basket>"
+				        + "<Creditcard>"
+				        +   "<nameOnCard>" + payment.CardName + "</nameOnCard>"
+				        +   "<amountInCents>" + payment.PaymentAmount.ToString() + "</amountInCents>"
+				        +   "<cardNumber>" + payment.CardNumber + "</cardNumber>"
+				        +   "<cardExpiry>" + payment.CardExpiryMM + payment.CardExpiryYYYY + "</cardExpiry>"
+				        +   "<cvv>" + payment.CardCVV + "</cvv>"
+				        + "</Creditcard>";
+
+				ret     = SendXML(payment.ProviderURL,payment.ProviderUserID,payment.ProviderPassword);
+				payRef  = Tools.XMLNode(xmlResult,"payUReference");
+				d3Form  = Tools.XMLNode(xmlResult,"secure3DUrl");
+
+				if ( ret == 0 && d3Form.Length > 0 )
+				{
+					string sql = "exec sp_WP_PaymentRegister3DSecA @ContractCode="    + Tools.DBString(payment.MerchantReference)
+				              +                                 ",@ReferenceNumber=" + Tools.DBString(payRef)
+				              +                                 ",@Status='77'"; // Means payment pending
+					if ( languageCode.Length > 0 )
+						sql = sql + ",@LanguageCode="        + Tools.DBString(languageCode);
+					if ( languageDialectCode.Length > 0 )
+						sql = sql + ",@LanguageDialectCode=" + Tools.DBString(languageDialectCode);
+					using (MiscList mList = new MiscList())
+						mList.ExecQuery(sql,0,"",false,true);
+					Tools.LogInfo("ThreeDSecurePayment/50","PayRef=" + payRef + "; SQL=" + sql + "; " + d3Form,10,this);
+					return 0;
+				}
+				Tools.LogInfo("ThreeDSecurePayment/60","ResultCode="+ResultCode + ", payRef=" + payRef,221,this);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogException("ThreeDSecurePayment/90","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex,this);
+			}
+			return ret;
+		}
+
 		private static XmlDocument CreateSoapEnvelope(string content)
 		{
 			StringBuilder str = new StringBuilder(soapEnvelope);
@@ -305,8 +371,9 @@ namespace PCIBusiness
 
 		public TransactionPayU() : base()
 		{
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
 			base.LoadBureauDetails(Constants.PaymentProvider.PayU);
-		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.PayU);
 		}
 	}
 }

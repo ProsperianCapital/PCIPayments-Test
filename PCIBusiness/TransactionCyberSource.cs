@@ -394,9 +394,9 @@ namespace PCIBusiness
 			if ( payment == null )
 			{
 				payment              = new Payment();
-				payment.BureauCode   = bureauCode;
+				payment.BureauCode   = BureauCode;
+				payment.ProviderURL  = BureauURL;
 			//	payment.BureauCode   = Tools.BureauCode(Constants.PaymentProvider.CyberSource);
-				payment.ProviderURL  = "https://apitest.cybersource.com";
 			}
 
 //	TESTING
@@ -1061,6 +1061,13 @@ namespace PCIBusiness
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
 			base.LoadBureauDetails(Constants.PaymentProvider.CyberSource);
+		}
+
+		public TransactionCyberSource(string provider) : base()
+		{
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
+			base.LoadBureauDetails((Constants.PaymentProvider)Tools.StringToInt(provider));
 		}
 
 		public TransactionCyberSource(Constants.PaymentProvider provider) : base()

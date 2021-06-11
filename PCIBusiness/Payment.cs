@@ -165,9 +165,9 @@ namespace PCIBusiness
 					return "IcJSjbVloKPQsS5PJrCdGOz8W/pLOBjzO4QVqKG4Ai8=";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "daea1771-d849-4fa4-a648-230a54186964"; // Public key
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) )
-					return "pk_test_51It78gGmZVKtO2iKc4eB6JveDn9HZAWR7F9cbiISEcYHGquyNoqb1YNnSQuzlJlR8maNlTUmaH0pBHHw4tZAOUBc00KZH2PeKW"; // Public key
-
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) ) // Public key
+					return "pk_test_51It78gGmZVKtO2iKXD0LEFRDvEs1Wkld93qRjifDLyWRoOgxXwGDJZzs9i902shBJqEk8v3XYg1WLLdButIK0QfU00xtFyxDQf";
+//					return "pk_test_51It78gGmZVKtO2iKc4eB6JveDn9HZAWR7F9cbiISEcYHGquyNoqb1YNnSQuzlJlR8maNlTUmaH0pBHHw4tZAOUBc00KZH2PeKW";
 				return "";
 			}
 		}
@@ -245,8 +245,9 @@ namespace PCIBusiness
 					return "";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "3790d1d5-4847-43e6-a29a-f22180cc9fda"; // Private/secret key
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) )
-					return "sk_test_51It78gGmZVKtO2iKwt179k2NOmHVUNab70RO7EcbRm7AZmvunvtgD4S0srMXQWIpvj3EAWq7QLJ4kcRIMRHPzPxq00n0dLN01U"; // Secret key
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) ) // Secret key
+					return "sk_test_51It78gGmZVKtO2iKBZF7DA5JisJzRqvibQdXSfBj9eQh4f5UDvgCShZIjznOWCxu8MtcJG5acVkDcd8K184gIegx001uXlHI5g";
+				//	return "sk_test_51It78gGmZVKtO2iKwt179k2NOmHVUNab70RO7EcbRm7AZmvunvtgD4S0srMXQWIpvj3EAWq7QLJ4kcRIMRHPzPxq00n0dLN01U";
 
 				return "";
 			}
@@ -258,6 +259,13 @@ namespace PCIBusiness
 			{
 				if ( Tools.NullToString(providerURL).Length > 0 )
 					return providerURL;
+
+//	Providers where live and test are the same URL
+
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) )
+					return "https://api.stripe.com";
+
+//	Providers where live and test are different
 
 				else if ( Tools.SystemIsLive() )
 				{
@@ -273,11 +281,7 @@ namespace PCIBusiness
 						return "https://secureacceptance.cybersource.com/silent";
 					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 						return "https://api.paymentsos.com";
-//					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) )
-//						return "https://test.stripe.com";
-					return "";
 				}
-
 				return "";
 			}
 		}
@@ -485,6 +489,15 @@ namespace PCIBusiness
 		{
 			get { return  Tools.NullToString(paymentDescription); }
 			set { paymentDescription = value.Trim(); }
+		}
+		public string    PaymentDescriptionLeft(short maxLength)
+		{
+			string h = Tools.NullToString(paymentDescription);
+			if ( h.Length < 1 )
+				h = "CareAssist";
+			if ( maxLength <= 0 || maxLength >= h.Length )
+				return h;
+			return h.Substring(0,maxLength);
 		}
 		public  int      PaymentAmount
 		{
@@ -748,6 +761,8 @@ namespace PCIBusiness
 				sql = "exec sp_Upd_CardTokenVault @MerchantReference = "           + Tools.DBString(merchantReference) // nvarchar(20),
 				                              + ",@PaymentBureauCode = "           + Tools.DBString(bureauCode)        // char(3),
 			                                 + ",@PaymentBureauToken = "          + Tools.DBString(transaction.PaymentToken)
+			                                 + ",@PaymentMethodId = "             + Tools.DBString(transaction.PaymentMethodId)
+			                                 + ",@CustomerId = "                  + Tools.DBString(transaction.CustomerId)
 			                                 + ",@BureauSubmissionSoap = "        + Tools.DBString(transaction.XMLSent,3)
 			                                 + ",@BureauResultSoap = "            + Tools.DBString(transaction.XMLResult,3)
 			                                 + ",@TransactionStatusCode = "       + Tools.DBString(transaction.ResultCode)
@@ -889,6 +904,7 @@ namespace PCIBusiness
 			ccToken         = dbConn.ColString("token",0,0);
 			ccPIN           = dbConn.ColString("PIN",0,0);
 			transactionID   = dbConn.ColString("transactionId",0,0);
+		//	Used by Stripe (bureauCode 028)
 			customerID      = dbConn.ColString("customerId",0,0);
 			paymentMethodID = dbConn.ColString("paymentMethodId",0,0);
 
