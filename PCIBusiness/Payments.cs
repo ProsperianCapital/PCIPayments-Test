@@ -35,9 +35,7 @@ namespace PCIBusiness
 				{
 		  			sql = "exec sp_Get_CardToToken " + Tools.DBString(bureau) + "," + Constants.MaxRowsPayment.ToString();
 					err = ExecuteSQL(null,false,false);
-					if ( err > 0 )
-						Tools.LogException("Summary/10",sql + " failed, return code " + err.ToString(),null,this);
-					else
+					if ( err == 0 )
 						while ( ! dbConn.EOF && tok < Constants.MaxRowsPayment )
 						{
 							if ( pay == 0 && tok == 0 )
@@ -45,13 +43,14 @@ namespace PCIBusiness
 							tok++;
 							dbConn.NextRow();
 						}
+//					else
+//						Tools.LogException("Summary/10",sql + " failed, return code " + err.ToString(),null,this);
+
 					provider.CardsToBeTokenized = tok;
 
 					sql = "exec sp_Get_TokenPayment " + Tools.DBString(bureau) + "," + Constants.MaxRowsPayment.ToString();
 					err = ExecuteSQL(null,false,false);
-					if ( err > 0 )
-						Tools.LogException("Summary/20",sql + " failed, return code " + err.ToString(),null,this);
-					else
+					if ( err == 0 )
 						while ( ! dbConn.EOF && pay < Constants.MaxRowsPayment )
 						{
 							if ( pay == 0 && tok == 0 )
@@ -59,6 +58,9 @@ namespace PCIBusiness
 							pay++;
 							dbConn.NextRow();
 						}
+//					else
+//						Tools.LogException("Summary/20",sql + " failed, return code " + err.ToString(),null,this);
+
 					provider.PaymentsToBeProcessed = pay;
 				}
 				catch (Exception ex)

@@ -865,47 +865,47 @@ namespace PCIBusiness
 
 		//	Payment Provider
 			providerKey       = dbConn.ColString("SafeKey");
-			providerURL       = dbConn.ColString("url");
-			providerAccount   = dbConn.ColString("MerchantAccount",0,0);
-			providerProfileID = dbConn.ColString("MerchantProfileId",0,0);
-			providerUserID    = dbConn.ColString("MerchantUserId",0,0);
+			providerURL       = dbConn.ColString("url"                 ,0,0);
+			providerAccount   = dbConn.ColString("MerchantAccount"     ,0,0);
+			providerProfileID = dbConn.ColString("MerchantProfileId"   ,0,0);
+			providerUserID    = dbConn.ColString("MerchantUserId"      ,0,0);
 			providerPassword  = dbConn.ColString("MerchantUserPassword",0,0);
 
 		//	Customer
 			if ( dbConn.ColStatus("lastName") == Constants.DBColumnStatus.ColumnOK )
 			{
-				firstName     = dbConn.ColUniCode("firstName");
-				lastName      = dbConn.ColUniCode("lastName");
-				email         = dbConn.ColString ("email");
-				phoneCell     = dbConn.ColString ("mobile");
-				regionalId    = dbConn.ColString ("regionalId");
-				address1      = dbConn.ColUniCode("address1");
-				address2      = dbConn.ColUniCode("city");
-				postalCode    = dbConn.ColString ("zip_code");
-				provinceCode  = dbConn.ColString ("state");
-				countryCode   = dbConn.ColString ("countryCode");
-				ipAddress     = dbConn.ColString ("IPAddress",0,0);
+				firstName     = dbConn.ColUniCode("firstName"  ,0,0);
+				lastName      = dbConn.ColUniCode("lastName"   ,0,0);
+				email         = dbConn.ColString ("email"      ,0,0);
+				phoneCell     = dbConn.ColString ("mobile"     ,0,0);
+				regionalId    = dbConn.ColString ("regionalId" ,0,0);
+				address1      = dbConn.ColUniCode("address1"   ,0,0);
+				address2      = dbConn.ColUniCode("city"       ,0,0);
+				postalCode    = dbConn.ColString ("zip_code"   ,0,0);
+				provinceCode  = dbConn.ColString ("state"      ,0,0);
+				countryCode   = dbConn.ColString ("countryCode",0,0);
+				ipAddress     = dbConn.ColString ("IPAddress"  ,0,0);
 			}
 
 		//	Payment
-			merchantReference         = dbConn.ColString("merchantReference",0,0);
+			merchantReference         = dbConn.ColString("merchantReference"        ,0,0);
 			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0,0); // Only really for Ikajo, don't log error
-			paymentAmount             = dbConn.ColLong  ("amountInCents",0,0);
-			currencyCode              = dbConn.ColString("currencyCode",0,0);
-			paymentDescription        = dbConn.ColString("description",0,0);
+			paymentAmount             = dbConn.ColLong  ("amountInCents"            ,0,0);
+			currencyCode              = dbConn.ColString("currencyCode"             ,0,0);
+			paymentDescription        = dbConn.ColString("description"              ,0,0);
 
 		//	Card/token/transaction details, not always present, don't log errors
-			ccName          = dbConn.ColString("nameOnCard",0,0);
-			ccNumber        = dbConn.ColString("cardNumber",0,0);
+			ccName          = dbConn.ColString("nameOnCard"     ,0,0);
+			ccNumber        = dbConn.ColString("cardNumber"     ,0,0);
 			ccExpiryMonth   = dbConn.ColString("cardExpiryMonth",0,0);
-			ccExpiryYear    = dbConn.ColString("cardExpiryYear",0,0);
-			ccType          = dbConn.ColString("cardType",0,0);
-			ccCVV           = dbConn.ColString("cvv",0,0);
-			ccToken         = dbConn.ColString("token",0,0);
-			ccPIN           = dbConn.ColString("PIN",0,0);
-			transactionID   = dbConn.ColString("transactionId",0,0);
+			ccExpiryYear    = dbConn.ColString("cardExpiryYear" ,0,0);
+			ccType          = dbConn.ColString("cardType"       ,0,0);
+			ccCVV           = dbConn.ColString("cvv"            ,0,0);
+			ccToken         = dbConn.ColString("token"          ,0,0);
+			ccPIN           = dbConn.ColString("PIN"            ,0,0);
+			transactionID   = dbConn.ColString("transactionId"  ,0,0);
 		//	Used by Stripe (bureauCode 028)
-			customerID      = dbConn.ColString("customerId",0,0);
+			customerID      = dbConn.ColString("customerId"     ,0,0);
 			paymentMethodID = dbConn.ColString("paymentMethodId",0,0);
 
 		//	Token Provider (if empty, then it is the same as the payment provider)

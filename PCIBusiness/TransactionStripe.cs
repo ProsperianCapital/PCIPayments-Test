@@ -155,7 +155,10 @@ namespace PCIBusiness
 			{
 				ret                        = 20;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
-
+				ret                        = 24;
+				err                        = err + ", customerId="      + Tools.NullToString(payment.CustomerID)
+				                                 + ", paymentMethodId=" + Tools.NullToString(payment.PaymentMethodID)
+				                                 + ", tokenId="         + Tools.NullToString(payment.CardToken);
 				ret                        = 30;
 				var paymentIntentOptions   = new PaymentIntentCreateOptions
 				{
