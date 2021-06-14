@@ -11,7 +11,8 @@ namespace PCIWebRTR
 
 			if ( ! Page.IsPostBack )
 			{
-				lblVersion.Text  = "Version " + SystemDetails.AppVersion;
+				lblVersion.Text  = "Versions " + SystemDetails.AppVersion + " / " + PCIBusiness.SystemDetails.AppVersion;
+			//	lblVersion.Text  = "Version " + SystemDetails.AppVersion;
 				string transRef  = Tools.NullToString(Request["TransRef"]);
 				string hmac      = Tools.NullToString(Request["hmac"]);
 				string msg       = Tools.NullToString(Request["message"]);

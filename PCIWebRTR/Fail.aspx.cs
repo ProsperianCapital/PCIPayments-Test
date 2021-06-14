@@ -11,7 +11,8 @@ namespace PCIWebRTR
 		protected void Page_Load(object sender, EventArgs e)
 		{
 			if ( ! Page.IsPostBack )
-				lblVersion.Text = "Version " + PCIBusiness.SystemDetails.AppVersion;
+			//	lblVersion.Text = "Version " + PCIBusiness.SystemDetails.AppVersion;
+				lblVersion.Text = "Versions " + SystemDetails.AppVersion + " / " + PCIBusiness.SystemDetails.AppVersion;
 		}
 	}
 }

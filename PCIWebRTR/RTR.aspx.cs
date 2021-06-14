@@ -49,7 +49,7 @@ namespace PCIWebRTR
 
 			else
 			{
-				lblVersion.Text = "Version " + SystemDetails.AppVersion;
+				lblVersion.Text = "Versions " + SystemDetails.AppVersion + " (app), " + PCIBusiness.SystemDetails.AppVersion + " (DLL)";
 				userCode        = Tools.ObjectToString(Request["UserCode"]);
 				string ref1     = Tools.ObjectToString(Request.UrlReferrer);
 				string ref2     = Tools.ObjectToString(Request.Headers["Referer"]); // Yes, this is spelt CORRECTLY! Do not change
