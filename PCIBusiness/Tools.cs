@@ -1402,14 +1402,16 @@ namespace PCIBusiness
 		public static string MaskCardNumber(string cardNo)
 		{
 			cardNo = NullToString(cardNo);
+			if ( cardNo.Length >= 20 )
+				return cardNo.Substring(0,6) + "********" + cardNo.Substring(14);
 			if ( cardNo.Length >= 13 )
-				return cardNo.Substring(0,6) + "******" + cardNo.Substring(12);
+				return cardNo.Substring(0,6) + "******"   + cardNo.Substring(12);
 			if ( cardNo.Length >= 11 )
-				return cardNo.Substring(0,6) + "****"   + cardNo.Substring(10);
+				return cardNo.Substring(0,6) + "****"     + cardNo.Substring(10);
 			if ( cardNo.Length >=  9 )
-				return cardNo.Substring(0,4) + "****"   + cardNo.Substring( 8);
+				return cardNo.Substring(0,4) + "****"     + cardNo.Substring( 8);
 			if ( cardNo.Length >=  5 )
-				return cardNo.Substring(0,2) + "**"     + cardNo.Substring( 4);
+				return cardNo.Substring(0,2) + "**"       + cardNo.Substring( 4);
 			if ( cardNo.Length >=  1 )
 				return cardNo.Substring(0,1) + "****";
 			return "";
@@ -1676,6 +1678,9 @@ namespace PCIBusiness
 				}
 			return "";
 		}
+
+//		public static string LoadChat(string productCode)
+//		{
 
 		public static string LoadChat(string productCode)
 		{

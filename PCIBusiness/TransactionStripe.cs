@@ -37,6 +37,7 @@ namespace PCIBusiness
 			{
 				ret                        = 20;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
+				err                        = err + ", apiKey="+Tools.MaskCardNumber(payment.ProviderPassword);
 
 				ret                        = 30;
 				var tokenOptions           = new TokenCreateOptions
@@ -123,7 +124,7 @@ namespace PCIBusiness
 				{
 					resultMsg = "succeeded";
 					ret       = 0;
-					Tools.LogInfo ("GetToken/189","Ret=0"+err,255,this);
+					Tools.LogInfo ("GetToken/189","Ret=0"                 + err,231,this);
 				}
 				else
 					Tools.LogInfo ("GetToken/197","Ret=" + ret.ToString() + err,231,this);
@@ -131,7 +132,7 @@ namespace PCIBusiness
 			catch (Exception ex)
 			{
 				err = "Ret=" + ret.ToString() + err;
-				Tools.LogInfo     ("GetToken/198",err,255,this);
+				Tools.LogInfo     ("GetToken/198",err,231,this);
 				Tools.LogException("GetToken/199",err,ex ,this);
 			}
 			return ret;
@@ -156,7 +157,8 @@ namespace PCIBusiness
 				ret                        = 20;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
 				ret                        = 24;
-				err                        = err + ", customerId="      + Tools.NullToString(payment.CustomerID)
+				err                        = err + ", apiKey="          + Tools.MaskCardNumber(payment.ProviderPassword)
+				                                 + ", customerId="      + Tools.NullToString(payment.CustomerID)
 				                                 + ", paymentMethodId=" + Tools.NullToString(payment.PaymentMethodID)
 				                                 + ", tokenId="         + Tools.NullToString(payment.CardToken);
 				ret                        = 30;
@@ -220,7 +222,7 @@ namespace PCIBusiness
 				if ( resultCode.StartsWith("2") && payRef.Length > 0 )
 				{
 					ret = 0;
-					Tools.LogInfo ("TokenPayment/189","Ret=0"+err,255,this);
+					Tools.LogInfo ("TokenPayment/189","Ret=0"                 + err,231,this);
 				}
 				else
 					Tools.LogInfo ("TokenPayment/197","Ret=" + ret.ToString() + err,231,this);
@@ -228,7 +230,7 @@ namespace PCIBusiness
 			catch (Exception ex)
 			{
 				err = "Ret=" + ret.ToString() + err;
-				Tools.LogInfo     ("TokenPayment/198",err,255,this);
+				Tools.LogInfo     ("TokenPayment/198",err,231,this);
 				Tools.LogException("TokenPayment/199",err,ex ,this);
 			}
 			return ret;
