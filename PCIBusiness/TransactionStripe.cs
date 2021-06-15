@@ -11,15 +11,6 @@ namespace PCIBusiness
 	//	private string customerId;
 	//	private string paymentMethodId;
 
-	//	public  string CustomerId
-	//	{
-	//		get { return Tools.NullToString(customerId); }
-	//	}
-	//	public  string PaymentMethodId
-	//	{
-	//		get { return Tools.NullToString(paymentMethodId); }
-	//	}
-
 		public override int GetToken(Payment payment)
 		{
 			int ret         = 10;
@@ -125,7 +116,7 @@ namespace PCIBusiness
 				{
 					resultMsg = "succeeded";
 					ret       = 0;
-					Tools.LogInfo ("GetToken/189","Ret=0"                 + err,255,this);
+				//	Tools.LogInfo ("GetToken/189","Ret=0"                 + err,255,this);
 				}
 				else
 					Tools.LogInfo ("GetToken/197","Ret=" + ret.ToString() + err,231,this);
@@ -225,7 +216,7 @@ namespace PCIBusiness
 				if ( resultCode.StartsWith("2") && payRef.Length > 0 )
 				{
 					ret = 0;
-					Tools.LogInfo ("TokenPayment/189","Ret=0"                 + err,255,this);
+				//	Tools.LogInfo ("TokenPayment/189","Ret=0"                 + err,255,this);
 				}
 				else
 					Tools.LogInfo ("TokenPayment/197","Ret=" + ret.ToString() + err,231,this);
