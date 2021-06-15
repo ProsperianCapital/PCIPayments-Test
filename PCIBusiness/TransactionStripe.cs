@@ -37,7 +37,8 @@ namespace PCIBusiness
 			{
 				ret                        = 20;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
-				err                        = err + ", apiKey="+Tools.MaskCardNumber(payment.ProviderPassword);
+//	Testing
+//				err                        = err + ", apiKey="+Tools.MaskCardNumber(payment.ProviderPassword);
 
 				ret                        = 30;
 				var tokenOptions           = new TokenCreateOptions
@@ -124,7 +125,7 @@ namespace PCIBusiness
 				{
 					resultMsg = "succeeded";
 					ret       = 0;
-					Tools.LogInfo ("GetToken/189","Ret=0"                 + err,231,this);
+					Tools.LogInfo ("GetToken/189","Ret=0"                 + err,255,this);
 				}
 				else
 					Tools.LogInfo ("GetToken/197","Ret=" + ret.ToString() + err,231,this);
@@ -156,9 +157,11 @@ namespace PCIBusiness
 			{
 				ret                        = 20;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
+//	Testing
+//				err                        = err + ", apiKey="+Tools.MaskCardNumber(payment.ProviderPassword);
+
 				ret                        = 24;
-				err                        = err + ", apiKey="          + Tools.MaskCardNumber(payment.ProviderPassword)
-				                                 + ", customerId="      + Tools.NullToString(payment.CustomerID)
+				err                        = err + ", customerId="      + Tools.NullToString(payment.CustomerID)
 				                                 + ", paymentMethodId=" + Tools.NullToString(payment.PaymentMethodID)
 				                                 + ", tokenId="         + Tools.NullToString(payment.CardToken);
 				ret                        = 30;
@@ -222,7 +225,7 @@ namespace PCIBusiness
 				if ( resultCode.StartsWith("2") && payRef.Length > 0 )
 				{
 					ret = 0;
-					Tools.LogInfo ("TokenPayment/189","Ret=0"                 + err,231,this);
+					Tools.LogInfo ("TokenPayment/189","Ret=0"                 + err,255,this);
 				}
 				else
 					Tools.LogInfo ("TokenPayment/197","Ret=" + ret.ToString() + err,231,this);
