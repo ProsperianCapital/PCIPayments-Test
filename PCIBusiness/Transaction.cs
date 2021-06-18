@@ -225,6 +225,8 @@ namespace PCIBusiness
 					bureauURL = "https://oppwa.com/v1";
 				else if ( bureau == Constants.PaymentProvider.PayGate )
 					bureauURL = "https://secure.paygate.co.za/payhost/process.trans";
+				else if ( bureau == Constants.PaymentProvider.PayU )
+					bureauURL = "https://secure.payu.co.za";
 				else if ( bureau == Constants.PaymentProvider.TokenEx )
 					bureauURL = "https://api.tokenex.com";
 				else if ( bureau == Constants.PaymentProvider.FNB )

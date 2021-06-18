@@ -266,21 +266,29 @@ namespace PCIBusiness
 					return "https://api.stripe.com";
 
 //	Providers where live and test are different
-
+//	LIVE
 				else if ( Tools.SystemIsLive() )
 				{
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
 						return "https://api.nets.com.sg/GW2/TxnReqListener";
-					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
 						return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl";
-					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
 						return "https://secure.paygate.co.za/payhost/process.trans";
-					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
 						return "https://secureacceptance.cybersource.com/silent";
-					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource_Moto) )
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource_Moto) )
 						return "https://secureacceptance.cybersource.com/silent";
-					else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 						return "https://api.paymentsos.com";
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
+						return "https://secure.payu.co.za";
+				}
+//	TEST
+				else
+				{
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
+						return "https://staging.payu.co.za";
 				}
 				return "";
 			}
@@ -395,6 +403,7 @@ namespace PCIBusiness
 		public string    RegionalId
 		{
 			get { return  Tools.NullToString(regionalId); }
+			set { regionalId = value.Trim(); }
 		}
 		public string    Address1(byte mode=0)
 		{
