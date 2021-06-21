@@ -135,27 +135,27 @@ namespace PCIBusiness
 			if ( ! EnabledFor3d(payment.TransactionType) )
 				return 590;
 
-			int ret    = 10;
+			int ret    = 610;
 			payRef     = "";
 			strResult  = "";
 			err        = "";
-			resultMsg  = "failed";
+			resultMsg  = "Fail";
 			resultCode = "981";
 
 			Tools.LogInfo("TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 			try
 			{
-				ret                        = 20;
+				ret                        = 620;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
 //	Testing
 //				err                        = err + ", apiKey="+Tools.MaskCardNumber(payment.ProviderPassword);
 
-				ret                        = 24;
+				ret                        = 624;
 				err                        = err + ", customerId="      + Tools.NullToString(payment.CustomerID)
 				                                 + ", paymentMethodId=" + Tools.NullToString(payment.PaymentMethodID)
 				                                 + ", tokenId="         + Tools.NullToString(payment.CardToken);
-				ret                        = 30;
+				ret                        = 630;
 				var paymentIntentOptions   = new PaymentIntentCreateOptions
 				{
 					Amount              = payment.PaymentAmount,
@@ -172,31 +172,32 @@ namespace PCIBusiness
 //						Type = "card"
 //					},
 				};
-				ret                      = 40;
+				ret                      = 640;
 				var paymentIntentService = new PaymentIntentService();
 				var paymentIntent        = paymentIntentService.Create(paymentIntentOptions);	
 				err                      = err + ", paymentIntentId="+Tools.NullToString(paymentIntent.Id);
 
-				ret                  = 50;
+				ret                  = 650;
 				var confirmOptions   = new PaymentIntentConfirmOptions
 				{
 					PaymentMethod     = payment.PaymentMethodID
 				};
-				ret                  = 60;
+				ret                  = 660;
 				var paymentConfirm   = paymentIntentService.Confirm(paymentIntent.Id,confirmOptions);
 				payRef               = paymentConfirm.Id;
 				err                  = err + ", paymentConfirmId="+Tools.NullToString(payRef);
 
-				ret                  = 70;
+				ret                  = 670;
 				strResult            = paymentConfirm.StripeResponse.Content;
 				resultMsg            = Tools.JSONValue(strResult,"status");
 				resultCode           = paymentConfirm.StripeResponse.ToString();
 				int k                = resultCode.ToUpper().IndexOf(" STATUS=");
-				ret                  = 80;
+				ret                  = 680;
 				err                  = err + ", StripeResponse="+Tools.NullToString(resultCode);
 
 				if ( k > 0 )
 				{
+					ret        = 685;
 					resultCode = resultCode.Substring(k+8).Trim();
 					k          = resultCode.IndexOf(" ");
 					if ( k > 0 )
@@ -205,7 +206,7 @@ namespace PCIBusiness
 				else
 					resultCode = "989";
 
-				ret                  = 120;
+				ret                  = 690;
 				err                  = err + ", strResult=" +Tools.NullToString(strResult)
 				                           + ", resultCode="+Tools.NullToString(resultCode);
 				paymentIntentService = null;
@@ -215,15 +216,23 @@ namespace PCIBusiness
 
 				if ( resultCode.StartsWith("2") && payRef.Length > 0 )
 				{
-					ret = 0;
-				//	Tools.LogInfo ("TokenPayment/189","Ret=0"                 + err,255,this);
+					ret        = 0;
+					resultCode = "Success";
+				//	resultCode = "Success/" + resultCode;
+				//	Tools.LogInfo ("TokenPayment/189","Ret=0" + err,255,this);
 				}
 				else
+				{
+					resultCode = ( resultMsg.Length > 0 ? resultMsg : "Fail" );
+				//	resultCode = "Fail/" + resultCode + ( resultMsg.Length > 0 ? " : " + resultMsg : "" );
 					Tools.LogInfo ("TokenPayment/197","Ret=" + ret.ToString() + err,231,this);
+				}
 			}
 			catch (Exception ex)
 			{
-				err = "Ret=" + ret.ToString() + err;
+				resultCode = ex.Message;
+			//	resultCode = "Fail/" + ret.ToString() + " : " + ex.Message + ( resultMsg.Length > 0 ? " (" + resultMsg + ")" : "" );
+				err       = "Ret=" + ret.ToString() + err;
 				Tools.LogInfo     ("TokenPayment/198",err,231,this);
 				Tools.LogException("TokenPayment/199",err,ex ,this);
 			}
