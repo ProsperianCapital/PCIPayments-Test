@@ -223,12 +223,14 @@ namespace PCIBusiness
 				}
 				catch (Exception ex)
 				{
+					fail++;
+					rowsDone++;
 					Tools.LogException("ProcessCards/50","Iteration " + iter.ToString() + ", " + desc + " " + (success+fail).ToString(),ex,this);
 				}
 				finally
 				{
 					Tools.CloseDB(ref dbConn);
-					Tools.LogInfo("ProcessCards/90","Finished (" + success.ToString() + " " + desc + "s succeeded, " + fail.ToString() + " "+ desc + "s failed)",199,this);
+					Tools.LogInfo("ProcessCards/90","Finished (" + success.ToString() + " " + desc + "s succeeded, " + fail.ToString() + " " + desc + "s failed)",199,this);
 				}
 
 			return success+fail;

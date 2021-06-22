@@ -39,6 +39,11 @@ namespace PCIBusiness
 		private string   ccPIN;
 		private string   ccToken;
 
+//	Contract/mandate for payment
+		private string   mandateDateTime;
+		private string   mandateIPAddress;
+		private string   mandateBrowser;
+
 //	Payment Provider (eg. Peach)
 		private string   bureauCode;
 		private string   providerAccount;
@@ -87,6 +92,31 @@ namespace PCIBusiness
 //			get { return  Tools.NullToString(tokenizerURL); }
 //			set { tokenizerURL = Tools.NullToString(value); }
 //		}
+
+		public DateTime  MandateDateTime
+		{
+			get
+			{
+				try
+				{
+					DateTime x = System.Convert.ToDateTime(mandateDateTime);
+					if ( x < new DateTime(1950,01,01) || x > System.DateTime.Now.AddDays(1) )
+						return Constants.DateNull;
+					return x;
+				}
+				catch
+				{ }
+				return Constants.DateNull;
+			}
+		}
+		public string    MandateIPAddress
+		{
+			get { return  Tools.NullToString(mandateIPAddress); }
+		}
+		public string    MandateBrowser
+		{
+			get { return  Tools.NullToString(mandateBrowser); }
+		}
 
 //		Stripe stuff
 		public string    CustomerID
@@ -904,18 +934,31 @@ namespace PCIBusiness
 			paymentDescription        = dbConn.ColString("description"              ,0,0);
 
 		//	Card/token/transaction details, not always present, don't log errors
-			ccName          = dbConn.ColString("nameOnCard"     ,0,0);
-			ccNumber        = dbConn.ColString("cardNumber"     ,0,0);
-			ccExpiryMonth   = dbConn.ColString("cardExpiryMonth",0,0);
-			ccExpiryYear    = dbConn.ColString("cardExpiryYear" ,0,0);
-			ccType          = dbConn.ColString("cardType"       ,0,0);
-			ccCVV           = dbConn.ColString("cvv"            ,0,0);
-			ccToken         = dbConn.ColString("token"          ,0,0);
-			ccPIN           = dbConn.ColString("PIN"            ,0,0);
-			transactionID   = dbConn.ColString("transactionId"  ,0,0);
+			ccName           = dbConn.ColString("nameOnCard"     ,0,0);
+			ccNumber         = dbConn.ColString("cardNumber"     ,0,0);
+			ccExpiryMonth    = dbConn.ColString("cardExpiryMonth",0,0);
+			ccExpiryYear     = dbConn.ColString("cardExpiryYear" ,0,0);
+			ccType           = dbConn.ColString("cardType"       ,0,0);
+			ccCVV            = dbConn.ColString("cvv"            ,0,0);
+			ccToken          = dbConn.ColString("token"          ,0,0);
+			ccPIN            = dbConn.ColString("PIN"            ,0,0);
+			transactionID    = dbConn.ColString("transactionId"  ,0,0);
 		//	Used by Stripe (bureauCode 028)
-			customerID      = dbConn.ColString("customerId"     ,0,0);
-			paymentMethodID = dbConn.ColString("paymentMethodId",0,0);
+			customerID       = dbConn.ColString("customerId"     ,0,0);
+			paymentMethodID  = dbConn.ColString("paymentMethodId",0,0);
+
+		//	Contract/customer mandate
+//			mandateDateTime  = dbConn.ColString("X",0,0);
+//			mandateIPAddress = dbConn.ColString("X",0,0);
+//			mandateBrowser   = dbConn.ColString("X",0,0);
+//	Not yet implemented
+			mandateDateTime  = "2999/12/31 23:59:59";
+			mandateIPAddress = "";
+			mandateBrowser   = "";
+//	Testing
+//			mandateDateTime  = "2019/12/31 23:59:59";
+//			mandateIPAddress = "10.0.231.45";
+//			mandateBrowser   = "FireFox 89.0.1";
 
 		//	Token Provider (if empty, then it is the same as the payment provider)
 			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )

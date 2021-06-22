@@ -20,7 +20,7 @@ namespace PCIBusiness
 			paymentMethodId = "";
 			strResult       = "";
 			resultCode      = "991";
-			resultMsg       = "failed";
+			resultMsg       = "Fail";
 
 			Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
@@ -28,8 +28,6 @@ namespace PCIBusiness
 			{
 				ret                        = 20;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
-//	Testing
-//				err                        = err + ", apiKey="+Tools.MaskCardNumber(payment.ProviderPassword);
 
 				ret                        = 30;
 				var tokenOptions           = new TokenCreateOptions
@@ -69,7 +67,7 @@ namespace PCIBusiness
 					Name          = payment.CardName, // (payment.FirstName + " " + payment.LastName).Trim(),
 					Email         = payment.EMail,
 					Phone         = payment.PhoneCell,
-					PaymentMethod = paymentMethod.Id,
+					PaymentMethod = paymentMethod.Id
 				};
 				ret                  = 80;
 				var customerService  = new CustomerService();
@@ -114,7 +112,7 @@ namespace PCIBusiness
 
 				if ( resultCode.StartsWith("2") && payToken.Length > 0 && paymentMethodId.Length > 0 && customerId.Length > 0 )
 				{
-					resultMsg = "succeeded";
+					resultMsg = "Success";
 					ret       = 0;
 				//	Tools.LogInfo ("GetToken/189","Ret=0"                 + err,255,this);
 				}
@@ -148,8 +146,6 @@ namespace PCIBusiness
 			{
 				ret                        = 620;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
-//	Testing
-//				err                        = err + ", apiKey="+Tools.MaskCardNumber(payment.ProviderPassword);
 
 				ret                        = 624;
 				err                        = err + ", customerId="      + Tools.NullToString(payment.CustomerID)
@@ -172,32 +168,87 @@ namespace PCIBusiness
 //						Type = "card"
 //					},
 				};
-				ret                      = 640;
+
+//	Create a separate mandate
+//				string mandateId = "";
+//				if ( payment.MandateDateTime > Constants.DateNull && payment.MandateIPAddress.Length > 2 )
+//				{
+//					ret         = 640;
+//					var mandate = new Mandate
+//					{
+//						CustomerAcceptance = new MandateCustomerAcceptance
+//						{
+//							AcceptedAt = payment.MandateDateTime,
+//							Online     = new MandateCustomerAcceptanceOnline
+//							{
+//								IpAddress = payment.MandateIPAddress,
+//								UserAgent = payment.MandateBrowser
+//							}
+//						}
+//					};
+//					mandateId = mandate.Id;
+//					err       = err + ", mandateId="+Tools.NullToString(mandateId);
+//				}
+//				else
+//					err       = err + ", No mandate";
+
+				ret                      = 690;
 				var paymentIntentService = new PaymentIntentService();
 				var paymentIntent        = paymentIntentService.Create(paymentIntentOptions);	
 				err                      = err + ", paymentIntentId="+Tools.NullToString(paymentIntent.Id);
 
-				ret                  = 650;
-				var confirmOptions   = new PaymentIntentConfirmOptions
+				ret                = 700;
+				var confirmOptions = new PaymentIntentConfirmOptions
 				{
-					PaymentMethod     = payment.PaymentMethodID
+					PaymentMethod = payment.PaymentMethodID,
+					OffSession    = true
+//					Mandate       = mandateId
+//					MandateData   = new PaymentIntentMandateDataOptions
+//					{
+//						CustomerAcceptance = new PaymentIntentMandateDataCustomerAcceptanceOptions
+//						{
+//							AcceptedAt = payment.MandateDateTime,
+//							Online     = new PaymentIntentMandateDataCustomerAcceptanceOnlineOptions
+//							{
+//								IpAddress = payment.MandateIPAddress,
+//								UserAgent = payment.MandateBrowser
+//							}
+//						}
+//					}
 				};
-				ret                  = 660;
-				var paymentConfirm   = paymentIntentService.Confirm(paymentIntent.Id,confirmOptions);
-				payRef               = paymentConfirm.Id;
-				err                  = err + ", paymentConfirmId="+Tools.NullToString(payRef);
 
-				ret                  = 670;
-				strResult            = paymentConfirm.StripeResponse.Content;
-				resultMsg            = Tools.JSONValue(strResult,"status");
-				resultCode           = paymentConfirm.StripeResponse.ToString();
-				int k                = resultCode.ToUpper().IndexOf(" STATUS=");
-				ret                  = 680;
-				err                  = err + ", StripeResponse="+Tools.NullToString(resultCode);
+				ret = 710;
+				if ( payment.MandateDateTime > Constants.DateNull && payment.MandateIPAddress.Length > 2 )
+					confirmOptions.MandateData = new PaymentIntentMandateDataOptions
+					{
+						CustomerAcceptance = new PaymentIntentMandateDataCustomerAcceptanceOptions
+						{
+							AcceptedAt = payment.MandateDateTime,
+							Type       = "online",
+							Online     = new PaymentIntentMandateDataCustomerAcceptanceOnlineOptions
+							{
+								IpAddress = payment.MandateIPAddress,
+								UserAgent = payment.MandateBrowser
+							}
+						}
+					};
+
+				ret                = 720;
+				var paymentConfirm = paymentIntentService.Confirm(paymentIntent.Id,confirmOptions);
+				payRef             = paymentConfirm.Id;
+				err                = err + ", paymentConfirmId="+Tools.NullToString(payRef);
+
+				ret                = 730;
+				strResult          = paymentConfirm.StripeResponse.Content;
+				resultMsg          = Tools.JSONValue(strResult,"status");
+				resultCode         = paymentConfirm.StripeResponse.ToString();
+				int k              = resultCode.ToUpper().IndexOf(" STATUS=");
+				ret                = 740;
+				err                = err + ", StripeResponse="+Tools.NullToString(resultCode);
 
 				if ( k > 0 )
 				{
-					ret        = 685;
+					ret        = 750;
 					resultCode = resultCode.Substring(k+8).Trim();
 					k          = resultCode.IndexOf(" ");
 					if ( k > 0 )
@@ -206,15 +257,22 @@ namespace PCIBusiness
 				else
 					resultCode = "989";
 
-				ret                  = 690;
+				ret                  = 760;
 				err                  = err + ", strResult=" +Tools.NullToString(strResult)
 				                           + ", resultCode="+Tools.NullToString(resultCode);
+//				mandate              = null;
 				paymentIntentService = null;
 				paymentIntent        = null;
 				confirmOptions       = null;
 				paymentConfirm       = null;
 
-				if ( resultCode.StartsWith("2") && payRef.Length > 0 )
+				if ( ! resultCode.StartsWith("2") || payRef.Length < 1 )
+				{
+					resultCode = ( resultMsg.Length > 0 ? resultMsg : "Fail" );
+				//	resultCode = "Fail/" + resultCode + ( resultMsg.Length > 0 ? " : " + resultMsg : "" );
+					Tools.LogInfo ("TokenPayment/197","Ret=" + ret.ToString() + err,231,this);
+				}
+				else if ( resultMsg.ToUpper().StartsWith("SUCCE") || resultMsg.Length == 0 )
 				{
 					ret        = 0;
 					resultCode = "Success";
@@ -222,17 +280,13 @@ namespace PCIBusiness
 				//	Tools.LogInfo ("TokenPayment/189","Ret=0" + err,255,this);
 				}
 				else
-				{
-					resultCode = ( resultMsg.Length > 0 ? resultMsg : "Fail" );
-				//	resultCode = "Fail/" + resultCode + ( resultMsg.Length > 0 ? " : " + resultMsg : "" );
-					Tools.LogInfo ("TokenPayment/197","Ret=" + ret.ToString() + err,231,this);
-				}
+					resultCode = resultMsg;
 			}
 			catch (Exception ex)
 			{
 				resultCode = ex.Message;
 			//	resultCode = "Fail/" + ret.ToString() + " : " + ex.Message + ( resultMsg.Length > 0 ? " (" + resultMsg + ")" : "" );
-				err       = "Ret=" + ret.ToString() + err;
+				err        = "Ret=" + ret.ToString() + err;
 				Tools.LogInfo     ("TokenPayment/198",err,231,this);
 				Tools.LogException("TokenPayment/199",err,ex ,this);
 			}
@@ -289,7 +343,7 @@ namespace PCIBusiness
 				ret                        = 10050;
 				resultCode                 = paymentIntent.Status;
 				ret                        = 10060;
-				if ( resultCode.ToUpper() == "SUCCEEDED" )
+				if ( resultCode.ToUpper().StartsWith("SUCCE") )
 				{
 					resultMsg = "Payment successful";
 					return 0;
