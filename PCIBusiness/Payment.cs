@@ -24,7 +24,7 @@ namespace PCIBusiness
 		private string   regionalId;
 		private string   email;
 		private string   phoneCell;
-		private string   ipAddress;
+//		private string   ipAddress;
 		private int      paymentAmount;
 //		private byte     paymentStatus;
 		private string   paymentDescription;
@@ -99,7 +99,7 @@ namespace PCIBusiness
 			{
 				return mandateDateTime;
 
-//	This code was in case the date/time was returned as string
+//	This code was in case the mandate date/time was returned as string
 //				try
 //				{
 //					DateTime x = System.Convert.ToDateTime(mandateDateTime);
@@ -276,11 +276,12 @@ namespace PCIBusiness
 					return providerPassword;
 				else if ( Tools.SystemIsLive() )
 					return "";
+
+//	Testing
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "3790d1d5-4847-43e6-a29a-f22180cc9fda"; // Private/secret key
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe) ) // Secret key
 					return "sk_test_51It78gGmZVKtO2iKBZF7DA5JisJzRqvibQdXSfBj9eQh4f5UDvgCShZIjznOWCxu8MtcJG5acVkDcd8K184gIegx001uXlHI5g";
-				//	return "sk_test_51It78gGmZVKtO2iKwt179k2NOmHVUNab70RO7EcbRm7AZmvunvtgD4S0srMXQWIpvj3EAWq7QLJ4kcRIMRHPzPxq00n0dLN01U";
 
 				return "";
 			}
@@ -317,7 +318,7 @@ namespace PCIBusiness
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
 						return "https://secure.payu.co.za";
 				}
-//	TEST
+//	TESTING
 				else
 				{
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
@@ -518,14 +519,14 @@ namespace PCIBusiness
 //		{
 //			get { return  Tools.NullToString(authorizationCode); }
 //		}
+//		public string    IPAddress
+//		{
+//			get { return  Tools.NullToString(ipAddress); }
+//		}
 		public string    CurrencyCode
 		{
 			get { return  Tools.NullToString(currencyCode); }
 			set { currencyCode = value.Trim().ToUpper(); }
-		}
-		public string    IPAddress
-		{
-			get { return  Tools.NullToString(ipAddress); }
 		}
 		public string    PaymentDescription
 		{
@@ -926,7 +927,7 @@ namespace PCIBusiness
 				postalCode    = dbConn.ColString ("zip_code"   ,0,0);
 				provinceCode  = dbConn.ColString ("state"      ,0,0);
 				countryCode   = dbConn.ColString ("countryCode",0,0);
-				ipAddress     = dbConn.ColString ("IPAddress"  ,0,0);
+			//	ipAddress     = dbConn.ColString ("IPAddress"  ,0,0);
 			}
 
 		//	Payment

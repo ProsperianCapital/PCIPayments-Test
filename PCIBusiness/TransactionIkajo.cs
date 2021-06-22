@@ -39,7 +39,7 @@ namespace PCIBusiness
 				                              + Tools.XMLSafe(payment.Address2())                         
 				                              + Tools.XMLSafe(payment.CountryCode())                      
 				                              + Tools.XMLSafe(payment.EMail)                            
-				                              + Tools.XMLSafe(payment.IPAddress)                          
+				                              + Tools.XMLSafe(payment.MandateIPAddress)                          
 				                              + Tools.XMLSafe(payment.FirstName+" "+payment.LastName)   
 				                              + Tools.XMLSafe(payment.PhoneCell)                        
 				                              + Tools.XMLSafe(payment.State)                            
@@ -64,7 +64,7 @@ namespace PCIBusiness
 				saleReq.customerCity         = Tools.XMLSafe(payment.Address2());
 				saleReq.customerCountry      = Tools.XMLSafe(payment.CountryCode());
 				saleReq.customerEmail        = Tools.XMLSafe(payment.EMail);
-				saleReq.customerIP           = Tools.XMLSafe(payment.IPAddress);
+				saleReq.customerIP           = Tools.XMLSafe(payment.MandateIPAddress);
 				saleReq.customerName         = Tools.XMLSafe(payment.FirstName+" "+payment.LastName);
 				saleReq.customerPhoneNumber  = Tools.XMLSafe(payment.PhoneCell);
 				saleReq.customerState        = Tools.XMLSafe(payment.State);
@@ -85,9 +85,9 @@ namespace PCIBusiness
 
 				PCIBusiness.IkajoService.SaleResult result = ikajo.sale(saleReq);
 				string                              x      = "[TokenResult] StatusCode=" + result.statusCode
-				                                                     + " | TransactionStatus=" + result.transactionStatus
-				                                                     + " | TransactionError=" + result.transactionError
-				                                                     + " | RecurringToken=" + result.recurringToken;
+				                                                      + " | TransactionStatus=" + result.transactionStatus
+				                                                      + " | TransactionError=" + result.transactionError
+				                                                      + " | RecurringToken=" + result.recurringToken;
 
 				Tools.LogInfo("TransactionIkajo.GetToken/30",x,10);
 
