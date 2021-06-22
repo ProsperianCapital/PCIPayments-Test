@@ -217,8 +217,9 @@ namespace PCIBusiness
 //					}
 				};
 
-				ret = 710;
 				if ( payment.MandateDateTime > Constants.DateNull && payment.MandateIPAddress.Length > 2 )
+				{
+					ret = 710;
 					confirmOptions.MandateData = new PaymentIntentMandateDataOptions
 					{
 						CustomerAcceptance = new PaymentIntentMandateDataCustomerAcceptanceOptions
@@ -232,6 +233,7 @@ namespace PCIBusiness
 							}
 						}
 					};
+				}
 
 				ret                = 720;
 				var paymentConfirm = paymentIntentService.Confirm(paymentIntent.Id,confirmOptions);

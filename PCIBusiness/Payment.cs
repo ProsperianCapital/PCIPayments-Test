@@ -40,7 +40,7 @@ namespace PCIBusiness
 		private string   ccToken;
 
 //	Contract/mandate for payment
-		private string   mandateDateTime;
+		private DateTime mandateDateTime;
 		private string   mandateIPAddress;
 		private string   mandateBrowser;
 
@@ -97,16 +97,19 @@ namespace PCIBusiness
 		{
 			get
 			{
-				try
-				{
-					DateTime x = System.Convert.ToDateTime(mandateDateTime);
-					if ( x < new DateTime(1950,01,01) || x > System.DateTime.Now.AddDays(1) )
-						return Constants.DateNull;
-					return x;
-				}
-				catch
-				{ }
-				return Constants.DateNull;
+				return mandateDateTime;
+
+//	This code was in case the date/time was returned as string
+//				try
+//				{
+//					DateTime x = System.Convert.ToDateTime(mandateDateTime);
+//					if ( x < new DateTime(1950,01,01) || x > System.DateTime.Now.AddDays(1) )
+//						return Constants.DateNull;
+//					return x;
+//				}
+//				catch
+//				{ }
+//				return Constants.DateNull;
 			}
 		}
 		public string    MandateIPAddress
@@ -948,13 +951,9 @@ namespace PCIBusiness
 			paymentMethodID  = dbConn.ColString("paymentMethodId",0,0);
 
 		//	Contract/customer mandate
-//			mandateDateTime  = dbConn.ColString("X",0,0);
-//			mandateIPAddress = dbConn.ColString("X",0,0);
-//			mandateBrowser   = dbConn.ColString("X",0,0);
-//	Not yet implemented
-			mandateDateTime  = "2999/12/31 23:59:59";
-			mandateIPAddress = "";
-			mandateBrowser   = "";
+			mandateDateTime  = dbConn.ColDate  ("ContractDate"   ,0,0);
+			mandateIPAddress = dbConn.ColString("IPAddres"       ,0,0);
+			mandateBrowser   = dbConn.ColString("Browser"        ,0,0);
 //	Testing
 //			mandateDateTime  = "2019/12/31 23:59:59";
 //			mandateIPAddress = "10.0.231.45";
