@@ -478,7 +478,17 @@ namespace PCIBusiness
 
 		public TransactionStripe() : base()
 		{
-			base.LoadBureauDetails(Constants.PaymentProvider.Stripe);
+			base.LoadBureauDetails(Constants.PaymentProvider.Stripe_USA);
+			err = "";
+		}
+		public TransactionStripe(string provider) : base()
+		{
+			base.LoadBureauDetails((Constants.PaymentProvider)Tools.StringToInt(provider));
+			err = "";
+		}
+		public TransactionStripe(Constants.PaymentProvider provider) : base()
+		{
+			base.LoadBureauDetails(provider);
 			err = "";
 		}
 	}

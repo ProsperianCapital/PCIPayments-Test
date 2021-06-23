@@ -71,7 +71,9 @@ namespace PCIBusiness
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)       ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)    ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx)     ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe)      ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA)  ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_EU)   ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_Asia) ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource_Moto) )
 						bureauStatus = 3; // Live

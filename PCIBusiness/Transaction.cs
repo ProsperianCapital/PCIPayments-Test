@@ -264,7 +264,9 @@ namespace PCIBusiness
 
 //	Providers where live and test are the same URL
 
-			if ( bureau == Constants.PaymentProvider.Stripe )
+			if ( bureau == Constants.PaymentProvider.Stripe_USA ||
+			     bureau == Constants.PaymentProvider.Stripe_EU  ||
+			     bureau == Constants.PaymentProvider.Stripe_Asia )
 				bureauURL = "https://api.stripe.com";
 		}
 

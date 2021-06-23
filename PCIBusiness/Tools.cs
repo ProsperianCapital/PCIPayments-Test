@@ -1638,7 +1638,9 @@ namespace PCIBusiness
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)            ) return new TransactionPeach();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx)          ) return new TransactionTokenEx();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS)       ) return new TransactionPaymentsOS();
-			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe)           ) return new TransactionStripe();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA)       ) return new TransactionStripe(Constants.PaymentProvider.Stripe_USA);
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_EU)        ) return new TransactionStripe(Constants.PaymentProvider.Stripe_EU);
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_Asia)      ) return new TransactionStripe(Constants.PaymentProvider.Stripe_Asia);
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource)      ) return new TransactionCyberSource(Constants.PaymentProvider.CyberSource);
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource_Moto) ) return new TransactionCyberSource(Constants.PaymentProvider.CyberSource_Moto);
 			return null;
