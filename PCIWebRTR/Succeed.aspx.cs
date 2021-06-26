@@ -14,6 +14,7 @@ namespace PCIWebRTR
 				lblVersion.Text  = "Versions " + SystemDetails.AppVersion + " / " + PCIBusiness.SystemDetails.AppVersion;
 			//	lblVersion.Text  = "Version " + SystemDetails.AppVersion;
 				string transRef  = Tools.NullToString(Request["TransRef"]);
+				string mode      = Tools.NullToString(Request["Mode"]);
 				string hmac      = Tools.NullToString(Request["hmac"]);
 				string msg       = Tools.NullToString(Request["message"]);
 //				string notifyURL = Tools.NullToString(Request["NotifyUrl"]);
@@ -23,7 +24,7 @@ namespace PCIWebRTR
 				                                 + ", hmac="     +hmac
 				                                 + ", msg="      +msg,199);
 
-				lblTransRef.Text = transRef;
+				lblTransRef.Text = transRef + ( mode.Length > 0 ? " (Mode=" + mode + ")" : "" );
 //				lblNotify.Text   = notifyURL;
 //				lblReturn.Text   = returnURL;
 

@@ -25,6 +25,7 @@ namespace PCIWebRTR
 			{
 				systemStatus = 0;
 			}
+
 			lblSStatus.Text     = ( systemStatus == 0 ? "Active" : "Disabled" );
 			btnProcess1.Enabled = ( systemStatus == 0 );
 			btnProcess2.Enabled = ( systemStatus == 0 );
@@ -102,12 +103,12 @@ namespace PCIWebRTR
 				string[]                 connString = Tools.NullToString(db.ConnectionString).Split(';');
 				int                      k;
 
-				ViewState["UserCode"] = userCode;
 				lblSQLServer.Text     = "";
 				lblSQLDB.Text         = "";
 				lblSQLUser.Text       = "";
 				lblSQLStatus.Text     = "";
 				lblSMode.Text         = Tools.ConfigValue("SystemMode");
+				ViewState["UserCode"] = userCode;
 
 				foreach ( string x in connString )
 				{
@@ -240,6 +241,7 @@ namespace PCIWebRTR
 						btnProcess3.Visible = false;
 					}
 				}
+			provider = null;
 		}
 
 		protected void btnTest_Click(Object sender, EventArgs e)
@@ -421,13 +423,15 @@ namespace PCIWebRTR
 						lblJS.Text = "<script type='text/javascript'>PaySingle(8);</script>";
 						if ( payment.ReturnMessage.Length > 0 )
 							lblError2.Text = payment.ReturnMessage;
-						//	lblError2.Text = "<br />" + payment.Message;
 						else
 							lblError2.Text = "Transaction failed";
-						//	lblError2.Text = "<br />Transaction failed";
 					}
 				}
 				Tools.LogInfo("RTR.ProcessPayment/2","Finished",10);
+			}
+			catch (System.Threading.ThreadAbortException)
+			{
+			//	Ignore
 			}
 			catch (Exception ex)
 			{
@@ -440,12 +444,13 @@ namespace PCIWebRTR
 		{
 			try
 			{
-				Tools.LogInfo("RTR.ProcessWeb/1","Started, provider '" + provider + "'",10);
+				string tranType = Tools.TransactionTypeName(transactionType);
+				Tools.LogInfo("RTR.ProcessWeb/1","Started, " + tranType + ", provider " + provider,10);
 
 				using (Payments payments = new Payments())
 				{
 					int k         = payments.ProcessCards(provider,transactionType,maxRows);
-					lblError.Text = (payments.CountSucceeded+payments.CountFailed).ToString() + " token(s)/payment(s) processed : " + payments.CountSucceeded.ToString() + " succeeded, " + payments.CountFailed.ToString() + " failed<br />&nbsp;";
+					lblError.Text = (payments.CountSucceeded+payments.CountFailed).ToString() + " " + tranType + "(s) processed : " + payments.CountSucceeded.ToString() + " succeeded, " + payments.CountFailed.ToString() + " failed<br />&nbsp;";
 				}
 				Tools.LogInfo("RTR.ProcessWeb/2","Finished",10);
 			}
