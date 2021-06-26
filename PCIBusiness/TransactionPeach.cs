@@ -140,7 +140,7 @@ namespace PCIBusiness
 			catch (WebException ex1)
 			{
 				err = 1;
-				strResult = Tools.DecodeWebException(ex1,"TransactionPeach.PostHTML/197",xmlSent);
+				strResult = Tools.DecodeWebException(ex1,ClassName+".PostHTML/197",xmlSent);
 			}
 			catch (Exception ex2)
 			{
@@ -296,7 +296,7 @@ namespace PCIBusiness
 			catch (WebException ex1)
 			{
 				err       = 1;
-				strResult = Tools.DecodeWebException(ex1,"TransactionPeach.CardPayment3rdParty/997",xmlSent);
+				strResult = Tools.DecodeWebException(ex1,ClassName+".CardPayment3rdParty/997",xmlSent);
 			}
 
 			catch (Exception ex2)
@@ -466,7 +466,7 @@ namespace PCIBusiness
 			}
 			catch (WebException ex1)
 			{
-				strResult = Tools.DecodeWebException(ex1,"TransactionPeach.ThreeDSecureCheck/197",xmlSent);
+				strResult = Tools.DecodeWebException(ex1,ClassName+".ThreeDSecureCheck/197",xmlSent);
 			}
 			catch (Exception ex2)
 			{

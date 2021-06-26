@@ -8,6 +8,9 @@ namespace PCIBusiness
 {
 	public class TransactionFNB : Transaction
 	{
+
+//		INCOMPLETE!
+
 		public  bool Successful
 		{
 			get { return Tools.JSONValue(strResult,"success").ToUpper() == "TRUE"; }
@@ -45,7 +48,7 @@ namespace PCIBusiness
 			catch (Exception ex)
 			{
 				Tools.LogInfo     ("GetToken/98","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255,this);
-				Tools.LogException("GetToken/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex,this);
+				Tools.LogException("GetToken/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent, ex,this);
 			}
 			return ret;
 		}
@@ -83,7 +86,7 @@ namespace PCIBusiness
 			catch (Exception ex)
 			{
 				Tools.LogInfo     ("TokenPayment/98","Ret="+ret.ToString()+", JSON Sent="+xmlSent,255,this);
-				Tools.LogException("TokenPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent,ex,this);
+				Tools.LogException("TokenPayment/99","Ret="+ret.ToString()+", JSON Sent="+xmlSent, ex,this);
 			}
 			return ret;
 		}
@@ -191,7 +194,7 @@ namespace PCIBusiness
 			}
 			catch (WebException ex1)
 			{
-				Tools.DecodeWebException(ex1,"TransactionFNB.CallWebService/297","ret="+ret.ToString());
+				Tools.DecodeWebException(ex1,ClassName+".CallWebService/297","ret="+ret.ToString());
 			}
 			catch (Exception ex2)
 			{
@@ -206,7 +209,6 @@ namespace PCIBusiness
 //			Testing only!
 			try
 			{
-//				string         url        = ( live == 0 ? "https://developer.paygenius.co.za/pg/api/v2/util/validate" : "https://www.paygenius.co.za/pg/api/v2/util/validate" );
 				string         url        = BureauURL + "/pg/api/v2/util/validate";
 				string         key        = ( live == 0 ? "f1a7d3b1-e90b-42c0-a304-459382a47aba" : "bb3a0012-74a5-4e74-bc46-03afa3c30850" );
 				string         data       = "{\"data\":\"value\"}";
@@ -255,7 +257,6 @@ namespace PCIBusiness
 		public TransactionFNB() : base()
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.FNB);
-			xmlResult  = null;
 		}
 	}
 }

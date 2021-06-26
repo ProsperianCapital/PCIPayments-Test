@@ -4,10 +4,10 @@ namespace PCIBusiness
 {
 	public class Payments : BaseList
 	{
-		private string    bureauCode;
-		private int       success;
-		private int       fail;
-		private int       err;
+		private string  bureauCode;
+		private int     success;
+		private int     fail;
+		private int     err;
 
 		public override BaseData NewItem()
 		{
@@ -151,10 +151,15 @@ namespace PCIBusiness
 			}
 			else if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken )
     		{
-			//	sql  = "exec sp_Get_TokenToDecrypt " + Tools.DBString(bureauCode);
-				sql  = "exec sp_TokenEx_Detoken " + Tools.DBString(bureauCode);
 			//	sql  = "select '4111117223051111' as PaymentBureauToken,'XYZ' as ContractCode,'https://test-api.tokenex.com' as URL";
+				sql  = "exec sp_TokenEx_Detoken " + Tools.DBString(bureauCode);
 				desc = "Get Card from Token";
+			}
+			else if ( transactionType == (byte)Constants.TransactionType.Transfer )
+    		{
+				sql  = "select 'ZA' as CountryCode,'Janet Smith' as AccountName,'111111' as SortCode,'111111' as AccountNumber,'ZAR' as CurrencyCode,997 as Amount";
+			//	sql  = "exec sp_Blah " + Tools.DBString(bureauCode);
+				desc = "Transfer Funds";
 			}
 			else
 				return 0;

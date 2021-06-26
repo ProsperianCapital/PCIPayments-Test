@@ -116,7 +116,7 @@ namespace PCIBusiness
 				ret                         = 100;
 
 				Tools.LogInfo("TransactionENets.CallWebService/10",
-				              "Transaction=" + payment.TransactionTypeName +
+				              "Transaction=" + Tools.TransactionTypeName(payment.TransactionType) +
 				            ", URL=" + url +
 				            ", MID=" + payment.ProviderAccount +
 				            ", KeyId=" + payment.ProviderKey +
@@ -145,11 +145,11 @@ namespace PCIBusiness
 					{
 						ret        = 150;
 						resultMsg  = "No data returned from " + url;
-						Tools.LogInfo("TransactionENets.CallWebService/20",payment.TransactionTypeName+", JSON Rec=(blank)",199);
+						Tools.LogInfo("TransactionENets.CallWebService/20",Tools.TransactionTypeName(payment.TransactionType)+", JSON Rec=(blank)",199);
 					}
 					else
 					{
-						Tools.LogInfo("TransactionENets.CallWebService/30",payment.TransactionTypeName+", JSON Rec=" + strResult,255);
+						Tools.LogInfo("TransactionENets.CallWebService/30",Tools.TransactionTypeName(payment.TransactionType)+", JSON Rec=" + strResult,255);
 
 						ret        = 160;
 						txnStatus  = Tools.JSONValue(strResult,"netsTxnStatus");

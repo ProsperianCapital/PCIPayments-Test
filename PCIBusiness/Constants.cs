@@ -143,6 +143,7 @@ namespace PCIBusiness
 			DeleteToken           =   4,
 			GetCardFromToken      =   5,
 			ThreeDSecurePayment   =   7,
+			Transfer              =   9,
 			ManualPayment         =  73,
 			Test                  = 197
 		}

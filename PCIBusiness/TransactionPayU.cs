@@ -143,7 +143,7 @@ namespace PCIBusiness
 			}
 			catch (WebException ex1)
 			{
-				Tools.DecodeWebException(ex1,"TransactionPayU.SendXML/97",xmlSent);
+				Tools.DecodeWebException(ex1,ClassName+".SendXML/97",xmlSent);
 			}
 			catch (Exception ex2)
 			{
@@ -173,6 +173,10 @@ namespace PCIBusiness
 
 			try
 			{
+				string tmp = Tools.ConfigValue("SystemURL")
+				           + "/Succeed.aspx?TransRef="
+				           + Tools.XMLSafe(payment.MerchantReference)
+				           + "&#38;Mode=";
 				xmlSent = "<Safekey>" + payment.ProviderKey + "</Safekey>"
 				        + "<Api>ONE_ZERO</Api>"
 				        + "<TransactionType>RESERVE</TransactionType>"
@@ -183,7 +187,13 @@ namespace PCIBusiness
 				        + "</Customfield>"
 				        + "<AdditionalInformation>"
 				        +   "<storePaymentMethod>true</storePaymentMethod>"
-				        +   "<secure3d>false</secure3d>"
+				        +   "<secure3d>true</secure3d>"
+				        +   "<demoMode>false</demoMode>"
+				        +   "<redirectChannel>responsive</redirectChannel>"
+				        +   "<supportedPaymentMethods>CREDITCARD</supportedPaymentMethods>"
+				        +   "<returnUrl>"         + tmp + "1</returnUrl>"
+				        +   "<cancelUrl>"         + tmp + "2</cancelUrl>"
+				        +   "<notificationUrl>"   + tmp + "3</notificationUrl>"
 				        +   "<merchantReference>" + payment.MerchantReference + "</merchantReference>"
 				        + "</AdditionalInformation>"
 				        + "<Customer>"

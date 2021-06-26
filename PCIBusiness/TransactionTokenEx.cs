@@ -40,7 +40,7 @@ namespace PCIBusiness
 
 				tURL = tURL + "/TransparentGatewayAPI/Detokenize";
 
-				Tools.LogInfo("PostHTML/10","URL=" + pURL + ", URL data=" + xmlSent,221,this);
+				Tools.LogInfo("PeachHTML/10","URL=" + pURL + ", URL data=" + xmlSent,221,this);
 
 				ret                              = 20;
 				byte[]         buffer            = Encoding.UTF8.GetBytes(xmlSent);
@@ -79,19 +79,19 @@ namespace PCIBusiness
 					if ( tranPeach.Successful )
 						ret = 0;
 					else
-						Tools.LogInfo("PostHTML/110","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
+						Tools.LogInfo("PeachHTML/110","resultCode="+resultCode+", resultMsg="+resultMsg,221,this);
 				}
 			}
 			catch (WebException ex1)
 			{
 				resultCode = ex1.Response.Headers["tx_code"];
 				resultMsg  = ex1.Response.Headers["tx_message"];
-				Tools.DecodeWebException(ex1,ClassName+".PostHTML/197",xmlSent);
+				Tools.DecodeWebException(ex1,ClassName+".PeachHTML/197",xmlSent);
 			}
 			catch (Exception ex2)
 			{
-				Tools.LogInfo     ("PostHTML/198","Ret="+ret.ToString()+", URL=" + pURL + ", XML Sent="+xmlSent,255,this);
-				Tools.LogException("PostHTML/199","Ret="+ret.ToString()+", URL=" + pURL + ", XML Sent="+xmlSent,ex2,this);
+				Tools.LogInfo     ("PeachHTML/198","Ret="+ret.ToString()+", URL=" + pURL + ", XML Sent="+xmlSent,255,this);
+				Tools.LogException("PeachHTML/199","Ret="+ret.ToString()+", URL=" + pURL + ", XML Sent="+xmlSent,ex2,this);
 			}
 			return ret;
 		}
@@ -148,7 +148,7 @@ namespace PCIBusiness
 			}
 			catch (WebException ex1)
 			{
-				Tools.DecodeWebException(ex1,"TransactionTokenEx.PostJSON/197","Ret="+ret.ToString()+" | " + xmlSent);
+				Tools.DecodeWebException(ex1,ClassName+".PostJSON/197","Ret="+ret.ToString()+" | " + xmlSent);
 			}
 			catch (Exception ex2)
 			{
@@ -325,14 +325,14 @@ namespace PCIBusiness
 			}
 			catch (WebException ex1)
 			{
-				strResult = Tools.DecodeWebException(ex1,"TransactionTokenEx.Detokenize/197",xmlSent);
+				strResult = Tools.DecodeWebException(ex1,ClassName+".DetokenizeV2/197",xmlSent);
 			}
 			catch (Exception ex2)
 			{
 				if ( strResult == null )
 					strResult = "";
-				Tools.LogInfo     ("Detokenize/198","Ret="+ret.ToString()+", Result="+strResult,222,this);
-				Tools.LogException("Detokenize/199","Ret="+ret.ToString()+", Result="+strResult,ex2,this);
+				Tools.LogInfo     ("DetokenizeV2/198","Ret="+ret.ToString()+", Result="+strResult,222,this);
+				Tools.LogException("DetokenizeV2/199","Ret="+ret.ToString()+", Result="+strResult,ex2,this);
 			}
 			return ret;
 		}
@@ -389,7 +389,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("CardPayment/90","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex,this);
+				Tools.LogException("CardPayment/99","Ret="+ret.ToString()+", XML Sent=" + xmlSent,ex,this);
 			}
 			return ret;
 		}
@@ -408,7 +408,6 @@ namespace PCIBusiness
 		public TransactionTokenEx() : base()
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.TokenEx);
-		//	bureauCode                            = Tools.BureauCode(Constants.PaymentProvider.TokenEx);
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
 		}

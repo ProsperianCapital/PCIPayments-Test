@@ -197,7 +197,6 @@ namespace PCIBusiness
 		public TransactionIkajo() : base()
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.Ikajo);
-		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.Ikajo);
 		}
 
 		public override void Close()

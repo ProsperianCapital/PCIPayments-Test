@@ -22,8 +22,6 @@ namespace PCIBusiness
 		protected string      strResult;
 		protected XmlDocument xmlResult;
 
-
-
 //	3d Stuff
 		protected string      eci;
 		protected string      paReq;
@@ -146,7 +144,6 @@ namespace PCIBusiness
 			get { return   Tools.NullToString(d3Form); }
 		}
 
-
 		public virtual string WebForm
 		{
 			get { return ""; }
@@ -219,12 +216,20 @@ namespace PCIBusiness
 			if ( bureauURL.Length > 0 )
 				return;
 
-			if ( Tools.SystemIsLive() )
+//	Providers where live and test are the same URL
+
+			if ( bureau == Constants.PaymentProvider.PayGate )
+				bureauURL = "https://secure.paygate.co.za/payhost/process.trans";
+
+			else if ( bureau == Constants.PaymentProvider.Stripe_USA ||
+			          bureau == Constants.PaymentProvider.Stripe_EU  ||
+			          bureau == Constants.PaymentProvider.Stripe_Asia )
+				bureauURL = "https://api.stripe.com";
+
+			else if ( Tools.SystemIsLive() )
 			{
 				if ( bureau == Constants.PaymentProvider.Peach )
 					bureauURL = "https://oppwa.com/v1";
-				else if ( bureau == Constants.PaymentProvider.PayGate )
-					bureauURL = "https://secure.paygate.co.za/payhost/process.trans";
 				else if ( bureau == Constants.PaymentProvider.PayU )
 					bureauURL = "https://secure.payu.co.za";
 				else if ( bureau == Constants.PaymentProvider.TokenEx )
@@ -234,7 +239,7 @@ namespace PCIBusiness
 				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
 					bureauURL = "https://api.paymentsos.com";
 			}
-			else
+			else // Testing
 			{
 				if ( bureau == Constants.PaymentProvider.Peach )
 					bureauURL = "https://test.oppwa.com/v1";
@@ -242,8 +247,6 @@ namespace PCIBusiness
 					bureauURL = "https://sandbox.ecentricswitch.co.za:8443/paymentgateway/v1";
 				else if ( bureau == Constants.PaymentProvider.eNETS )
 					bureauURL = "https://uat-api.nets.com.sg:9065/GW2/TxnReqListener";
-				else if ( bureau == Constants.PaymentProvider.PayGate )
-					bureauURL = "https://secure.paygate.co.za/payhost/process.trans";
 				else if ( bureau == Constants.PaymentProvider.PayGenius )
 					bureauURL = "https://developer.paygenius.co.za";
 				else if ( bureau == Constants.PaymentProvider.PayU )
@@ -258,16 +261,7 @@ namespace PCIBusiness
 					bureauURL = "https://apitest.cybersource.com";
 				else if ( bureau == Constants.PaymentProvider.CyberSource_Moto )
 					bureauURL = "https://apitest.cybersource.com";
-				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
-					bureauURL = "https://api.paymentsos.com";
 			}
-
-//	Providers where live and test are the same URL
-
-			if ( bureau == Constants.PaymentProvider.Stripe_USA ||
-			     bureau == Constants.PaymentProvider.Stripe_EU  ||
-			     bureau == Constants.PaymentProvider.Stripe_Asia )
-				bureauURL = "https://api.stripe.com";
 		}
 
       public override void Close()
@@ -275,13 +269,12 @@ namespace PCIBusiness
 			xmlResult = null;
 		}
 
-		protected string ClassName
-		{
-			get { return this.GetType().ToString(); }
-		}
+//		protected string ClassName
+//		{
+//			get { return this.GetType().ToString(); }
+//		}
 
-
-		public Transaction()
+		private void Clear()
 		{
 			bureauCodeTokenizer = Tools.BureauCode(Constants.PaymentProvider.TokenEx);
 			bureauCode          = "";
@@ -303,5 +296,21 @@ namespace PCIBusiness
 			d3Form              = "";
 			xmlResult           = null;
 		}
+
+		public Transaction()
+		{
+			Clear();
+		}
+		public Transaction(Constants.PaymentProvider provider)
+		{
+			Clear();
+			LoadBureauDetails(provider);
+		}
+
+//		public Transaction(string provider)
+//		{
+//			Clear();
+//			LoadBureauDetails((Constants.PaymentProvider)Tools.StringToInt(provider));
+//		}
 	}
 }

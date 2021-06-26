@@ -301,6 +301,9 @@ namespace PCIBusiness
 				          bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_Asia) )
 					return "https://api.stripe.com";
 
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
+					return "https://secure.paygate.co.za/payhost/process.trans";
+
 //	Providers where live and test are different
 //	LIVE
 				else if ( Tools.SystemIsLive() )
@@ -309,8 +312,6 @@ namespace PCIBusiness
 						return "https://api.nets.com.sg/GW2/TxnReqListener";
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
 						return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl";
-					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
-						return "https://secure.paygate.co.za/payhost/process.trans";
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
 						return "https://secureacceptance.cybersource.com/silent";
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource_Moto) )
@@ -483,16 +484,13 @@ namespace PCIBusiness
 		{
 			get
 			{
-				string x = Tools.NullToString(countryCode).ToUpper();
-				if ( x.Length > 1 && x.StartsWith("US") )
-					return ProvinceCode;
+				string p = Tools.NullToString(provinceCode);
+				string y = Tools.NullToString(countryCode).ToUpper();
+				if ( p.Length > 0 && y.Length >= 2 && y.StartsWith("US") )
+					return p;
 				return "";
 			}
 		}
-//		public string    CountryCode
-//		{
-//			get { return  Tools.NullToString(countryCode); }
-//		}
 
 //		payment stuff
 //		public string    OrderNumber
@@ -702,23 +700,25 @@ namespace PCIBusiness
 			get { return  transactionType; }
 			set { transactionType = value; }
 		}
-		public  string   TransactionTypeName
-		{
-			get
-			{
-				if ( transactionType == (byte)Constants.TransactionType.CardPayment           ) return "Card Payment";
-				if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty ) return "Payment via 3rd Party";
-				if ( transactionType == (byte)Constants.TransactionType.DeleteToken           ) return "Delete Token";
-				if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken      ) return "Get Card from Token";
-				if ( transactionType == (byte)Constants.TransactionType.GetToken              ) return "Get Token from Card";
-				if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty    ) return "Token via 3rd Party";
-				if ( transactionType == (byte)Constants.TransactionType.ManualPayment         ) return "Manual Payment";
-				if ( transactionType == (byte)Constants.TransactionType.ThreeDSecurePayment   ) return "3d Secure Payment";
-				if ( transactionType == (byte)Constants.TransactionType.TokenPayment          ) return "Token Payment";
-				if ( transactionType == (byte)Constants.TransactionType.Test                  ) return "Test";
-				return "Unknown (transactionType=" + transactionType.ToString() + ")";
-			}
-		}
+
+//		Moved to Tools.cs
+//		public  string   TransactionTypeName
+//		{
+//			get
+//			{
+//				if ( transactionType == (byte)Constants.TransactionType.CardPayment           ) return "Card Payment";
+//				if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty ) return "Payment via 3rd Party";
+//				if ( transactionType == (byte)Constants.TransactionType.DeleteToken           ) return "Delete Token";
+//				if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken      ) return "Get Card from Token";
+//				if ( transactionType == (byte)Constants.TransactionType.GetToken              ) return "Get Token from Card";
+//				if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty    ) return "Token via 3rd Party";
+//				if ( transactionType == (byte)Constants.TransactionType.ManualPayment         ) return "Manual Payment";
+//				if ( transactionType == (byte)Constants.TransactionType.ThreeDSecurePayment   ) return "3d Secure Payment";
+//				if ( transactionType == (byte)Constants.TransactionType.TokenPayment          ) return "Token Payment";
+//				if ( transactionType == (byte)Constants.TransactionType.Test                  ) return "Test";
+//				return "Unknown (transactionType=" + transactionType.ToString() + ")";
+//			}
+//		}
 
 		public int Detokenize()
 		{
@@ -926,6 +926,7 @@ namespace PCIBusiness
 				regionalId    = dbConn.ColString ("regionalId" ,0,0);
 				address1      = dbConn.ColUniCode("address1"   ,0,0);
 				address2      = dbConn.ColUniCode("city"       ,0,0);
+			//	address3      = dbConn.ColUniCode("blah"       ,0,0);
 				postalCode    = dbConn.ColString ("zip_code"   ,0,0);
 				provinceCode  = dbConn.ColString ("state"      ,0,0);
 				countryCode   = dbConn.ColString ("countryCode",0,0);
@@ -957,20 +958,26 @@ namespace PCIBusiness
 			mandateDateTime  = dbConn.ColDate  ("ContractDate"   ,0,0);
 			mandateIPAddress = dbConn.ColString("IPAddres"       ,0,0);
 			mandateBrowser   = dbConn.ColString("Browser"        ,0,0);
-//	Testing
-//			mandateDateTime  = "2019/12/31 23:59:59";
-//			mandateIPAddress = "10.0.231.45";
-//			mandateBrowser   = "FireFox 89.0.1";
 
 		//	Token Provider (if empty, then it is the same as the payment provider)
 			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )
 			{
-				tokenizerID  = dbConn.ColString("TxID");
-				tokenizerKey = dbConn.ColString("TxKey");
-				tokenizerURL = dbConn.ColString("TxURL");
+				tokenizerID   = dbConn.ColString("TxID");
+				tokenizerKey  = dbConn.ColString("TxKey");
+				tokenizerURL  = dbConn.ColString("TxURL");
 			}
 			if ( dbConn.ColStatus("TxToken") == Constants.DBColumnStatus.ColumnOK )
-				ccToken      = dbConn.ColString("TxToken");
+				ccToken       = dbConn.ColString("TxToken");
+
+//	Testing
+//			countryCode      = "ZA";
+//			address1         = "231 Lagoon's Edge";
+//			address2         = "Port Alfred";
+//			email            = "Joe@DontPhoneMe.net";
+//			phoneCell        = "084 666 8888";
+//			mandateDateTime  = "2019/12/31 23:59:59";
+//			mandateIPAddress = "10.0.231.45";
+//			mandateBrowser   = "FireFox 89.0.1";
 		}
 
 		public override void CleanUp()

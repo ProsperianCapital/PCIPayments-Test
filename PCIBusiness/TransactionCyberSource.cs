@@ -1063,18 +1063,18 @@ namespace PCIBusiness
 			base.LoadBureauDetails(Constants.PaymentProvider.CyberSource);
 		}
 
-		public TransactionCyberSource(string provider) : base()
-		{
-			ServicePointManager.Expect100Continue = true;
-			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
-			base.LoadBureauDetails((Constants.PaymentProvider)Tools.StringToInt(provider));
-		}
-
 		public TransactionCyberSource(Constants.PaymentProvider provider) : base()
 		{
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
 			base.LoadBureauDetails(provider);
 		}
+
+//		public TransactionCyberSource(string provider) : base()
+//		{
+//			ServicePointManager.Expect100Continue = true;
+//			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
+//			base.LoadBureauDetails((Constants.PaymentProvider)Tools.StringToInt(provider));
+//		}
 	}
 }

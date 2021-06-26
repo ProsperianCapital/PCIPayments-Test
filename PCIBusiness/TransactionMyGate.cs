@@ -73,7 +73,7 @@ namespace PCIBusiness
 				                     + ", '" + payment.CardPIN + "'"
 				                     + ", '" + payment.MerchantReference + "' )";
 
-				Tools.LogInfo("TransactionMyGate.GetToken/10",xmlSent,10);
+				Tools.LogInfo("GetToken/10",xmlSent,10,this);
 
 				ret     = 315;
 				results = myGateToken.fLoadPinCC ( payment.ProviderUserID,
@@ -114,12 +114,12 @@ namespace PCIBusiness
 				ret        = 380;
 				resultMsg  = resultLine[3] + ( resultLine[4].Length > 0 ? " (" + resultLine[4] + ")" : "" );
 
-				Tools.LogInfo("TransactionMyGate.GetToken/20","ResultCode=" + resultCode + ", Message=" + resultMsg,10);
+				Tools.LogInfo("GetToken/20","ResultCode=" + resultCode + ", Message=" + resultMsg,10,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionMyGate.GetToken/85","Ret="+ret.ToString()+", "+xmlSent,255);
-				Tools.LogException("TransactionMyGate.GetToken/90","Ret="+ret.ToString()+", "+xmlSent,ex);
+				Tools.LogInfo     ("GetToken/98","Ret="+ret.ToString()+", "+xmlSent,255,this);
+				Tools.LogException("GetToken/99","Ret="+ret.ToString()+", "+xmlSent, ex,this);
 			}
 			return ret;
 		}
@@ -174,17 +174,17 @@ namespace PCIBusiness
 				xmlResult = null;
 				strResult = "";
 
-				Tools.LogInfo("TransactionMyGate.TokenPayment/20","uploadDebitFile(\"" + xmlSent + "\")",10);
+				Tools.LogInfo("TokenPayment/20","uploadDebitFile(\"" + xmlSent + "\")",10,this);
 
 				ret       = 630;
 				strResult = myGatePay.uploadDebitFile (xmlSent);
 
-				Tools.LogInfo("TransactionMyGate.TokenPayment/30","Result=" + strResult,10);
+				Tools.LogInfo("TokenPayment/30","Result=" + strResult,10,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogInfo("TransactionMyGate.TokenPayment/85","Ret="+ret.ToString()+", XML Sent="+xmlSent,255);
-				Tools.LogException("TransactionMyGate.TokenPayment/90","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex);
+				Tools.LogInfo     ("TokenPayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("TokenPayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent, ex,this);
 			}
 			return ret;
 		}
@@ -192,7 +192,6 @@ namespace PCIBusiness
 		public TransactionMyGate() : base()
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.MyGate);
-		//	bureauCode = Tools.BureauCode(Constants.PaymentProvider.MyGate);
 		}
 
 		public override void Close()
