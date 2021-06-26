@@ -187,7 +187,7 @@ namespace PCIBusiness
 				        + "</Customfield>"
 				        + "<AdditionalInformation>"
 				        +   "<storePaymentMethod>true</storePaymentMethod>"
-				        +   "<secure3d>true</secure3d>"
+				        +   "<secure3d>false</secure3d>"
 				        +   "<demoMode>false</demoMode>"
 				        +   "<redirectChannel>responsive</redirectChannel>"
 				        +   "<supportedPaymentMethods>CREDITCARD</supportedPaymentMethods>"
