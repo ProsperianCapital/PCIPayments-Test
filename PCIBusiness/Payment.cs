@@ -97,7 +97,7 @@ namespace PCIBusiness
 		{
 			get
 			{
-				return mandateDateTime;
+				return     mandateDateTime;
 
 //	This code was in case the mandate date/time was returned as string
 //				try
@@ -169,6 +169,8 @@ namespace PCIBusiness
 					return "000000002744639";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "mu.prosperian.rtr";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
+					return "100000001099570";
 				return "";
 			}
 			set { providerAccount = value.Trim(); }
@@ -187,6 +189,9 @@ namespace PCIBusiness
 //	Testing
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
 					return "27ededae-4ba3-486a-a243-8da1e4c1a067";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
+					return "REVqzPb4PTiD4n7Fo3e1p1VyQUbvmy5YZuhxhUpqL0EcUTGWHPchIUd8m3LeixLf";
+//					return "yZgqflutOnJ3nSN7s9ylGMAZDNpmllGzuPMHPVBwDOW8riDT3qu8Uivbg7xlWbeK";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach) )
 					return "OGFjN2E0Yzc3MmI3N2RkZjAxNzJiN2VkMDFmODA2YTF8akE0aEVaOG5ZQQ==";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
@@ -282,6 +287,9 @@ namespace PCIBusiness
 					return "3790d1d5-4847-43e6-a29a-f22180cc9fda"; // Private/secret key
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA) ) // Secret key
 					return "sk_test_51It78gGmZVKtO2iKBZF7DA5JisJzRqvibQdXSfBj9eQh4f5UDvgCShZIjznOWCxu8MtcJG5acVkDcd8K184gIegx001uXlHI5g";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
+					return "sbyq0CUAvUSPMifwRH0f68fByQ5ZgSjyEpbeKg77o1Cuh9BD30ucakuXtpCCUMJN"; // Instance key
+				//	return "sxuAbskjc5AVdQ5qbyja7ClSAZQ9NmMYmzoTGQ1ucRB6Jxg3LAq9tOZLWFYorWpl";
 
 				return "";
 			}
@@ -320,12 +328,16 @@ namespace PCIBusiness
 						return "https://api.paymentsos.com";
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
 						return "https://secure.payu.co.za";
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
+						return "https://pay.ms.fnb.co.za";
 				}
 //	TESTING
 				else
 				{
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
 						return "https://staging.payu.co.za";
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
+						return "https://sandbox.ms.fnb.co.za";
 				}
 				return "";
 			}
@@ -622,6 +634,22 @@ namespace PCIBusiness
 				catch
 				{ }
 				return System.DateTime.Now.Year+1;
+			}
+		}
+		public  string   CardExpiryDD // Always the last day of the month
+		{
+			get
+			{
+				byte mm = CardExpiryMonth;
+				if ( mm == 1 || mm == 3 || mm == 5 || mm == 7 || mm == 8 || mm == 10 || mm == 12 )
+					return "31";
+				else if ( mm == 4 || mm == 6 || mm == 9 || mm == 11 )
+					return "30";
+				else if ( CardExpiryYear == 2100 || CardExpiryYear == 2200 || CardExpiryYear == 2300 ) // Not leap years
+					return "28";
+				else if ( ( CardExpiryYear % 4 ) == 0 )
+					return "29";
+				return "28";
 			}
 		}
 		public  string   CardExpiryMM // Pad with zeroes, eg. 07

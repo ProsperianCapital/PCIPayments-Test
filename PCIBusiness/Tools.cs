@@ -1550,8 +1550,9 @@ namespace PCIBusiness
 		public static string DecodeWebException(System.Net.WebException ex1,string callingModule="",string extraData="")
 		{
 			string responseContent = "";
-			callingModule = callingModule + "[DecodeWebException/";
-			extraData     = extraData.Trim() + " ";
+			string errorContent    = "";
+			callingModule          = callingModule + "[DecodeWebException/";
+			extraData              = extraData.Trim() + " ";
 
 			try
 			{
@@ -1568,24 +1569,24 @@ namespace PCIBusiness
 				using ( StreamReader sR = new StreamReader(errorResponse.GetResponseStream()) )
 					responseContent = sR.ReadToEnd();
 
-				responseContent = responseContent + Environment.NewLine + Environment.NewLine;
+				errorContent = responseContent + ", Response Headers=";
 				foreach (string key in errorResponse.Headers.AllKeys )
-					responseContent = responseContent + "[" + (k++).ToString() + "] " + key + " : " + errorResponse.Headers[key] + Environment.NewLine;
+					errorContent = errorContent + Environment.NewLine + "[" + (k++).ToString() + "] " + key + " : " + errorResponse.Headers[key];
 
-				Tools.LogInfo     (callingModule+"5]",extraData + responseContent,245);
-				Tools.LogException(callingModule+"6]",extraData + responseContent,ex1);
+				Tools.LogInfo     (callingModule+"4]",extraData + errorContent,245);
+				Tools.LogException(callingModule+"5]",extraData + errorContent,ex1);
 
 //				if ( callingModule.Length > 0 )
 //				{
 //					extraData = ( extraData.Length == 0 ? "" : extraData + ". " ) + "(WebException) ";
-//					Tools.LogInfo     (callingModule+"5]",extraData + responseContent,245);
-//					Tools.LogException(callingModule+"6]",extraData + responseContent,ex1);
+//					Tools.LogInfo     (callingModule+"6]",extraData + errorContent,245);
+//					Tools.LogException(callingModule+"7]",extraData + errorContent,ex1);
 //				}
 			}
 			catch (Exception ex2)
 			{
-				Tools.LogInfo     (callingModule+"8]",extraData + responseContent,245);
-				Tools.LogException(callingModule+"9]",extraData + responseContent,ex2);
+				Tools.LogInfo     (callingModule+"8]",extraData + errorContent,245);
+				Tools.LogException(callingModule+"9]",extraData + errorContent,ex2);
 			}
 			return responseContent;
 		}

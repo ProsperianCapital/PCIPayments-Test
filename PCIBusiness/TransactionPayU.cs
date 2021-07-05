@@ -166,8 +166,8 @@ namespace PCIBusiness
 //			payment.RegionalId       = "8212115010081";
 //			payment.CurrencyCode     = "ZAR";
 //			payment.CardNumber       = "4000015372250142"; // This card works!
-//			payment.CardExpiryMM     = "02";
-//			payment.CardExpiryYYYY   = "2022";
+//			payment.CardExpiryMM     = "07";
+//			payment.CardExpiryYYYY   = "2025";
 //			payment.CardCVV          = "123";
 //	Testing
 
@@ -351,30 +351,30 @@ namespace PCIBusiness
 				        + "<AdditionalInformation>"
 				        +   "<supportedPaymentMethods>CREDITCARD</supportedPaymentMethods>"
 				        +   "<secure3d>true</secure3d>"
-				        +   "<returnUrl>" + url + "</returnUrl>"
-				        +   "<notificationUrl>" + url + "</notificationUrl>"
+				        +   "<returnUrl>"         + url                       + "</returnUrl>"
+				        +   "<notificationUrl>"   + url                       + "</notificationUrl>"
 				        +   "<merchantReference>" + payment.MerchantReference + "</merchantReference>"
 				        + "</AdditionalInformation>"
 				        + "<Customer>"
 				        +   "<merchantUserId>" + payment.ProviderUserID + "</merchantUserId>"
-				        +   "<countryCode>"    + payment.CountryCode() + "</countryCode>"
-				        +   "<email>"          + payment.EMail + "</email>"
-				        +   "<firstName>"      + payment.FirstName + "</firstName>"
-				        +   "<lastName>"       + payment.LastName + "</lastName>"
-				        +   "<mobile>"         + payment.PhoneCell + "</mobile>"
-				        +   "<regionalId>"     + payment.RegionalId + "</regionalId>"
+				        +   "<countryCode>"    + payment.CountryCode()  + "</countryCode>"
+				        +   "<email>"          + payment.EMail          + "</email>"
+				        +   "<firstName>"      + payment.FirstName      + "</firstName>"
+				        +   "<lastName>"       + payment.LastName       + "</lastName>"
+				        +   "<mobile>"         + payment.PhoneCell      + "</mobile>"
+				        +   "<regionalId>"     + payment.RegionalId     + "</regionalId>"
 				        + "</Customer>"
 				        + "<Basket>"
 				        +   "<amountInCents>"  + payment.PaymentAmount.ToString() + "</amountInCents>"
-				        +   "<currencyCode>"   + payment.CurrencyCode + "</currencyCode>"
-				        +   "<description>"    + payment.PaymentDescription + "</description>"
+				        +   "<currencyCode>"   + payment.CurrencyCode             + "</currencyCode>"
+				        +   "<description>"    + payment.PaymentDescription       + "</description>"
 				        + "</Basket>"
 				        + "<Creditcard>"
-				        +   "<nameOnCard>"     + payment.CardName + "</nameOnCard>"
-				        +   "<amountInCents>"  + payment.PaymentAmount.ToString() + "</amountInCents>"
-				        +   "<cardNumber>"     + payment.CardNumber + "</cardNumber>"
+				        +   "<nameOnCard>"     + payment.CardName                              + "</nameOnCard>"
+				        +   "<amountInCents>"  + payment.PaymentAmount.ToString()              + "</amountInCents>"
+				        +   "<cardNumber>"     + payment.CardNumber                            + "</cardNumber>"
 				        +   "<cardExpiry>"     + payment.CardExpiryMM + payment.CardExpiryYYYY + "</cardExpiry>"
-				        +   "<cvv>"            + payment.CardCVV + "</cvv>"
+				        +   "<cvv>"            + payment.CardCVV                               + "</cvv>"
 				        + "</Creditcard>";
 
 				ret     = SendXML(payment.ProviderURL,payment.ProviderUserID,payment.ProviderPassword);
