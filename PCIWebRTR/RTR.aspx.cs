@@ -26,15 +26,12 @@ namespace PCIWebRTR
 				systemStatus = 0;
 			}
 
-			lblSStatus.Text     = ( systemStatus == 0 ? "Active" : "Disabled" );
-			btnProcess1.Enabled = ( systemStatus == 0 );
-			btnProcess2.Enabled = ( systemStatus == 0 );
-			btnProcess3.Enabled = ( systemStatus == 0 );
-			btnProcess4.Enabled = ( systemStatus == 0 );
-			lblTest.Text        = "";
-			lblError.Text       = "";
-			lblError2.Text      = "";
-			lblJS.Text          = "";
+			lblSStatus.Text = ( systemStatus == 0 ? "Active" : "Disabled" );
+			lblTest.Text    = "";
+			lblError.Text   = "";
+			lblError2.Text  = "";
+			lblJS.Text      = "";
+			EnableButtons(systemStatus == 0);
 
 			if ( Page.IsPostBack )
 				try
@@ -159,6 +156,21 @@ namespace PCIWebRTR
 			}
 		}
 
+		private void EnableButtons(bool enable)
+		{
+			btnProcess1.Enabled  = enable;
+			btnProcess2.Enabled  = enable;
+			btnProcess3.Enabled  = enable;
+			btnProcess4.Enabled  = enable;
+			btnProcess5.Enabled  = enable;
+			btnProcess6.Enabled  = enable;
+			btnProcess7.Enabled  = enable;
+		//	btnProcess8.Enabled  = enable;
+			btnProcess9.Enabled  = false; // not implemented yet
+			btnProcess10.Enabled = enable;
+			btnProcess11.Enabled = enable;
+		}
+	
 		private void ProviderDetails()
 		{
 			string   bureauCode  = lstProvider.SelectedValue.Trim();
@@ -185,33 +197,15 @@ namespace PCIWebRTR
 			if ( provider.BureauStatusCode == 2 ) // Disabled
 			{
 				provider             = null;
-//				btnProcess1.Text     = "Get Tokens (Disabled)";
-//				btnProcess2.Text     = "Token Payments (Disabled)";
-//				btnProcess3.Text     = "Delete Tokens (Disabled)";
-//				btnProcess4.Text     = "Card Payments (Disabled)";
-				btnProcess1.Enabled  = false;
-				btnProcess2.Enabled  = false;
-				btnProcess3.Enabled  = false;
-				btnProcess4.Enabled  = false;
 				lblBureauURL.Text    = "";
 			//	lblMerchantKey.Text  = "";
 			//	lblMerchantUser.Text = "";
 				lblCards.Text        = "";
 				lblPayments.Text     = "";
+				EnableButtons(false);
 				return;
 			}
-//			btnProcess1.Text    = "Get Tokens";
-//			btnProcess2.Text    = "Token Payments";
-//			btnProcess3.Text    = "Delete Tokens";
-//			btnProcess4.Text    = "Card Payments";
-			btnProcess1.Enabled = true;
-			btnProcess2.Enabled = true;
-			btnProcess3.Enabled = true;
-			btnProcess4.Enabled = true;
-//			btnProcess1.CommandArgument = ((byte)Constants.TransactionType.GetToken).ToString();
-//			btnProcess2.CommandArgument = ((byte)Constants.TransactionType.TokenPayment).ToString();
-//			btnProcess3.CommandArgument = ((byte)Constants.TransactionType.DeleteToken).ToString();
-//			btnProcess4.CommandArgument = ((byte)Constants.TransactionType.CardPayment).ToString();
+			EnableButtons(true);
 
 			if ( bureauCode.Length > 0 )
 				using (Payments payments = new Payments())
@@ -278,6 +272,21 @@ namespace PCIWebRTR
 		protected void btnProcess4_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)Constants.TransactionType.CardPayment);
+		}
+
+		protected void btnProcess9_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.Transfer);
+		}
+
+		protected void btnProcess10_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.Reversal);
+		}
+
+		protected void btnProcess11_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.Refund);
 		}
 
 		protected void btnProcess5_Click(Object sender, EventArgs e)
@@ -583,7 +592,7 @@ namespace PCIWebRTR
 				               + "- By user code(s) = "                 + Tools.ConfigValue("Access/UserCode") + "<br />"
 				               + "- Via referring URL(s) = "            + Tools.ConfigValue("Access/ReferURL") + "<br />"
 				               + "- User code logged in = "             + userCode + "<hr />"
-				               + "<u>Settings</u><br />"
+				               + "<u>Application Settings</u><br />"
 				               + "- System Mode = "                     + Tools.ConfigValue("SystemMode") + "<br />"
 				               + "- Process Mode = "                    + Tools.ConfigValue("ProcessMode") + "<br />"
 				               + "- Page timeout = "                    + Server.ScriptTimeout.ToString() + " seconds<br />"
@@ -613,7 +622,7 @@ namespace PCIWebRTR
 					Tools.OpenDB(ref conn);
 					if ( conn.Execute("select @@VERSION as SysVer,@@SERVERNAME as SrvName,getdate() as SrvDate") )
 						folder = folder + "<br />- Server Name = " + conn.ColString("SrvName")
-						                + "<br />- Server Date = " + conn.ColDate("SrvDate").ToString()
+						                + "<br />- Server Date = " + conn.ColDate  ("SrvDate").ToString()
 						                + "<br />- SQL Version = " + conn.ColString("SysVer");
 				}
 				finally
