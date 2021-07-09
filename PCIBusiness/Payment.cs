@@ -1007,23 +1007,23 @@ namespace PCIBusiness
 			paymentDescription        = dbConn.ColString("description"              ,0,0);
 
 		//	Card/token/transaction details, not always present, don't log errors
-			ccName           = dbConn.ColString("NameOnCard"     ,0,0);
-			ccNumber         = dbConn.ColString("CardNumber"     ,0,0);
-			ccExpiryMonth    = dbConn.ColString("CardExpiryMonth",0,0);
-			ccExpiryYear     = dbConn.ColString("CardExpiryYear" ,0,0);
-			ccType           = dbConn.ColString("CardType"       ,0,0);
-			ccCVV            = dbConn.ColString("CVV"            ,0,0);
-			ccToken          = dbConn.ColString("Token"          ,0,0);
-			ccPIN            = dbConn.ColString("PIN"            ,0,0);
-			transactionID    = dbConn.ColString("TransactionId"  ,0,0);
+			ccName           = dbConn.ColUniCode("NameOnCard"     ,0,0);
+			ccNumber         = dbConn.ColString ("CardNumber"     ,0,0);
+			ccExpiryMonth    = dbConn.ColString ("CardExpiryMonth",0,0);
+			ccExpiryYear     = dbConn.ColString ("CardExpiryYear" ,0,0);
+			ccType           = dbConn.ColString ("CardType"       ,0,0);
+			ccCVV            = dbConn.ColString ("CVV"            ,0,0);
+			ccToken          = dbConn.ColString ("Token"          ,0,0);
+			ccPIN            = dbConn.ColString ("PIN"            ,0,0);
+			transactionID    = dbConn.ColString ("TransactionId"  ,0,0);
 		//	Used by Stripe (bureauCode 028)
-			customerID       = dbConn.ColString("CustomerId"     ,0,0);
-			paymentMethodID  = dbConn.ColString("PaymentMethodId",0,0);
+			customerID       = dbConn.ColString ("CustomerId"     ,0,0);
+			paymentMethodID  = dbConn.ColString ("PaymentMethodId",0,0);
 
 		//	Contract/customer mandate
-			mandateDateTime  = dbConn.ColDate  ("ContractDate"   ,0,0);
-			mandateIPAddress = dbConn.ColString("IPAddres"       ,0,0);
-			mandateBrowser   = dbConn.ColString("Browser"        ,0,0);
+			mandateDateTime  = dbConn.ColDate   ("ContractDate"   ,0,0);
+			mandateIPAddress = dbConn.ColString ("IPAddres"       ,0,0);
+			mandateBrowser   = dbConn.ColString ("Browser"        ,0,0);
 
 		//	Token Provider (if empty, then it is the same as the payment provider)
 			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )
