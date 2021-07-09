@@ -105,76 +105,69 @@ namespace PCIBusiness
 
 		public int ProcessCards(string bureau,byte transactionType=0,int rowsToProcess=0,string bureaCodeTokenize="")
 		{
-			int    maxRows  = Tools.StringToInt(Tools.ConfigValue("MaximumRows"));
-			int    iter     = 0;
-			int    rowsDone = 0;
-			string desc     = "";
-
+			int    maxRows    = Tools.StringToInt(Tools.ConfigValue("MaximumRows"));
+			int    iter       = 0;
+			int    rowsDone   = 0;
+			string spr        = "";
+			string desc       = Tools.TransactionTypeName(transactionType);
 			bureauCode        = Tools.NullToString(bureau);
 			bureaCodeTokenize = Tools.NullToString(bureau);
 			success           = 0;
 			fail              = 0;
 			maxRows           = ( maxRows < 1 ? Constants.MaxRowsPayment : maxRows );
+			sql               = "";
 
 			if ( bureauCode.Length < 1 )
 				return 0;
 
+//	Transaction types with stored procedures to return data
 			else if ( transactionType == (byte)Constants.TransactionType.GetToken )
-    		{
-				sql  = "exec sp_Get_CardToToken " + Tools.DBString(bureauCode);
-				desc = "Get Token";
-			}
+				spr  = "sp_Get_CardToToken";
 			else if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty )
-    		{
-				sql  = "exec sp_Get_CardToToken " + Tools.DBString(bureauCode);
-				desc = "(TokenEx) Get Token";
-			}
+				spr  = "sp_Get_CardToToken";
 			else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
-    		{
-				sql  = "exec sp_Get_TokenPayment " + Tools.DBString(bureauCode);
-				desc = "Token Payment";
-			}
+				spr  = "sp_Get_TokenPayment";
 			else if ( transactionType == (byte)Constants.TransactionType.CardPayment )
-    		{
-				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
-				desc = "Card Payment";
-			}
+				spr  = "sp_Get_CardPayment";
 			else if ( transactionType == (byte)Constants.TransactionType.CardPaymentThirdParty )
-    		{
-				sql  = "exec sp_Get_CardPayment " + Tools.DBString(bureauCode);
-				desc = "(TokenEx) Card Payment";
-			}
+				spr  = "sp_Get_CardPayment";
 			else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
-    		{
-				sql  = "exec sp_Get_TokenToDelete " + Tools.DBString(bureauCode);
-				desc = "Delete Token";
-			}
+				spr  = "sp_Get_TokenToDelete";
 			else if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken )
-    		{
-			//	sql  = "select '4111117223051111' as PaymentBureauToken,'XYZ' as ContractCode,'https://test-api.tokenex.com' as URL";
-				sql  = "exec sp_TokenEx_Detoken " + Tools.DBString(bureauCode);
-				desc = "Get Card from Token";
-			}
+				spr  = "sp_TokenEx_Detoken";
+
+//	Transaction types with SELECT statements (testing)
+			else if ( transactionType == (byte)Constants.TransactionType.Reversal )
+				sql  = "select 'Rev-001' as merchantReference,'1234' as token,'cj8WeFwDcTCkE74vxYR3V8nX0yv5pyf4Hp0j9oxZtFVZDyI6exUxL7gmlkoC7o2r' as transactionId,899 as amountInCents,'ZAR' as currencyCode,2 as Seq"
+			        + " union select 'Rev-002','1234','vEYFbdWHvcnXTXsyYguNwO7vgDl4DeoCJmfCQAZXnk26oureLdSV88xiXXIy3raP',899,'ZAR',3"
+			        + " union select 'Rev-003','1234','O1xHMzGWuk4PgBQkClQeP3l7ndwO7h3Szu6iNb7yIpw8CtTH03gZ3wgBLBk6ZcbQ',899,'ZAR',4"
+			        + " union select 'Rev-005','1234','qd765s7iBnXxzdif515p7OSFGlPmcr5YhPLZlNkwtQqNtoFrWmR8BG0piRiBOyoH',899,'ZAR',1"
+			        + " union select 'Rev-004','1234','cvDhXW4DMaxeoTSOd2afjDphVdBdYJ5gJTYYXc2ig2I1D6Lw2QgjVZtt5X9r8Mgq',899,'ZAR',5"
+			        + " order by Seq";
+			else if ( transactionType == (byte)Constants.TransactionType.Refund )
+				sql  = "select 'Ref-001' as merchantReference,'' as token,'' as transactionId,388 as amountInCents,'ZAR' as currencyCode";
 			else if ( transactionType == (byte)Constants.TransactionType.Transfer )
-    		{
 				sql  = "select 'ZA' as CountryCode,'Janet Smith' as AccountName,'111111' as SortCode,'111111' as AccountNumber,'ZAR' as CurrencyCode,997 as Amount";
-			//	sql  = "exec sp_Blah " + Tools.DBString(bureauCode);
-				desc = "Transfer Funds";
-			}
+
+//	Transaction types unknown
 			else
 				return 0;
 
 			if ( rowsToProcess < 1 )
 				rowsToProcess = 0;
 
-			if ( maxRows > 0 && rowsToProcess > 0 )
-				sql = sql + "," + Math.Min(maxRows,rowsToProcess).ToString();
-			else if ( maxRows > 0 )
-				sql = sql + "," + maxRows.ToString();
-			else if ( rowsToProcess > 0 )
-				sql = sql + "," + rowsToProcess.ToString();
-			else
-				sql = sql + "," + Constants.MaxRowsPayment.ToString();
+			if ( spr.Length > 0 ) // Stored proc, not SELECT
+			{
+				sql = "exec " + spr + " " + Tools.DBString(bureauCode) + ",";
+				if ( maxRows > 0 && rowsToProcess > 0 )
+					sql = sql + Math.Min(maxRows,rowsToProcess).ToString();
+				else if ( maxRows > 0 )
+					sql = sql + maxRows.ToString();
+				else if ( rowsToProcess > 0 )
+					sql = sql + rowsToProcess.ToString();
+				else
+					sql = sql + Constants.MaxRowsPayment.ToString();
+			}
 
 			Tools.LogInfo("ProcessCards/15",desc + ", MaxRows=" + maxRows.ToString()+", RowsToProcess=" + rowsToProcess.ToString()+", BureauCode="+bureauCode+", SQL="+sql,199,this);
 
@@ -200,6 +193,13 @@ namespace PCIBusiness
 							err = payment.DeleteToken();
 						else if ( transactionType == (byte)Constants.TransactionType.GetCardFromToken )
 							err = payment.Detokenize();
+						else if ( transactionType == (byte)Constants.TransactionType.Reversal )
+							err = payment.Reversal();
+						else if ( transactionType == (byte)Constants.TransactionType.Refund )
+							err = payment.Refund();
+						else if ( transactionType == (byte)Constants.TransactionType.Transfer )
+						//	err = payment.Transfer();
+							err = 41999;
 						else if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty )
 						{
 							payment.TokenizerCode = bureaCodeTokenize;

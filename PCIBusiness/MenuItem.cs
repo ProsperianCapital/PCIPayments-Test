@@ -11,6 +11,7 @@ namespace PCIBusiness
 		private string menuName;
 		private string menuDescription;
 		private string routerLink;
+		private string blocked;
 		private string url;
 		private string imageName;
 		private string displayImageOrText;
@@ -43,6 +44,10 @@ namespace PCIBusiness
 		public string   ImageName
 		{
 			get { return Tools.NullToString(imageName); }
+		}
+		public string   Blocked
+		{
+			get { return Tools.NullToString(blocked); }
 		}
 		public string   RouterLink
 		{
@@ -84,6 +89,7 @@ namespace PCIBusiness
 			displayImageOrText = dbConn.ColString("DisplayMenuLevel1Image");
 			url                = dbConn.ColString("URL");
 			routerLink         = dbConn.ColString("RouterLink",0,0);
+			blocked            = dbConn.ColString("Blocked",0,0);
 
 //	See RouterLink "Get" method
 //			if ( routerLink.Length < 1 && url.Length > 0 )

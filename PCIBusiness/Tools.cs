@@ -1659,6 +1659,9 @@ namespace PCIBusiness
 			if ( transactionType == (byte)Constants.TransactionType.ManualPayment         ) return "Manual Payment";
 			if ( transactionType == (byte)Constants.TransactionType.ThreeDSecurePayment   ) return "3d Secure Payment";
 			if ( transactionType == (byte)Constants.TransactionType.TokenPayment          ) return "Token Payment";
+			if ( transactionType == (byte)Constants.TransactionType.Reversal              ) return "Payment Reversal";
+			if ( transactionType == (byte)Constants.TransactionType.Refund                ) return "Refund";
+			if ( transactionType == (byte)Constants.TransactionType.Transfer              ) return "Transfer";
 			if ( transactionType == (byte)Constants.TransactionType.Test                  ) return "Test";
 			return "Unknown (transactionType=" + transactionType.ToString() + ")";
 		}

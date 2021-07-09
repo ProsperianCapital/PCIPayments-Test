@@ -58,8 +58,8 @@ namespace PCIBusiness
 				if ( execMode == 1 )
 				{
 					returnCode    = dbConn.ColLong  ("ReturnCode");
-					returnMessage = dbConn.ColString("ReturnMessage",0);
-					returnData    = dbConn.ColString("ReturnData",0);
+					returnMessage = dbConn.ColString("ReturnMessage",0,0);
+					returnData    = dbConn.ColString("ReturnData",0,0);
 				}
 				else if ( execMode == 2 )
 					returnCode    = dbConn.ReturnValue;
