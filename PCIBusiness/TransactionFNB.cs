@@ -23,17 +23,23 @@ namespace PCIBusiness
 //				         + Tools.JSONPair("expiryDate"    ,"20251231",1,"","}");
 //	Testing
 
-				xmlSent  = Tools.JSONPair("cardHolderName",payment.CardName,1,"{")
-				         + Tools.JSONPair("pan"           ,payment.CardNumber,1)
-				         + Tools.JSONPair("cvv"           ,payment.CardCVV,1)
-				         + Tools.JSONPair("expiryDate"    ,payment.CardExpiryYYYY + payment.CardExpiryMM + payment.CardExpiryDD,1,"","}");
+				if ( payment.CardName.Length > 0 )
+					xmlSent = Tools.JSONPair("cardHolderName",payment.CardName,1,"{");
+				else if ( payment.LastName.Length + payment.FirstName.Length > 0 )
+					xmlSent = Tools.JSONPair("cardHolderName",(payment.FirstName+" "+payment.LastName).Trim(),1,"{");
+				else
+					xmlSent = "{";
+
+				xmlSent  = xmlSent + Tools.JSONPair("pan"       ,payment.CardNumber,1)
+				                   + Tools.JSONPair("cvv"       ,payment.CardCVV,1)
+				                   + Tools.JSONPair("expiryDate",payment.CardExpiryYYYY + payment.CardExpiryMM + payment.CardExpiryDD,1,"","}");
 				ret      = 20;
 				ret      = CallWebService(payment,(byte)Constants.TransactionType.GetToken);
 				payToken = Tools.JSONValue(strResult,"transactionId");
 				if ( ret == 0 && payToken.Length > 0 )
 					return 0;
-
-				Tools.LogInfo("GetToken/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
+				if ( ret == 0 )
+					Tools.LogInfo("GetToken/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
@@ -61,7 +67,8 @@ namespace PCIBusiness
 				otherRef = Tools.JSONValue(strResult,"transactionId");
 				if ( ret == 0 && otherRef.Length > 0 )
 					return 0;
-				Tools.LogInfo("Reversal/50","JSON Rec="+strResult,199,this);
+				if ( ret == 0 )
+					Tools.LogInfo("Reversal/50","JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
@@ -92,7 +99,8 @@ namespace PCIBusiness
 				otherRef = Tools.JSONValue(strResult,"transactionId");
 				if ( ret == 0 && otherRef.Length > 0 )
 					return 0;
-				Tools.LogInfo("Refund/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
+				if ( ret == 0 )
+					Tools.LogInfo("Refund/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
@@ -173,7 +181,8 @@ namespace PCIBusiness
 //					ret = 50;
 //				}
 
-				Tools.LogInfo("TokenPayment/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
+				if ( ret == 0 )
+					Tools.LogInfo("TokenPayment/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
