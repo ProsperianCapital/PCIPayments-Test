@@ -818,6 +818,27 @@ namespace PCIBusiness
 			return retProc;
 		}
 
+		public int Lookup()
+		{
+			int retProc = 64120;
+			int retSQL  = 64120;
+			sql         = "";
+
+			if ( transaction == null || transaction.BureauCode != bureauCode )
+				transaction = Tools.CreateTransaction(bureauCode);
+			if ( transaction == null )
+				return retProc;
+
+			retProc = transaction.Lookup(this);
+			sql     = "exec sp_Upd_CardPayment_Ref @TransactionID = "           + Tools.DBString(TransactionID)
+			                                   + ",@TransactionStatusCode = "   + Tools.DBString(transaction.ResultCode);
+//			                                   + ",@TransactionStatusReason = " + Tools.DBString(transaction.ResultMessage);
+			Tools.LogInfo("Lookup/20","SQL=" + sql,20,this);
+			retSQL = ExecuteSQLUpdate();
+
+			return retProc;
+		}
+
 		public int Refund()
 		{
 			int retProc = 64020;
@@ -981,6 +1002,14 @@ namespace PCIBusiness
 			providerProfileID = dbConn.ColString("MerchantProfileId"   ,0,0);
 			providerUserID    = dbConn.ColString("MerchantUserId"      ,0,0);
 			providerPassword  = dbConn.ColString("MerchantUserPassword",0,0);
+
+		//	Lookup
+			if ( dbConn.ColStatus("TransactionId") == Constants.DBColumnStatus.ColumnOK &&
+			     dbConn.ColStatus("CardNumber")    != Constants.DBColumnStatus.ColumnOK )
+			{
+				transactionID = dbConn.ColString ("TransactionId");
+				return;
+			}
 
 		//	Customer
 			if ( dbConn.ColStatus("lastName") == Constants.DBColumnStatus.ColumnOK )

@@ -38,8 +38,8 @@ namespace PCIBusiness
 				payToken = Tools.JSONValue(strResult,"transactionId");
 				if ( ret == 0 && payToken.Length > 0 )
 					return 0;
-				if ( ret == 0 )
-					Tools.LogInfo("GetToken/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
+
+				Tools.LogInfo("GetToken/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
@@ -67,13 +67,59 @@ namespace PCIBusiness
 				otherRef = Tools.JSONValue(strResult,"transactionId");
 				if ( ret == 0 && otherRef.Length > 0 )
 					return 0;
-				if ( ret == 0 )
-					Tools.LogInfo("Reversal/50","JSON Rec="+strResult,199,this);
+				Tools.LogInfo("Reversal/50","JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
 				Tools.LogInfo     ("Reversal/98","Ret="+ret.ToString(),255,this);
 				Tools.LogException("Reversal/99","Ret="+ret.ToString(), ex,this);
+			}
+			return ret;
+		}
+
+		public override int Lookup(Payment payment)
+		{
+			int ret  = 10;
+			otherRef = "";
+			xmlSent  = "";
+
+			if ( payment.TransactionID.Length < 1 )
+			{
+				resultCode = "ERROR/141";
+				resultMsg  = "Missing TransactionId";
+				return 20;
+			}
+
+			try
+			{
+//	Testing
+//				payment.TransactionID = "SGwHoKZ4lbYYVjDhIDKcewqsEpSr7Wkh5k8bCTPalVmjx74kzAmkGQw1gR8HOwwT";
+//	Testing
+
+				ret      = 40;
+				ret      = CallWebService(payment,(byte)Constants.TransactionType.TransactionLookup);
+				otherRef = Tools.JSONValue(strResult,"id");
+				if ( resultCode.ToUpper().StartsWith("BUSY") || resultCode.ToUpper().StartsWith("APPROV") )
+				{
+				//	All OK
+				}
+				else if ( resultMsg.Length > 0 )
+					resultCode = resultMsg;
+				else
+					resultCode = "ERROR/142";
+
+//				if ( ret == 0 && otherRef.Length > 0 && resultCode.Length > 0 )
+//					if ( resultCode.ToUpper().StartsWith("DECLINE") && resultMsg.Length > 0 )
+//						resultCode = resultMsg;
+//				if ( resultCode.Length == 0 )
+//					resultCode = "ERROR";
+
+				Tools.LogInfo("Lookup/50","Ret="+ret.ToString()+", TransactionId="+payment.TransactionID+", ResultCode="+resultCode,199,this);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo     ("Lookup/98","Ret="+ret.ToString(),255,this);
+				Tools.LogException("Lookup/99","Ret="+ret.ToString(), ex,this);
 			}
 			return ret;
 		}
@@ -99,8 +145,7 @@ namespace PCIBusiness
 				otherRef = Tools.JSONValue(strResult,"transactionId");
 				if ( ret == 0 && otherRef.Length > 0 )
 					return 0;
-				if ( ret == 0 )
-					Tools.LogInfo("Refund/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
+				Tools.LogInfo("Refund/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
@@ -181,8 +226,7 @@ namespace PCIBusiness
 //					ret = 50;
 //				}
 
-				if ( ret == 0 )
-					Tools.LogInfo("TokenPayment/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
+				Tools.LogInfo("TokenPayment/50","JSON Sent="+xmlSent+", JSON Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
@@ -373,6 +417,10 @@ namespace PCIBusiness
 							resultMsg = Tools.JSONValue(strResult,"busyMessage");
 						else if ( resultCode.StartsWith("DECLINE") )
 							resultMsg = Tools.JSONValue(strResult,"declineMessage");
+						else if ( resultCode.StartsWith("APPROV") )
+							resultMsg = "";
+						else
+							resultMsg = strResult;
 						ret          = 0;
 					}
 					else
@@ -381,16 +429,25 @@ namespace PCIBusiness
 			}
 			catch (WebException ex1)
 			{
-				strResult    = Tools.DecodeWebException(ex1,ClassName+".CallWebService/291","ret="+ret.ToString());
+				strResult     = Tools.DecodeWebException(ex1,ClassName+".CallWebService/291","ret="+ret.ToString());
 				if ( strResult.Length == 0 )
-					strResult = Tools.JSONPair("status" ,ex1.Status.ToString(),1,"{")
-					          + Tools.JSONPair("error"  ,ex1.Message,1)
-					          + Tools.JSONPair("message",ex1.ToString(),1,"","}");
+				{
+					strResult  = Tools.JSONPair("status" ,ex1.Status.ToString(),1,"{")
+					           + Tools.JSONPair("error"  ,ex1.Message,1)
+					           + Tools.JSONPair("message",ex1.ToString(),1,"","}");
+					resultCode = ex1.Status.ToString();
+				}
 				else
 				{
 					resultCode = Tools.JSONValue(strResult,"statusCode").ToUpper();
 					resultMsg  = Tools.JSONValue(strResult,"message");
+					if ( resultMsg.Length == 0 )
+						resultMsg = strResult;
 				}
+				if ( resultCode.Length == 0 )
+					resultCode = "ERROR/291";
+				if ( resultMsg.Length == 0 )
+					resultMsg  = ex1.Message;
 			}
 			catch (Exception ex2)
 			{
@@ -404,7 +461,13 @@ namespace PCIBusiness
 				{
 					resultCode = Tools.JSONValue(strResult,"statusCode").ToUpper();
 					resultMsg  = Tools.JSONValue(strResult,"message");
+					if ( resultMsg.Length == 0 )
+						resultMsg = strResult;
 				}
+				if ( resultCode.Length == 0 )
+					resultCode = "ERROR/293";
+				if ( resultMsg.Length == 0 )
+					resultMsg  = ex2.Message;
 			}
 			if ( ret > 0 )
 				Tools.LogInfo("CallWebService/299","ret="       +ret.ToString()

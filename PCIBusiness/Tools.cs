@@ -1666,6 +1666,7 @@ namespace PCIBusiness
 			if ( transactionType == (byte)Constants.TransactionType.Reversal              ) return "Payment Reversal";
 			if ( transactionType == (byte)Constants.TransactionType.Refund                ) return "Refund";
 			if ( transactionType == (byte)Constants.TransactionType.Transfer              ) return "Transfer";
+			if ( transactionType == (byte)Constants.TransactionType.TransactionLookup     ) return "Transaction Lookup";
 			if ( transactionType == (byte)Constants.TransactionType.Test                  ) return "Test";
 			return "Unknown (transactionType=" + transactionType.ToString() + ")";
 		}

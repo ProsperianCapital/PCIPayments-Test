@@ -194,6 +194,11 @@ namespace PCIBusiness
 			return 14060;
 		}
 
+		public virtual int Lookup(Payment payment)
+		{
+			return 14065;
+		}
+
 		public virtual int CardTest(Payment payment)
 		{
 			return 14070;
