@@ -94,24 +94,25 @@ function PaySingle(mode)
 	</table>
 	<asp:Panel runat="server" ID="pnlButtons" CssClass="ButtonRow">
 		<div style="color:red;font-weight:bold">Tokens</div>
-		<asp:Button  runat="server" ID="btnProcess1" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Creating tokens ... please be patient')" onclick="btnProcess1_Click" Text="Create (Direct)" />
-		<asp:Button  runat="server" ID="btnProcess6" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Creating tokens ... please be patient')" onclick="btnProcess6_Click" Text="Create (via TokenEx)" />
-		<asp:Button  runat="server" ID="btnProcess3" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Deleting tokens ... please be patient')" onclick="btnProcess3_Click" Text="Delete" />
-		<asp:Button  runat="server" ID="btnProcess7" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Retrieving tokens ... please be patient')" onclick="btnProcess7_Click" Text="Retrieve (get Card no's)" />
+		<asp:Button  runat="server" ID="btnProcess1"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Creating tokens ... please be patient')" onclick="btnProcess1_Click" Text="Create (Direct)" />
+		<asp:Button  runat="server" ID="btnProcess6"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Creating tokens ... please be patient')" onclick="btnProcess6_Click" Text="Create (via TokenEx)" />
+		<asp:Button  runat="server" ID="btnProcess3"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Deleting tokens ... please be patient')" onclick="btnProcess3_Click" Text="Delete" />
+		<asp:Button  runat="server" ID="btnProcess7"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Retrieving tokens ... please be patient')" onclick="btnProcess7_Click" Text="Retrieve (get Card no's)" />
 		<div style="color:red;font-weight:bold">Payments</div>
-		<asp:Button  runat="server" ID="btnProcess2" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess2_Click" Text="Tokens (Direct)" />
-		<asp:Button  runat="server" ID="btnProcess4" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess4_Click" Text="Cards (Direct)" />
-		<asp:Button  runat="server" ID="btnProcess5" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess5_Click" Text="Cards (via TokenEx)" />
-		<asp:Button  runat="server" ID="btnTest"     CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Testing ... please be patient')" onclick="btnTest_Click" Text="Test" />
+		<asp:Button  runat="server" ID="btnProcess2"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess2_Click" Text="Tokens (Direct)" />
+		<asp:Button  runat="server" ID="btnProcess4"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess4_Click" Text="Cards (Direct)" />
+		<asp:Button  runat="server" ID="btnProcess5"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess5_Click" Text="Cards (via TokenEx)" />
+		<asp:Button  runat="server" ID="btnTest"      CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Testing ... please be patient')" onclick="btnTest_Click" Text="Test" />
 		<div style="color:red;font-weight:bold">Other</div>
+		<asp:Button  runat="server" ID="btnProcess8"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Validating transactions ... please be patient')" onclick="btnProcess8_Click" Text="Lookups" />
 		<asp:Button  runat="server" ID="btnProcess10" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing reversals ... please be patient')" onclick="btnProcess10_Click" Text="Reversals" />
 		<asp:Button  runat="server" ID="btnProcess11" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing refunds ... please be patient')" onclick="btnProcess11_Click" Text="Refunds" />
 		<asp:Button  runat="server" ID="btnProcess9"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing transfers ... please be patient')" onclick="btnProcess9_Click" Text="Transfers" />
 		<div style="color:red;font-weight:bold">Admin</div>
-		<asp:Button  runat="server" ID="btnConfig"   CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1)" onclick="btnConfig_Click" Text="Config" />
+		<asp:Button  runat="server" ID="btnConfig"    CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1)" onclick="btnConfig_Click" Text="Config" />
 		<input type="button" class="Button" value="Logs"        style="width: 180px" OnClick="JavaScript:ShowElt('divLogs',1)" />
-		<asp:Button  runat="server" ID="btnSQL"      CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Executing SQL ...')" onclick="btnSQL_Click" Text="Test SQL ..." />
-		<asp:Button  runat="server" ID="btnJSON"     CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Parsing JSON string ...')" onclick="btnJSON_Click" Text="Test JSON ..." visible="false" />
+		<asp:Button  runat="server" ID="btnSQL"       CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Executing SQL ...')" onclick="btnSQL_Click" Text="Test SQL ..." />
+		<asp:Button  runat="server" ID="btnJSON"      CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Parsing JSON string ...')" onclick="btnJSON_Click" Text="Test JSON ..." visible="false" />
 		<asp:TextBox runat="server" ID="txtTest" Width="450px"></asp:TextBox>
 	</asp:Panel>
 	<hr />

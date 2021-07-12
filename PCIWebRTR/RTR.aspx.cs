@@ -274,6 +274,11 @@ namespace PCIWebRTR
 			ProcessCards((byte)Constants.TransactionType.CardPayment);
 		}
 
+		protected void btnProcess8_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.TransactionLookup);
+		}
+
 		protected void btnProcess9_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)Constants.TransactionType.Transfer);
@@ -454,18 +459,18 @@ namespace PCIWebRTR
 			try
 			{
 				string tranType = Tools.TransactionTypeName(transactionType);
-				Tools.LogInfo("RTR.ProcessWeb/1","Started, " + tranType + ", provider " + provider,10);
+				Tools.LogInfo("ProcessWeb/1","Started, " + tranType + ", provider " + provider,10,this);
 
 				using (Payments payments = new Payments())
 				{
 					int k         = payments.ProcessCards(provider,transactionType,maxRows);
 					lblError.Text = (payments.CountSucceeded+payments.CountFailed).ToString() + " " + tranType + "(s) processed : " + payments.CountSucceeded.ToString() + " succeeded, " + payments.CountFailed.ToString() + " failed<br />&nbsp;";
 				}
-				Tools.LogInfo("RTR.ProcessWeb/2","Finished",10);
+				Tools.LogInfo("ProcessWeb/2","Finished",10,this);
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("RTR.ProcessWeb/9","",ex);
+				Tools.LogException("ProcessWeb/9","",ex,this);
 			}
 		}
 
