@@ -1005,9 +1005,10 @@ namespace PCIBusiness
 
 		//	Lookup
 			if ( dbConn.ColStatus("TransactionId") == Constants.DBColumnStatus.ColumnOK &&
-			     dbConn.ColStatus("CardNumber")    != Constants.DBColumnStatus.ColumnOK )
+			     dbConn.ColStatus("CardNumber")    != Constants.DBColumnStatus.ColumnOK &&
+			     dbConn.ColStatus("Token")         != Constants.DBColumnStatus.ColumnOK )
 			{
-				transactionID = dbConn.ColString ("TransactionId");
+				transactionID = dbConn.ColString("TransactionId");
 				return;
 			}
 

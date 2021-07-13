@@ -137,11 +137,13 @@ namespace PCIBusiness
 				spr  = "sp_TokenEx_Detoken";
 			else if ( transactionType == (byte)Constants.TransactionType.TransactionLookup )
 				spr  = "sp_Get_CardPayment_Ref";
+			//	Testing
 			//	sql  = "select 1 as Seq,'EoD35wlB34RtDeIVG74RqEexmT8aYkNOw9T2kEH3nyu21zWwQ10Ls9Y8zXfs4pVc' as TransactionId"
 			//      + " union select 2,'M4lbEu9BvQoM6PwmYsym2RrEfM58nh2VpO7vrEZleJ5JbypaP8PYn3wbIEMa1ndZ'"
 			//      + " union select 3,'r39TNmEhjjveTJOY4ZavHE4jmy7WbltlgB0pOYhoV7rxlo72nBTBBWk2ctRcptiZ'"
 			//      + " union select 4,'cWbkjnKdfCnJUnJWxPFqb3i6cQYOw1frg7mFp8VjvxkVh7S7Dn1T2Th1VTpIKRmc'"
 			//      + " union select 5,'ZlXzGHCFCxx5lrj9lwic80hdJ4P8PCKwd04fiAi7bGhErdAI6Dqyp2sGvhgZzXDe'"
+			//      + " union select 6,'GonzoTheSlodFace-WithAnInvalidTransactionIdThatWillFailEveryTime'"
 			//      + " order by Seq";
 
 //	Transaction types with SELECT statements (testing)

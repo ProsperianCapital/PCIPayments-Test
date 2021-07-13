@@ -94,6 +94,7 @@ namespace PCIBusiness
 			{
 //	Testing
 //				payment.TransactionID = "SGwHoKZ4lbYYVjDhIDKcewqsEpSr7Wkh5k8bCTPalVmjx74kzAmkGQw1gR8HOwwT";
+//				payment.TransactionID = "kkBOu59PBLkRvUKNXxBxsXSbhuADKFi5mOM5NVsEVHwWE7lJjAZFIlxoRmSS1nYn";
 //	Testing
 
 				ret      = 40;
@@ -345,23 +346,23 @@ namespace PCIBusiness
 				ret                            = 200;
 
 //	Testing
-//				string h = "";
-//				k        = 0;
-//				foreach (string key in webRequest.Headers.AllKeys )
-//				{
-//					h = h + Environment.NewLine + "[" + (k++).ToString() + "] " + key + " : ";
-//					if ( webRequest.Headers[key].ToUpper() == payment.ProviderKey.ToUpper() ||
-//					     webRequest.Headers[key].ToUpper() == payment.ProviderPassword.ToUpper() )
-//						h = h + Tools.MaskedValue(webRequest.Headers[key]);
-//					else
-//						h = h + webRequest.Headers[key];
-//				}
-//				Tools.LogInfo("CallWebService/20","Transaction Type=" + Tools.TransactionTypeName(transactionType) +
-//				                                ", URL="              + url +
-//				                                ", API Key="          + Tools.MaskedValue(payment.ProviderKey) +
-//				                                ", Instance Key="     + Tools.MaskedValue(payment.ProviderPassword) +
-//				                                ", Request Body="     + xmlSent +
-//				                                ", Request Headers="  + h, 199, this);
+				string h = "";
+				k        = 0;
+				foreach (string key in webRequest.Headers.AllKeys )
+				{
+					h = h + Environment.NewLine + "[" + (k++).ToString() + "] " + key + " : ";
+					if ( webRequest.Headers[key].ToUpper() == payment.ProviderKey.ToUpper() ||
+					     webRequest.Headers[key].ToUpper() == payment.ProviderPassword.ToUpper() )
+						h = h + Tools.MaskedValue(webRequest.Headers[key]);
+					else
+						h = h + webRequest.Headers[key];
+				}
+				Tools.LogInfo("CallWebService/20","Transaction Type=" + Tools.TransactionTypeName(transactionType) +
+				                                ", URL="              + url +
+				                                ", API Key="          + Tools.MaskedValue(payment.ProviderKey) +
+				                                ", Instance Key="     + Tools.MaskedValue(payment.ProviderPassword) +
+				                                ", Request Body="     + xmlSent +
+				                                ", Request Headers="  + h, 199, this);
 //	Testing
 
 				if ( xmlSent.Length > 0 && page.Length > 0 )
@@ -409,22 +410,44 @@ namespace PCIBusiness
 					//	Possible values for "status":
 					//		Approved
 					//		Declined
+					//		Failed
 					//		Reverse
 					//		Busy
+
 						ret          = 320;
 						resultCode   = Tools.JSONValue(strResult,"status").ToUpper();
-						if ( resultCode.StartsWith("BUSY") )
-							resultMsg = Tools.JSONValue(strResult,"busyMessage");
-						else if ( resultCode.StartsWith("DECLINE") )
-							resultMsg = Tools.JSONValue(strResult,"declineMessage");
-						else if ( resultCode.StartsWith("APPROV") )
+						if ( resultCode.StartsWith("APPROV") )
 							resultMsg = "";
 						else
-							resultMsg = strResult;
-						ret          = 0;
+						{
+							ret           = 330;
+							if ( resultCode.Length == 0 )
+								resultCode = "ERROR/330";
+							else if ( resultCode.StartsWith("BUSY") )
+								resultMsg = Tools.JSONValue(strResult,"busyMessage");
+							else if ( resultCode.StartsWith("DECLINE") )
+								resultMsg = Tools.JSONValue(strResult,"declineMessage");
+							else if ( resultCode.StartsWith("FAIL") )
+								resultMsg = Tools.JSONValue(strResult,"failMessage");
+							if ( resultMsg.Length == 0 )
+								resultMsg = strResult;
+						}
+
+//						if ( resultCode.StartsWith("BUSY") )
+//							resultMsg = Tools.JSONValue(strResult,"busyMessage");
+//						else if ( resultCode.StartsWith("DECLINE") )
+//							resultMsg = Tools.JSONValue(strResult,"declineMessage");
+//						else if ( resultCode.StartsWith("FAIL") )
+//							resultMsg = Tools.JSONValue(strResult,"failMessage");
+//						else if ( resultCode.StartsWith("APPROV") )
+//							resultMsg = "";
+//						else
+//							resultMsg = strResult;
+
+						ret = 0;
 					}
 					else
-						ret = 330;
+						ret = 370;
 				}
 			}
 			catch (WebException ex1)
