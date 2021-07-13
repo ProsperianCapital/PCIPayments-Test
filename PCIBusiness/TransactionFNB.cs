@@ -101,10 +101,15 @@ namespace PCIBusiness
 				ret      = CallWebService(payment,(byte)Constants.TransactionType.TransactionLookup);
 				otherRef = Tools.JSONValue(strResult,"id");
 				if ( resultCode.ToUpper().StartsWith("BUSY") || resultCode.ToUpper().StartsWith("APPROV") )
-				{
-				//	All OK
-				}
-				else if ( resultMsg.Length > 0 )
+					return ret;
+
+				Tools.LogInfo("Lookup/40","Ret="+ret.ToString()
+				                      + ", TransactionId="+payment.TransactionID
+				                      + ", ResultCode="+resultCode
+				                      + ", ResultMsg="+resultMsg
+				                      + ", strResult="+strResult,199,this);
+
+				if ( resultMsg.Length > 0 )
 					resultCode = resultMsg;
 				else
 					resultCode = "ERROR/142";
@@ -115,7 +120,7 @@ namespace PCIBusiness
 //				if ( resultCode.Length == 0 )
 //					resultCode = "ERROR";
 
-				Tools.LogInfo("Lookup/50","Ret="+ret.ToString()+", TransactionId="+payment.TransactionID+", ResultCode="+resultCode,199,this);
+//				Tools.LogInfo("Lookup/50","Ret="+ret.ToString()+", TransactionId="+payment.TransactionID+", ResultCode="+resultCode+", strResult="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
