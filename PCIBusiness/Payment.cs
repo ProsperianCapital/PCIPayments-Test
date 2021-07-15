@@ -543,8 +543,20 @@ namespace PCIBusiness
 		}
 		public string    PaymentDescription
 		{
-			get { return  Tools.NullToString(paymentDescription); }
 			set { paymentDescription = value.Trim(); }
+			get
+			{
+				paymentDescription = Tools.NullToString(paymentDescription);
+				if ( paymentDescription.Length > 0 )
+					return paymentDescription;
+				paymentDescription = Tools.ConfigValue("AppDescription");
+				if ( paymentDescription.Length > 0 )
+					return paymentDescription;
+				paymentDescription = SystemDetails.Owner;
+				if ( paymentDescription.Length > 0 )
+					return paymentDescription;
+				return "Prosperian Capital International";
+			}	
 		}
 		public string    PaymentDescriptionLeft(short maxLength)
 		{
@@ -701,6 +713,42 @@ namespace PCIBusiness
 					ccExpiryYear = "";
 			}
 		}
+
+		public long CardExpiryMilliSeconds
+		{
+			get
+			{
+				try
+				{
+//	Version 3, no need to bother with the hours, minutes or seconds
+					DateTimeOffset expDate = new DateTime ( System.Convert.ToInt32(CardExpiryYYYY),
+					                                        System.Convert.ToInt32(CardExpiryMM),
+					                                        System.Convert.ToInt32(CardExpiryDD) );
+					return expDate.ToUnixTimeSeconds();
+
+//	Version 2
+//					DateTime jan1970 = new DateTime ( 1970, 01, 01, 00, 00, 00 , System.DateTimeKind.Utc );
+//					DateTime expDate = new DateTime ( System.Convert.ToInt32(CardExpiryYYYY),
+//					                                  System.Convert.ToInt32(CardExpiryMM),
+//					                                  System.Convert.ToInt32(CardExpiryDD), 23, 59, 59, 59 );
+//					TimeSpan diff    = expDate - jan1970;
+//					return System.Convert.ToInt64(diff.TotalMilliseconds);
+
+//	Version 1
+//					DateTime jan1970 = new DateTime ( 1970, 01, 01, 00, 00, 00 );
+//					DateTime expDate = new DateTime ( System.Convert.ToInt32(CardExpiryYYYY),
+//					                                  System.Convert.ToInt32(CardExpiryMM),
+//					                                  System.Convert.ToInt32(CardExpiryDD), 23, 59, 59, 59 );
+//					TimeSpan diff    = expDate - jan1970;
+//					return System.Convert.ToInt64(diff.TotalMilliseconds);
+				}
+				catch
+				{ }
+				DateTimeOffset h = System.DateTime.Now.AddYears(1);
+				return h.ToUnixTimeSeconds();
+			}
+		}
+
 		public  string   CardName
 		{
 			get { return  Tools.NullToString(ccName); }

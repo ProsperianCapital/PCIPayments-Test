@@ -51,6 +51,8 @@ namespace PCIBusiness
 				writer.PageEvent = new PdfHeaderFooter();
 
 				if ( appName.Length < 1 )
+					appName = Tools.ConfigValue("AppDescription");
+				if ( appName.Length < 1 )
 					appName = "Prosperian Capital International";
 				if ( appVersion.Length < 1 )
 					appVersion = SystemDetails.AppVersion;

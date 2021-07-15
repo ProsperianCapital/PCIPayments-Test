@@ -149,7 +149,7 @@ namespace PCIBusiness
 
 //	Not needed
 //					        +   "<pay:ThreeDSecure>"
-//					        +     "<pay:BillingDescriptor>Prosperian Capital</pay:BillingDescriptor>"
+//					        +     "<pay:BillingDescriptor>" + Tools.XMLSafe(payment.PaymentDescription) + "</pay:BillingDescriptor>"
 //					        +     "<pay:Enrolled>Y</pay:Enrolled>"
 //					        +   "</pay:ThreeDSecure>"
 //					        +   "<pay:Redirect>"

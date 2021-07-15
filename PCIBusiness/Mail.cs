@@ -78,6 +78,7 @@ namespace PCIBusiness
 //		}
 		public  string Heading
 		{
+			get {	return Tools.NullToString(msg.Subject); }
 			set {	msg.Subject = value.Trim(); }
 		}
 		public  string Body
