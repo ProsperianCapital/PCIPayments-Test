@@ -328,11 +328,12 @@ namespace PCIBusiness
 				return 110;
 			}
 
-			ret        = 130;
-			strResult  = "";
-			resultCode = "130";
-			resultMsg  = "(130) Internal error connecting to " + url;
-			ret        = 140;
+			ret         = 130;
+			strResult   = "";
+			resultCode  = "130";
+			resultMsg   = "(130) Internal error connecting to " + url;
+			ret         = 140;
+			byte endLog = 0;
 
 //	Testing
 //			payment.ProviderKey      = "REVqzPb4PTiD4n7Fo3e1p1VyQUbvmy5YZuhxhUpqL0EcUTGWHPchIUd8m3LeixLf"; // API Key
@@ -407,6 +408,7 @@ namespace PCIBusiness
 						if ( resultURL.Length > 0 && k > 0 )
 						{
 							Tools.LogInfo("CallWebService/31","Success (" + urlPart + "), Location="+resultURL,199,this);
+							endLog     = 1;
 							ret        = 270;
 							strResult  = Tools.JSONPair("transactionId",resultURL.Substring(urlPart.Length+k),1,"{",",")
 							           + Tools.JSONPair("resultUrl",resultURL,1,"","}")
@@ -418,7 +420,11 @@ namespace PCIBusiness
 							resultMsg  = "";
 						}
 						else
-							ret = 290;
+						{
+							ret     = 290;
+							endLog  = 2;
+							Tools.LogInfo("CallWebService/32","Fail (" + urlPart + "), Location="+resultURL,199,this);
+						}
 					}
 					else if ( strResult.Length > 0 )
 					{
@@ -432,6 +438,8 @@ namespace PCIBusiness
 						ret        = 320;
 						resultMsg  = "";
 						resultCode = Tools.JSONValue(strResult,"status").ToUpper();
+						endLog     = 3;
+						Tools.LogInfo("CallWebService/33","strResult="+strResult,199,this);
 /*
 3d JSON result
 { "url":"https://sandbox.ms.fnb.co.za/eCommerce/v2/getPaymentOptions?token=XYZ",
@@ -464,7 +472,11 @@ namespace PCIBusiness
 						ret = 0;
 					}
 					else
-						ret = 370;
+					{
+						ret    = 370;
+						endLog = 4;
+						Tools.LogInfo("CallWebService/34","No headers, empty response body",199,this);
+					}
 				}
 			}
 			catch (WebException ex1)
@@ -509,7 +521,7 @@ namespace PCIBusiness
 				if ( resultMsg.Length == 0 )
 					resultMsg  = ex2.Message;
 			}
-			if ( ret > 0 )
+			if ( ret > 0 && endLog == 0 )
 				Tools.LogInfo("CallWebService/299","ret="       +ret.ToString()
 				                               + ", resultCode="+resultCode
 				                               + ", resultMsg=" +resultMsg
