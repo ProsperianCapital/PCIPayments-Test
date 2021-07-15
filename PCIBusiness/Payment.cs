@@ -724,7 +724,7 @@ namespace PCIBusiness
 					DateTimeOffset expDate = new DateTime ( System.Convert.ToInt32(CardExpiryYYYY),
 					                                        System.Convert.ToInt32(CardExpiryMM),
 					                                        System.Convert.ToInt32(CardExpiryDD) );
-					return expDate.ToUnixTimeSeconds();
+					return expDate.ToUnixTimeMilliseconds();
 
 //	Version 2
 //					DateTime jan1970 = new DateTime ( 1970, 01, 01, 00, 00, 00 , System.DateTimeKind.Utc );
@@ -745,7 +745,7 @@ namespace PCIBusiness
 				catch
 				{ }
 				DateTimeOffset h = System.DateTime.Now.AddYears(1);
-				return h.ToUnixTimeSeconds();
+				return h.ToUnixTimeMilliseconds();
 			}
 		}
 
