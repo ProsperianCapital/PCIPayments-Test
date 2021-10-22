@@ -63,6 +63,7 @@ namespace PCIBusiness
 				bureauStatus = 1; // Development
 				if ( bureauType == "PAYMENT" )
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU)        ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB)         ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24)         ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)      ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius)   ||

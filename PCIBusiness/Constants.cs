@@ -76,7 +76,8 @@ namespace PCIBusiness
 			PaymentsOS       = 27, // PayU Hub
 			Stripe_USA       = 28,
 			Stripe_EU        = 29,
-			Stripe_Asia      = 30
+			Stripe_Asia      = 30,
+			Authorize_Net    = 31
 		}
 
 		public enum MessageProvider : int
@@ -106,6 +107,18 @@ namespace PCIBusiness
 			None              = 0,
 			AllowScreenPaging = 209,
 			DoNotReadNextRow  = 244
+		}
+
+		public enum ApplicationCode : short
+		{
+			Registration =   0,
+			BackOffice   =   1,
+			CRM          =   2,
+			Mobile       =   6,
+			CareAssist   = 100,
+			iSOS         = 110,
+			LifeGuru     = 120,
+			PayPayYa     = 170
 		}
 
 		public enum BureauStatus : byte

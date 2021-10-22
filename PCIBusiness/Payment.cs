@@ -43,12 +43,13 @@ namespace PCIBusiness
 		private DateTime mandateDateTime;
 		private string   mandateIPAddress;
 		private string   mandateBrowser;
+		private string   contractCode;
 
 //	Payment Provider (eg. Peach)
 		private string   bureauCode;
 		private string   providerAccount;
 		private string   providerKey;
-//		private string   providerKeyPublic;
+		private string   providerKeyPublic;
 		private string   providerUserID;
 		private string   providerPassword;
 		private string   providerURL;
@@ -120,6 +121,10 @@ namespace PCIBusiness
 		{
 			get { return  Tools.NullToString(mandateBrowser); }
 		}
+		public string    ContractCode
+		{
+			get { return  Tools.NullToString(contractCode); }
+		}
 
 //		Stripe stuff
 		public string    CustomerID
@@ -187,6 +192,8 @@ namespace PCIBusiness
 					return "";
 
 //	Testing
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
+					return "{A580B3C7-3EF3-47F1-9B90-4047CE0EC54C}";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
 					return "27ededae-4ba3-486a-a243-8da1e4c1a067";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
@@ -206,25 +213,28 @@ namespace PCIBusiness
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA) ) // Public key
 					return "pk_test_51It78gGmZVKtO2iKXD0LEFRDvEs1Wkld93qRjifDLyWRoOgxXwGDJZzs9i902shBJqEk8v3XYg1WLLdButIK0QfU00xtFyxDQf";
 //					return "pk_test_51It78gGmZVKtO2iKc4eB6JveDn9HZAWR7F9cbiISEcYHGquyNoqb1YNnSQuzlJlR8maNlTUmaH0pBHHw4tZAOUBc00KZH2PeKW";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Authorize_Net) )
+					return "859v6V4N8H67pvAk";
 				return "";
 			}
 		}
-//		public string    ProviderKeyPublic
-//		{
-//			set { providerKeyPublic = value.Trim(); }
-//			get
-//			{
-//				if ( Tools.NullToString(providerKeyPublic).Length > 0 )
-//					return providerKeyPublic;
-//
-//				else if ( Tools.SystemIsLive() )
-//					return "";
-//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
-//					return "daea1771-d849-4fa4-a648-230a54186964";
-//
-//				return "";
-//			}
-//		}
+		public string    ProviderKeyPublic
+		{
+			set { providerKeyPublic = value.Trim(); }
+			get
+			{
+				if ( Tools.NullToString(providerKeyPublic).Length > 0 )
+					return providerKeyPublic;
+				else if ( Tools.SystemIsLive() )
+					return "";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
+					return "daea1771-d849-4fa4-a648-230a54186964";
+//				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
+//					return "Blah";
+
+				return "";
+			}
+		}
 		public string    ProviderProfileID
 		{
 			set { providerProfileID = value.Trim(); }
@@ -253,6 +263,8 @@ namespace PCIBusiness
 					return "";
 
 //	Testing
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
+					return "200208";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx) )
 					return "4311038889209736";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach) )
@@ -268,6 +280,8 @@ namespace PCIBusiness
 					return "31c799cd-18da-47c3-be95-f93bd90748e0";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "800060";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Authorize_Net) )
+					return "7a5bb4SW9GY";
 
 				return "";
 			}
@@ -283,6 +297,8 @@ namespace PCIBusiness
 					return "";
 
 //	Testing
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
+					return "g1Kzk8GY";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "3790d1d5-4847-43e6-a29a-f22180cc9fda"; // Private/secret key
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA) ) // Secret key
@@ -330,6 +346,8 @@ namespace PCIBusiness
 						return "https://secure.payu.co.za";
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
 						return "https://pay.ms.fnb.co.za";
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Authorize_Net) )
+						return "https://api.authorize.net/xml/v1/request.api";
 				}
 //	TESTING
 				else
@@ -338,6 +356,8 @@ namespace PCIBusiness
 						return "https://staging.payu.co.za";
 					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
 						return "https://sandbox.ms.fnb.co.za";
+					if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Authorize_Net) )
+						return "https://apitest.authorize.net/xml/v1/request.api";
 				}
 				return "";
 			}
@@ -511,7 +531,12 @@ namespace PCIBusiness
 //		}
 		public string    MerchantReference
 		{
-			get { return  Tools.NullToString(merchantReference); }
+			get
+			{
+				if ( string.IsNullOrWhiteSpace(merchantReference) )
+					merchantReference = contractCode;
+				return Tools.NullToString(merchantReference);
+			}
 			set { merchantReference = value.Trim(); }
 		}
 		public string    MerchantReferenceOriginal
@@ -1036,10 +1061,11 @@ namespace PCIBusiness
 			if ( dbConn.ColStatus("PaymentBureauToken") == Constants.DBColumnStatus.ColumnOK )
 			{
 				ccToken           = dbConn.ColString("PaymentBureauToken");
-				merchantReference = dbConn.ColString("ContractCode");
 				providerUserID    = dbConn.ColString("TxID");
 				providerKey       = dbConn.ColString("TxKey");
 				providerURL       = dbConn.ColString("TxURL");
+				contractCode      = dbConn.ColString("ContractCode");
+				merchantReference = contractCode;
 				return;
 			}
 
@@ -1050,6 +1076,7 @@ namespace PCIBusiness
 			providerProfileID = dbConn.ColString("MerchantProfileId"   ,0,0);
 			providerUserID    = dbConn.ColString("MerchantUserId"      ,0,0);
 			providerPassword  = dbConn.ColString("MerchantUserPassword",0,0);
+			providerKeyPublic = dbConn.ColString("MerchantKeyPublic"   ,0,0);
 
 		//	Lookup
 			if ( dbConn.ColStatus("TransactionId") == Constants.DBColumnStatus.ColumnOK &&
@@ -1077,6 +1104,7 @@ namespace PCIBusiness
 			//	ipAddress     = dbConn.ColString ("IPAddress"  ,0,0);
 			}
 
+
 		//	Payment
 			merchantReference         = dbConn.ColString("merchantReference"        ,0,0);
 			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0,0); // Only really for Ikajo, don't log error
@@ -1102,6 +1130,7 @@ namespace PCIBusiness
 			mandateDateTime  = dbConn.ColDate   ("ContractDate"   ,0,0);
 			mandateIPAddress = dbConn.ColString ("IPAddres"       ,0,0);
 			mandateBrowser   = dbConn.ColString ("Browser"        ,0,0);
+			contractCode     = dbConn.ColString ("ContractCode"   ,0,0);
 
 		//	Token Provider (if empty, then it is the same as the payment provider)
 			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )

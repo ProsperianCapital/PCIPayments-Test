@@ -258,6 +258,8 @@ namespace PCIBusiness
 					bureauURL = "https://pay.ms.fnb.co.za";
 				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
 					bureauURL = "https://api.paymentsos.com";
+				else if ( bureau == Constants.PaymentProvider.Authorize_Net )
+					bureauURL = "https://api.authorize.net/xml/v1/request.api";
 			}
 			else // Testing
 			{
@@ -282,6 +284,8 @@ namespace PCIBusiness
 					bureauURL = "https://apitest.cybersource.com";
 				else if ( bureau == Constants.PaymentProvider.CyberSource_Moto )
 					bureauURL = "https://apitest.cybersource.com";
+				else if ( bureau == Constants.PaymentProvider.Authorize_Net )
+					bureauURL = "https://apitest.authorize.net/xml/v1/request.api";
 			}
 		}
 
