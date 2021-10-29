@@ -259,7 +259,7 @@ function ListAdd(eltID,code,text)
 	}
 }
 
-function ValidateDate(dd,mm,yy,eltName)
+function ValidDate(dd,mm,yy,eltName)
 {
 // Standard date validation, assuming that all years ending in '00' are leap years (they aren't)
 
