@@ -77,7 +77,8 @@ namespace PCIBusiness
 			Stripe_USA       = 28,
 			Stripe_EU        = 29,
 			Stripe_Asia      = 30,
-			Authorize_Net    = 31
+//			Authorize_Net    = 31,
+			PaymentCloud     = 31
 		}
 
 		public enum MessageProvider : int
@@ -262,6 +263,11 @@ namespace PCIBusiness
 			FormPost      = 2,
 			JSON          = 3,
 			XML           = 4
+		}
+
+		public enum ErrorType : int
+		{
+			InvalidMenu = 1
 		}
 
 //		public enum PaymentType : byte

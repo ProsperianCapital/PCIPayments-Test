@@ -1686,7 +1686,7 @@ namespace PCIBusiness
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.T24)              ) return new TransactionT24();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate)           ) return new TransactionMyGate();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)          ) return new TransactionPayGate();
-			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Authorize_Net)    ) return new TransactionAuthorizeNet();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentCloud)     ) return new TransactionPaymentCloud(); // Renamed from Authorize.Net
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB)              ) return new TransactionFNB();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius)        ) return new TransactionPayGenius();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)         ) return new TransactionEcentric();
@@ -1721,6 +1721,12 @@ namespace PCIBusiness
 			return "Unknown (transactionType=" + transactionType.ToString() + ")";
 		}
 
+		public static string ErrorTypeName(int errType)
+		{
+			if ( errType < 1 )                                     return "";
+			if ( errType == (int)Constants.ErrorType.InvalidMenu ) return "Invalid/missing menu for this application/language";
+			return "";
+		}
 
 		public static string LoadGoogleAnalytics(string productCode)
 		{
