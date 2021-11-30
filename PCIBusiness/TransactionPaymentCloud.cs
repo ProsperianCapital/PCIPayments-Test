@@ -271,13 +271,24 @@ namespace PCIBusiness
 						xmlResult = new XmlDocument();
 						xmlResult.LoadXml(strResult.ToString());
 
-						ret            = 160;
-						resultStatus   = Tools.XMLNode(xmlResult,"resultCode","","","messages");
-						resultCode     = Tools.XMLNode(xmlResult,"code"      ,"","","message"); // NOT "messages"
-						resultMsg      = Tools.XMLNode(xmlResult,"text"      ,"","","message"); // NOT "messages"
-						ret            = 170;
-						errorCode      = Tools.XMLNode(xmlResult,"errorCode");
-						errorText      = Tools.XMLNode(xmlResult,"errorText");
+						ret          = 160;
+						resultStatus = Tools.XMLNode(xmlResult,"resultCode","","","messages");
+						resultCode   = Tools.XMLNode(xmlResult,"code"      ,"","","message"); // NOT "messages"
+						resultMsg    = Tools.XMLNode(xmlResult,"text"      ,"","","message"); // NOT "messages"
+						errorCode    = Tools.XMLNode(xmlResult,"errorCode" ,"","","error");
+						errorText    = Tools.XMLNode(xmlResult,"errorText" ,"","","error");
+						ret          = 166;
+						if ( strResult.ToUpper().Contains("<ERRORCODE>") && errorCode.Length < 1 )
+						{
+							ret   = 172;
+							int k = strResult.ToUpper().IndexOf("<ERRORCODE>");
+							int j = strResult.ToUpper().IndexOf("</ERRORCODE>");
+							int h = ("<ERRORCODE>").Length;
+							ret   = 176;
+							if ( j > k + h )
+								errorCode = strResult.Substring(k+h,j-(k+h));
+						}
+							
 						ret            = 180;
 
 						if (Successful)
@@ -316,8 +327,8 @@ namespace PCIBusiness
 			base.LoadBureauDetails(Constants.PaymentProvider.PaymentCloud);
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
-		//	logPriority                           = 233; // Testing, always log
-			logPriority                           =  10; // Live, only log errors
+			logPriority                           = 233; // Testing, always log
+		//	logPriority                           =  10; // Live, only log errors
 		}
 	}
 }
