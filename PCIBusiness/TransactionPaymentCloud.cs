@@ -12,11 +12,13 @@ namespace PCIBusiness
 //		It is actually the code for provider Authorize.Net, but Prosperian requested the name change
 //		So the URLS are all "Authorize.net"
 
-		byte logPriority;
+		byte   logPriority;
+		string errorCode;
+		string errorText;
 
 		public  bool Successful
 		{
-			get { return resultStatus.ToUpper() == "OK"; }
+			get { return (resultStatus.ToUpper() == "OK" && errorCode.Length == 0); }
 		}
 
 		public override int CardTest(Payment payment)
@@ -219,8 +221,10 @@ namespace PCIBusiness
 			xmlSent      = xmlSent.Replace("[AUTHENTICATION]",authXML);
 			strResult    = "";
 			resultStatus = "Error";
-			resultCode   = "98";
-			resultMsg    = "(98) Internal error connecting to " + url;
+			resultCode   = "X98";
+			resultMsg    = "(X98) Internal error connecting to " + url;
+			errorCode    = resultCode;
+			errorText    = resultMsg;
 			ret          = 70;
 
 			try
@@ -271,6 +275,9 @@ namespace PCIBusiness
 						resultStatus   = Tools.XMLNode(xmlResult,"resultCode","","","messages");
 						resultCode     = Tools.XMLNode(xmlResult,"code"      ,"","","message"); // NOT "messages"
 						resultMsg      = Tools.XMLNode(xmlResult,"text"      ,"","","message"); // NOT "messages"
+						ret            = 170;
+						errorCode      = Tools.XMLNode(xmlResult,"errorCode");
+						errorText      = Tools.XMLNode(xmlResult,"errorText");
 						ret            = 180;
 
 						if (Successful)
@@ -282,9 +289,13 @@ namespace PCIBusiness
 				                                      ", resultStatus=" + resultStatus +
 				                                      ", resultCode="   + resultCode +
 				                                      ", resultMsg="    + resultMsg +
+				                                      ", errorCode="    + errorCode +
+				                                      ", errorText="    + errorText +
 				                                      ", XML Rec="      + strResult, logPriority, this);
 
-						resultCode = resultStatus + ( resultCode.Length == 0 ? "" : "/" + resultCode );
+						resultCode = resultStatus
+						           + ( resultCode.Length == 0 ? "" : "/" + resultCode )
+						           + ( errorCode.Length  == 0 ? "" : "/" + errorCode  );
 					}
 				}
 			}

@@ -81,6 +81,7 @@ namespace PCIBusiness
 				webRequest.Method         = "POST";
 				xmlSent                   = soapXml.OuterXml;
 
+//	Testing (reset priority)
 				Tools.LogInfo("SendXML/10","URL=" + url + ", XML Sent=" + xmlSent,222,this);
 
 			// Insert soap envelope into web request
@@ -100,7 +101,8 @@ namespace PCIBusiness
 					}
 				}
 
-				Tools.LogInfo("SendXML/50","XML Rec=" + strResult,10,this);
+//	Testing (reset priority)
+				Tools.LogInfo("SendXML/50","XML Rec=" + strResult,222,this);
 
 			// Create an empty soap result object
 				ret       = 75;
@@ -116,7 +118,8 @@ namespace PCIBusiness
 				if ( Successful )
 					return 0;
 
-				Tools.LogInfo("SendXML/80","URL=" + url + ", XML Sent=" + xmlSent+", XML Rec="+strResult,231,this);
+//	Testing (put back in with high priority)
+//				Tools.LogInfo("SendXML/80","URL=" + url + ", XML Sent=" + xmlSent+", XML Rec="+strResult,231,this);
 			}
 			catch (WebException ex1)
 			{
@@ -264,22 +267,61 @@ namespace PCIBusiness
 
 		public override int ThreeDSecureCheck(string providerRef,string merchantRef="")
 		{
-			int ret = 800;
-			xmlSent = "";
+			int    ret   = 800;
+			string rCode = "X";
+			string rMsg  = "Internal Prosperian error [TransactionPayU.ThreeDSecureCheck]";
+			xmlSent      = "";
+			payToken     = "";
 
 			try
 			{
+				xmlSent     = "<Safekey>" + Tools.ProviderCredentials("PayU","Key") + "</Safekey>"
+				            + "<AdditionalInformation>"
+				            +	"<payUReference>" + providerRef + "</payUReference>"
+				            + "</AdditionalInformation>";
+				ret         = SendXML("","","","getTransaction");
+				payToken    = Tools.XMLNode(xmlResult,"pmId");
+				string amt  = Tools.XMLNode(xmlResult,"amountInCents");
+				string curr = Tools.XMLNode(xmlResult,"currencyCode");
+				if ( payToken.Length > 14 && payToken.ToUpper().Contains("\"SESSIONID\"") )
+					payToken = Tools.JSONValue(payToken,"sessionId");
+				if ( merchantRef.Length < 1 )
+					merchantRef = Tools.XMLNode(xmlResult,"merchantReference");
+
+//	Keep the codes from the above call
+				rCode = resultCode;
+				rMsg  = resultMsg;
+
+//	Now finalize (or cancel) the initial RESERVE transaction
+
+				if ( Successful && payToken.Length > 0 )
+					xmlSent = "FINALIZE";
+				else
+					xmlSent = "RESERVE_CANCEL";
+
+				ret     = 820;
 				xmlSent = "<Safekey>" + Tools.ProviderCredentials("PayU","Key") + "</Safekey>"
-				        + "<AdditionalInformation>"
-				        +	"<payUReference>" + providerRef + "</payUReference>"
-				        + "</AdditionalInformation>";
-				ret     = SendXML("","","","getTransaction");
+		              + "<TransactionType>" + xmlSent + "</TransactionType>"
+		              + "<AdditionalInformation>"
+		              +   "<merchantReference>" + merchantRef + "</merchantReference>"
+		              +   "<payUReference>"     + providerRef + "</payUReference>"
+		              + "</AdditionalInformation>"
+		              + "<Basket>"
+		              +	"<amountInCents>" + amt + "</amountInCents>"
+		              +	"<currencyCode>" + curr + "</currencyCode>"
+		              + "</Basket>";
+				ret     = SendXML("","","");
 			}
 			catch (Exception ex)
 			{
 				Tools.LogInfo     ("ThreeDSecureCheck/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
 				Tools.LogException("ThreeDSecureCheck/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex ,this);
 			}
+
+//	Reset the codes from the 3d secure check
+			resultCode = rCode;
+			resultMsg  = rMsg;
+
 			return ret;
 		}
 
@@ -301,17 +343,6 @@ namespace PCIBusiness
 //	//		payment.CardToken        = "E13648542276F54C44C754843840821D";
 //			payment.CardToken        = "74BF0BC8AE9987B423AA94A4BC894A2A"; // This token WORKS!
 //	Testing
-
-//	Not needed
-//		   +   "<secure3d>false</secure3d>"
-//       +   "<storePaymentMethod>true</storePaymentMethod>"
-
-//       +   "<email>" + payment.EMail + "</email>"
-//       +   "<firstName>" + payment.FirstName + "</firstName>"
-//       +   "<lastName>" + payment.LastName + "</lastName>"
-//       +   "<mobile>" + payment.PhoneCell + "</mobile>"
-
-//		   +   "<cvv></cvv>"
 
 			try
 			{
@@ -375,10 +406,23 @@ namespace PCIBusiness
 				else
 					xmlSent = Tools.URLString(payment.CardNumber);
 
+//	2021/11/11 NOT Added
+//				        + "<Customfield>"
+//				        +   "<key>processingType</key>"
+//				        +   "<value>REAL_TIME_RECURRING</value>"
+//				        + "</Customfield>"
+//	2021/11/11 Added
+//				        + "<AdditionalInformation>"
+//				        +   "<storePaymentMethod>true</storePaymentMethod>"
+//				        +   "<supportedPaymentMethods>CREDITCARD_TOKEN</supportedPaymentMethods>"
+//	2021/11/11 Removed
+//				        +   "<supportedPaymentMethods>CREDITCARD</supportedPaymentMethods>"
+
 				xmlSent = "<Safekey>" + payment.ProviderKey + "</Safekey>"
 				        + "<TransactionType>RESERVE</TransactionType>"
 				        + "<AdditionalInformation>"
-				        +   "<supportedPaymentMethods>CREDITCARD</supportedPaymentMethods>"
+				        +   "<storePaymentMethod>true</storePaymentMethod>"
+				        +   "<supportedPaymentMethods>CREDITCARD_TOKEN</supportedPaymentMethods>"
 				        +   "<secure3d>true</secure3d>"
 				        +   "<returnUrl>"         + url                       + "</returnUrl>"
 				        +   "<cancelUrl>"         + url                       + "</cancelUrl>"
@@ -425,6 +469,11 @@ namespace PCIBusiness
 					Tools.LogInfo("ThreeDSecurePayment/50","PayRef=" + payRef + "; SQL=" + sql + "; " + d3Form,10,this);
 					return 0;
 				}
+				else if ( ret == 0 && payRef.Length == 0 )
+					ret = 73;
+				else if ( ret == 0 && d3Form.Length == 0 )
+					ret = 74;
+
 //				Tools.LogInfo("ThreeDSecurePayment/60","ResultCode="+ResultCode + ", payRef=" + payRef,221,this);
 			}
 			catch (Exception ex)
