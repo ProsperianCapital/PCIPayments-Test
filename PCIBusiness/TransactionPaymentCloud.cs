@@ -277,36 +277,45 @@ namespace PCIBusiness
 						resultMsg    = Tools.XMLNode(xmlResult,"text"      ,"","","message"); // NOT "messages"
 						errorCode    = Tools.XMLNode(xmlResult,"errorCode" ,"","","error");
 						errorText    = Tools.XMLNode(xmlResult,"errorText" ,"","","error");
-						ret          = 166;
+						ret          = 165;
 						if ( strResult.ToUpper().Contains("<ERRORCODE>") && errorCode.Length < 1 )
 						{
-							ret   = 172;
+							ret   = 170;
 							int k = strResult.ToUpper().IndexOf("<ERRORCODE>");
 							int j = strResult.ToUpper().IndexOf("</ERRORCODE>");
 							int h = ("<ERRORCODE>").Length;
-							ret   = 176;
+							ret   = 175;
 							if ( j > k + h )
 								errorCode = strResult.Substring(k+h,j-(k+h));
 						}
+
+//						ret = 180;
+//						if ( errorCode.Length < 1 )
+//							errorCode = Tools.XMLNode(xmlResult,"code" ,"","","message");
+//						ret = 185;
+//						if ( errorText.Length < 1 )
+//							errorText = Tools.XMLNode(xmlResult,"description" ,"","","message");
 							
-						ret            = 180;
+						ret = 0;
 
-						if (Successful)
-							ret         = 0;
-						else
-							logPriority = 222; // Force logging
-
-						Tools.LogInfo("CallWebService/60","ret="          + ret.ToString() +
+						Tools.LogInfo("CallWebService/60","Successful="   + Successful.ToString() +
 				                                      ", resultStatus=" + resultStatus +
 				                                      ", resultCode="   + resultCode +
 				                                      ", resultMsg="    + resultMsg +
 				                                      ", errorCode="    + errorCode +
 				                                      ", errorText="    + errorText +
-				                                      ", XML Rec="      + strResult, logPriority, this);
+				                                      ", XML Rec="      + strResult,
+						                                 ( Successful ? logPriority : (byte)244 ), this);
+						if (Successful)
+							resultCode = "1";
 
-						resultCode = resultStatus
-						           + ( resultCode.Length == 0 ? "" : "/" + resultCode )
-						           + ( errorCode.Length  == 0 ? "" : "/" + errorCode  );
+						else
+						{
+							ret        = 190;
+							resultCode = resultStatus
+							           + ( resultCode.Length == 0 ? "" : "/" + resultCode )
+							           + ( errorCode.Length  == 0 ? "" : "/" + errorCode  );
+						}
 					}
 				}
 			}
