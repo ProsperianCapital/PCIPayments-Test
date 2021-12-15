@@ -77,9 +77,8 @@ namespace PCIBusiness
 			Stripe_USA       = 28,
 			Stripe_EU        = 29,
 			Stripe_Asia      = 30,
-//			Authorize_Net    = 31,
-			PaymentCloud     = 31,
-			FlutterWave      = 32
+			PaymentCloud     = 31, // Authorize.Net
+			WorldPay         = 32  // FlutterWave
 		}
 
 		public enum MessageProvider : int

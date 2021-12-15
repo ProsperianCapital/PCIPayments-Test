@@ -1376,6 +1376,103 @@ namespace PCIBusiness
 			return ((short)providerCode).ToString().PadLeft(3,'0');
 		}
 
+		public static string BureauURL(string bureauCode) // Constants.PaymentProvider providerCode)
+		{
+//		//	Providers where live and test are the same URL
+
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA) ||
+				  bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_EU)  ||
+				  bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_Asia) )
+				return "https://api.stripe.com";
+
+			else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate) )
+				return "https://secure.paygate.co.za/payhost/process.trans";
+
+		//	Providers where live and test are different
+
+		//	LIVE
+			else if ( Tools.SystemIsLive() )
+			{
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS) )
+					return "https://api.nets.com.sg/GW2/TxnReqListener";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.MyGate) )
+					return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource) )
+					return "https://secureacceptance.cybersource.com/silent";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource_Moto) )
+					return "https://secureacceptance.cybersource.com/silent";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
+					return "https://api.paymentsos.com";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
+					return "https://secure.payu.co.za";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
+					return "https://pay.ms.fnb.co.za";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentCloud) )
+					return "https://api.authorize.net/xml/v1/request.api";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.WorldPay) )
+					return "https://secure.worldpay.com/jsp/merchant/xml/paymentService.jsp";
+			}
+
+		//	TESTING
+			else
+			{
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayU) )
+					return "https://staging.payu.co.za";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
+					return "https://sandbox.ms.fnb.co.za";
+				if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentCloud) )
+					return "https://apitest.authorize.net/xml/v1/request.api";
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.WorldPay) )
+					return "https://secure-test.worldpay.com/jsp/merchant/xml/paymentService.jsp";
+			}
+
+//		//	Providers where live and test are the same URL
+//
+//			if ( providerCode == Constants.PaymentProvider.Stripe_USA ||
+//				  providerCode == Constants.PaymentProvider.Stripe_EU  ||
+//				  providerCode == Constants.PaymentProvider.Stripe_Asia )
+//				return "https://api.stripe.com";
+//
+//			else if ( providerCode == Constants.PaymentProvider.PayGate )
+//				return "https://secure.paygate.co.za/payhost/process.trans";
+//
+//		//	Providers where live and test are different
+//
+//		//	LIVE
+//			else if ( Tools.SystemIsLive() )
+//			{
+//				if ( providerCode == Constants.PaymentProvider.eNETS )
+//					return "https://api.nets.com.sg/GW2/TxnReqListener";
+//				if ( providerCode == Constants.PaymentProvider.MyGate )
+//					return "https://www.mygate.co.za/Collections/1x0x0/pinManagement.cfc?wsdl";
+//				if ( providerCode == Constants.PaymentProvider.CyberSource )
+//					return "https://secureacceptance.cybersource.com/silent";
+//				if ( providerCode == Constants.PaymentProvider.CyberSource_Moto )
+//					return "https://secureacceptance.cybersource.com/silent";
+//				if ( providerCode == Constants.PaymentProvider.PaymentsOS )
+//					return "https://api.paymentsos.com";
+//				if ( providerCode == Constants.PaymentProvider.PayU )
+//					return "https://secure.payu.co.za";
+//				if ( providerCode == Constants.PaymentProvider.FNB )
+//					return "https://pay.ms.fnb.co.za";
+//				if ( providerCode == Constants.PaymentProvider.PaymentCloud )
+//					return "https://api.authorize.net/xml/v1/request.api";
+//			}
+//
+//		//	TESTING
+//			else
+//			{
+//				if ( providerCode == Constants.PaymentProvider.PayU )
+//					return "https://staging.payu.co.za";
+//				if ( providerCode == Constants.PaymentProvider.FNB )
+//					return "https://sandbox.ms.fnb.co.za";
+//				if ( providerCode == Constants.PaymentProvider.PaymentCloud )
+//					return "https://apitest.authorize.net/xml/v1/request.api";
+//			}
+
+			return "";
+		}
+
 		public static string SystemCode(Constants.ApplicationCode appCode)
 		{
 			return ((short)appCode).ToString().PadLeft(3,'0');
@@ -1688,6 +1785,7 @@ namespace PCIBusiness
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGate)          ) return new TransactionPayGate();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentCloud)     ) return new TransactionPaymentCloud(); // Renamed from Authorize.Net
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB)              ) return new TransactionFNB();
+			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.WorldPay)         ) return new TransactionWorldPay();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PayGenius)        ) return new TransactionPayGenius();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)         ) return new TransactionEcentric();
 			if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.eNETS)            ) return new TransactionENets();

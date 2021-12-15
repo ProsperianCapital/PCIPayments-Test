@@ -233,61 +233,8 @@ namespace PCIBusiness
 			bureauCode = Tools.BureauCode(bureau);
 			bureauURL  = Tools.ConfigValue(bureauCode+"/URL");
 
-			if ( bureauURL.Length > 0 )
-				return;
-
-//	Providers where live and test are the same URL
-
-			if ( bureau == Constants.PaymentProvider.PayGate )
-				bureauURL = "https://secure.paygate.co.za/payhost/process.trans";
-
-			else if ( bureau == Constants.PaymentProvider.Stripe_USA ||
-			          bureau == Constants.PaymentProvider.Stripe_EU  ||
-			          bureau == Constants.PaymentProvider.Stripe_Asia )
-				bureauURL = "https://api.stripe.com";
-
-			else if ( Tools.SystemIsLive() )
-			{
-				if ( bureau == Constants.PaymentProvider.Peach )
-					bureauURL = "https://oppwa.com/v1";
-				else if ( bureau == Constants.PaymentProvider.PayU )
-					bureauURL = "https://secure.payu.co.za";
-				else if ( bureau == Constants.PaymentProvider.TokenEx )
-					bureauURL = "https://api.tokenex.com";
-				else if ( bureau == Constants.PaymentProvider.FNB )
-					bureauURL = "https://pay.ms.fnb.co.za";
-				else if ( bureau == Constants.PaymentProvider.PaymentsOS )
-					bureauURL = "https://api.paymentsos.com";
-			//	else if ( bureau == Constants.PaymentProvider.Authorize_Net )
-				else if ( bureau == Constants.PaymentProvider.PaymentCloud )
-					bureauURL = "https://api.authorize.net/xml/v1/request.api";
-			}
-			else // Testing
-			{
-				if ( bureau == Constants.PaymentProvider.Peach )
-					bureauURL = "https://test.oppwa.com/v1";
-				else if ( bureau == Constants.PaymentProvider.Ecentric )
-					bureauURL = "https://sandbox.ecentricswitch.co.za:8443/paymentgateway/v1";
-				else if ( bureau == Constants.PaymentProvider.eNETS )
-					bureauURL = "https://uat-api.nets.com.sg:9065/GW2/TxnReqListener";
-				else if ( bureau == Constants.PaymentProvider.PayGenius )
-					bureauURL = "https://developer.paygenius.co.za";
-				else if ( bureau == Constants.PaymentProvider.PayU )
-					bureauURL = "https://staging.payu.co.za";
-				else if ( bureau == Constants.PaymentProvider.T24 )
-					bureauURL = "https://payment.ccp.transact24.com";
-				else if ( bureau == Constants.PaymentProvider.TokenEx )
-					bureauURL = "https://test-api.tokenex.com";
-				else if ( bureau == Constants.PaymentProvider.FNB )
-				//	bureauURL = "https://sandbox.ms.fnb.co.za/eCommerce/v2";
-					bureauURL = "https://sandbox.ms.fnb.co.za";
-				else if ( bureau == Constants.PaymentProvider.CyberSource )
-					bureauURL = "https://apitest.cybersource.com";
-				else if ( bureau == Constants.PaymentProvider.CyberSource_Moto )
-					bureauURL = "https://apitest.cybersource.com";
-				else if ( bureau == Constants.PaymentProvider.PaymentCloud )
-					bureauURL = "https://apitest.authorize.net/xml/v1/request.api";
-			}
+			if ( bureauURL.Length == 0 )
+				bureauURL = Tools.BureauURL(Tools.BureauCode(bureau));
 		}
 
       public override void Close()
