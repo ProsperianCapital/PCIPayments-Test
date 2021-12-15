@@ -1,8 +1,4 @@
 using System;
-using System.Configuration;
-using System.Text;
-using System.Web.UI.WebControls;
-using PCIBusiness;
 
 namespace PCIWebRTR
 {
@@ -11,8 +7,8 @@ namespace PCIWebRTR
 		protected void Page_Load(object sender, EventArgs e)
 		{
 			if ( ! Page.IsPostBack )
-			//	lblVersion.Text = "Version " + PCIBusiness.SystemDetails.AppVersion;
-				lblVersion.Text = "Versions " + SystemDetails.AppVersion + " / " + PCIBusiness.SystemDetails.AppVersion;
+				lblVersion.Text = "Versions " + PCIWebRTR.SystemDetails.AppVersion   + " (App), "
+				                              + PCIBusiness.SystemDetails.AppVersion + " (DLL)";
 		}
 	}
 }
