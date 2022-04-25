@@ -401,6 +401,19 @@ namespace PCIBusiness
 				colNo = colNumber;
 			if ( ! dataReader.IsDBNull(colNo) )
 				return dataReader.GetString(colNo).Trim();
+
+//			if ( dataReader.IsDBNull(colNo) )
+//				return "";
+//			else if ( convertMode == 177 ) // It may be a GUID
+//			{
+//				string x = dataReader.GetDataTypeName(colNo);
+//				Type   y = dataReader.GetFieldType(colNo);
+//				if ( dataReader.GetDataType(colNo) == 
+//				Guid x = dataReader.GetGuid(colNo);
+//				return x.ToString();
+//			}
+//			else
+//				return dataReader.GetString(colNo).Trim();
      }
       catch (Exception ex)
       {
@@ -410,6 +423,30 @@ namespace PCIBusiness
       return "";
    }
 
+   public string ColGuid(string colName,int colNumber=999999,byte errorMode=1)
+   {
+      try
+      {
+			if ( colName.Length > 0 )
+				colNo = dataReader.GetOrdinal(colName);
+			else
+				colNo = colNumber;
+			if ( dataReader.IsDBNull(colNo) )
+				return "";
+			try
+			{
+				return (dataReader.GetGuid(colNo)).ToString();
+			}
+			catch { }
+			return dataReader.GetString(colNo).Trim();
+		}
+      catch (Exception ex)
+      {
+			if ( errorMode == 1 )
+				Tools.LogException ( ModuleName("DBConn.ColGuid"), "ColName=" + colName + ", ColNumber=" + colNumber.ToString(), ex );
+      }
+      return "";
+   }
 
    public string ColUniCode(string colName,int colNumber=999999,byte errorMode=1)
    {

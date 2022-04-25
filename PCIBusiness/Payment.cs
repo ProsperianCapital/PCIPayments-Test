@@ -1079,7 +1079,7 @@ namespace PCIBusiness
 			}
 
 		//	Payment Provider
-			providerKey       = dbConn.ColString("SafeKey");
+			providerKey       = dbConn.ColString("SafeKey"             ,0,0);
 			providerURL       = dbConn.ColString("url"                 ,0,0);
 			providerAccount   = dbConn.ColString("MerchantAccount"     ,0,0);
 			providerProfileID = dbConn.ColString("MerchantProfileId"   ,0,0);
@@ -1130,7 +1130,8 @@ namespace PCIBusiness
 			ccCVV            = dbConn.ColString ("CVV"            ,0,0);
 			ccToken          = dbConn.ColString ("Token"          ,0,0);
 			ccPIN            = dbConn.ColString ("PIN"            ,0,0);
-			transactionID    = dbConn.ColString ("TransactionId"  ,0,0);
+			transactionID    = dbConn.ColGuid   ("TransactionId"  ,0,0);
+		//	transactionID    = dbConn.ColString ("TransactionId"  ,0,0,177);
 		//	Used by Stripe (bureauCode 028)
 			customerID       = dbConn.ColString ("CustomerId"     ,0,0);
 			paymentMethodID  = dbConn.ColString ("PaymentMethodId",0,0);

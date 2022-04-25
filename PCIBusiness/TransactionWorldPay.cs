@@ -472,22 +472,6 @@ namespace PCIBusiness
 				if ( descr.Length < 1 )
 					descr = "Initial 3d Secure payment";
 
-//				string addr = "";
-//				if ( payment.Address1(0).Length > 0 )
-//					addr = addr + "<address1>" + payment.Address1(0) + "</address1>";
-//				if ( payment.Address2(0).Length > 0 )
-//					addr = addr + "<address2>" + payment.Address2(0) + "</address2>";
-//				if ( payment.Address3(0).Length > 0 )
-//					addr = addr + "<address3>" + payment.Address3(0) + "</address3>";
-//				if ( payment.PostalCode(0).Length > 0 )
-//					addr = addr + "<postalCode>" + payment.PostalCode(0) + "</postalCode>";
-//				if ( payment.State.Length > 0 )
-//					addr = addr + "<state>" + payment.State + "</state>";
-//				if ( payment.CountryCode(0).Length > 0 )
-//					addr = addr + "<countryCode>" + payment.CountryCode(0) + "</countryCode>";
-//				if ( addr.Length > 0 )
-//					addr = "<cardAddress><address>" + addr + "</address></cardAddress>";
-
 				ret     = 40;
 				xmlSent = "<order orderCode='" + payment.TransactionID + "'>"
 				        +   "<description>" + payment.PaymentDescription + "</description>"
