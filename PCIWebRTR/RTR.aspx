@@ -104,6 +104,7 @@ function PaySingle(mode)
 		<asp:Button  runat="server" ID="btnProcess5"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing payments ... please be patient')" onclick="btnProcess5_Click" Text="Cards (via TokenEx)" />
 		<asp:Button  runat="server" ID="btnTest"      CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Testing ... please be patient')" onclick="btnTest_Click" Text="Test" />
 		<div style="color:red;font-weight:bold">Other</div>
+		<asp:Button  runat="server" ID="btnProcess12" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Validating cards ... please be patient')" onclick="btnProcess12_Click" Text="Zero-Value Validation" />
 		<asp:Button  runat="server" ID="btnProcess8"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Validating transactions ... please be patient')" onclick="btnProcess8_Click" Text="Lookups" />
 		<asp:Button  runat="server" ID="btnProcess10" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing reversals ... please be patient')" onclick="btnProcess10_Click" Text="Reversals" />
 		<asp:Button  runat="server" ID="btnProcess11" CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Processing refunds ... please be patient')" onclick="btnProcess11_Click" Text="Refunds" />

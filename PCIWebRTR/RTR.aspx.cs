@@ -254,6 +254,26 @@ namespace PCIWebRTR
 			ProcessCards((byte)Constants.TransactionType.GetToken);
 		}
 
+		protected void btnProcess2_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.TokenPayment);
+		}
+
+		protected void btnProcess3_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.DeleteToken);
+		}
+
+		protected void btnProcess4_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.CardPayment);
+		}
+
+		protected void btnProcess5_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.CardPaymentThirdParty);
+		}
+
 		protected void btnProcess6_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)Constants.TransactionType.GetTokenThirdParty);
@@ -262,16 +282,6 @@ namespace PCIWebRTR
 		protected void btnProcess7_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)Constants.TransactionType.GetCardFromToken);
-		}
-
-		protected void btnProcess2_Click(Object sender, EventArgs e)
-		{
-			ProcessCards((byte)Constants.TransactionType.TokenPayment);
-		}
-
-		protected void btnProcess4_Click(Object sender, EventArgs e)
-		{
-			ProcessCards((byte)Constants.TransactionType.CardPayment);
 		}
 
 		protected void btnProcess8_Click(Object sender, EventArgs e)
@@ -294,14 +304,9 @@ namespace PCIWebRTR
 			ProcessCards((byte)Constants.TransactionType.Refund);
 		}
 
-		protected void btnProcess5_Click(Object sender, EventArgs e)
+		protected void btnProcess12_Click(Object sender, EventArgs e)
 		{
-			ProcessCards((byte)Constants.TransactionType.CardPaymentThirdParty);
-		}
-
-		protected void btnProcess3_Click(Object sender, EventArgs e)
-		{
-			ProcessCards((byte)Constants.TransactionType.DeleteToken);
+			ProcessCards((byte)Constants.TransactionType.ZeroValueCheck);
 		}
 
 		private void ProcessCards(byte transactionType)
