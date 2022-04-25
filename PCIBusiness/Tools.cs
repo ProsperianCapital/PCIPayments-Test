@@ -551,7 +551,7 @@ namespace PCIBusiness
 			return "<" + tagName + ">" + p + "</" + tagName + ">";
 		}
 
-		public static string XMLNode(XmlDocument xmlDoc,string xmlTag,string nsPrefix="",string nsURL="",string parentNode="")
+		public static string XMLNode(XmlDocument xmlDoc,string xmlTag,string nsPrefix="",string nsURL="",string parentNode="",string attribute="")
 		{
 			try
 			{
@@ -565,6 +565,14 @@ namespace PCIBusiness
 							foreach (XmlNode p in xList.Item(0).ChildNodes)
 								if ( p.Name == xmlTag )
 									return p.InnerText.Trim();
+					}
+					catch { }
+
+				if ( attribute.Length > 0 )
+					try
+					{
+						XmlNode xNode = xmlDoc.SelectSingleNode("//"+xmlTag);
+						return xNode.Attributes[attribute].Value;
 					}
 					catch { }
 
@@ -1175,8 +1183,9 @@ namespace PCIBusiness
 		{
 			try
 			{
-				string ret = System.Configuration.ConfigurationManager.AppSettings[configName.Trim()].ToString().Trim();
-				return ret;
+				object p = System.Configuration.ConfigurationManager.AppSettings[configName.Trim()];
+				if ( p  != null )
+					return p.ToString().Trim();
 			}
 			catch
 			{ }
@@ -1810,11 +1819,13 @@ namespace PCIBusiness
 			if ( transactionType == (byte)Constants.TransactionType.GetTokenThirdParty    ) return "Token via 3rd Party";
 			if ( transactionType == (byte)Constants.TransactionType.ManualPayment         ) return "Manual Payment";
 			if ( transactionType == (byte)Constants.TransactionType.ThreeDSecurePayment   ) return "3d Secure Payment";
+			if ( transactionType == (byte)Constants.TransactionType.ThreeDSecureCheck     ) return "3d Secure Check";
 			if ( transactionType == (byte)Constants.TransactionType.TokenPayment          ) return "Token Payment";
 			if ( transactionType == (byte)Constants.TransactionType.Reversal              ) return "Payment Reversal";
 			if ( transactionType == (byte)Constants.TransactionType.Refund                ) return "Refund";
 			if ( transactionType == (byte)Constants.TransactionType.Transfer              ) return "Transfer";
 			if ( transactionType == (byte)Constants.TransactionType.TransactionLookup     ) return "Transaction Lookup";
+			if ( transactionType == (byte)Constants.TransactionType.ZeroValueCheck        ) return "Zero-Value Validation";
 			if ( transactionType == (byte)Constants.TransactionType.Test                  ) return "Test";
 			return "Unknown (transactionType=" + transactionType.ToString() + ")";
 		}

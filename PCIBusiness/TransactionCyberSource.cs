@@ -380,7 +380,7 @@ namespace PCIBusiness
 			return ret;
 		}
 
-		public override int ThreeDSecureCheck(string providerRef,string merchantRef="")
+		public override int ThreeDSecureCheck(string providerRef,string merchantRef="",string data1="",string data2="",string data3="")
 		{
 			return 0; // All ok
 		}

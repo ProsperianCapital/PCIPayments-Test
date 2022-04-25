@@ -157,9 +157,11 @@ namespace PCIBusiness
 			DeleteToken           =   4,
 			GetCardFromToken      =   5,
 			ThreeDSecurePayment   =   7,
+			ThreeDSecureCheck     =  12,
 			Transfer              =   9,
 			Reversal              =  10,
 			Refund                =  11,
+			ZeroValueCheck        =  13,
 			ManualPayment         =  73,
 			TransactionLookup     =  81,
 			Test                  = 197

@@ -137,6 +137,9 @@ namespace PCIBusiness
 				spr  = "sp_TokenEx_Detoken";
 			else if ( transactionType == (byte)Constants.TransactionType.TransactionLookup )
 				spr  = "sp_Get_CardPayment_Ref";
+			else if ( transactionType == (byte)Constants.TransactionType.ZeroValueCheck )
+				spr  = "sp_Get_PaymentZeroValue";
+
 			//	Testing
 			//	sql  = "select 1 as Seq,'EoD35wlB34RtDeIVG74RqEexmT8aYkNOw9T2kEH3nyu21zWwQ10Ls9Y8zXfs4pVc' as TransactionId"
 			//      + " union select 2,'M4lbEu9BvQoM6PwmYsym2RrEfM58nh2VpO7vrEZleJ5JbypaP8PYn3wbIEMa1ndZ'"
@@ -195,6 +198,8 @@ namespace PCIBusiness
 						payment.TransactionType = transactionType;
 						if ( transactionType == (byte)Constants.TransactionType.GetToken )
 							err = payment.GetToken();
+						else if ( transactionType == (byte)Constants.TransactionType.ZeroValueCheck )
+							err = payment.ZeroValueCheck();
 						else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
 							err = payment.ProcessPayment();
 						else if ( transactionType == (byte)Constants.TransactionType.CardPayment )

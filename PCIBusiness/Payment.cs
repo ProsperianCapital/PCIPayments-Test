@@ -65,7 +65,11 @@ namespace PCIBusiness
 		private byte     transactionType;
 		private string   webForm;
 
-//	Stripe-specific fields
+//	WorldPay fields
+		private string   sessionId;
+		private string   machineCookie;
+
+//	Stripe fields
 		private string   customerID;
 		private string   paymentMethodID;
 
@@ -116,10 +120,12 @@ namespace PCIBusiness
 		public string    MandateIPAddress
 		{
 			get { return  Tools.NullToString(mandateIPAddress); }
+			set { mandateIPAddress = value.Trim(); }
 		}
 		public string    MandateBrowser
 		{
 			get { return  Tools.NullToString(mandateBrowser); }
+			set { mandateBrowser = value.Trim(); }
 		}
 		public string    ContractCode
 		{
@@ -183,7 +189,8 @@ namespace PCIBusiness
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
 					return "100000001099570";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.WorldPay) )
-					return "PROSPERIANTEST";
+				//	return "PROSPERIANTEST";
+					return "PROSPERIANSGPECOM";
 				return "";
 			}
 			set { providerAccount = value.Trim(); }
@@ -291,8 +298,8 @@ namespace PCIBusiness
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentCloud) )
 					return "7a5bb4SW9GY";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.WorldPay) )
-				//	return "PROSPERIANTEST";
-					return "2LHRK1HBEPDYVP9OKG8S";
+				//	return "2LHRK1HBEPDYVP9OKG8S";
+					return "AI5QP9YBY291AGF5AD7I";
 
 				return "";
 			}
@@ -513,6 +520,22 @@ namespace PCIBusiness
 		{
 			get { return  Tools.NullToString(merchantReferenceOriginal); }
 		}
+		public string    SessionID
+		{
+//			Used by WorldPay
+			get
+			{
+				if ( Tools.NullToString(sessionId).Length < 1 )
+					sessionId = (Guid.NewGuid()).ToString();
+				return Tools.NullToString(sessionId);
+			}
+		}
+		public string    Cookie
+		{
+//			Used by WorldPay
+			get { return Tools.NullToString(machineCookie); }
+			set { machineCookie = value.Trim(); }
+		}
 		public string    TransactionID
 		{
 			get
@@ -526,10 +549,6 @@ namespace PCIBusiness
 //		public string    AuthorizationCode
 //		{
 //			get { return  Tools.NullToString(authorizationCode); }
-//		}
-//		public string    IPAddress
-//		{
-//			get { return  Tools.NullToString(ipAddress); }
 //		}
 		public string    CurrencyCode
 		{
@@ -836,7 +855,7 @@ namespace PCIBusiness
 		public int Reversal()
 		{
 			int retProc = 64020;
-			int retSQL  = 64020;
+//			int retSQL  = 64020;
 			sql         = "";
 
 			if ( transaction == null || transaction.BureauCode != bureauCode )
@@ -885,7 +904,7 @@ namespace PCIBusiness
 		public int Refund()
 		{
 			int retProc = 64020;
-			int retSQL  = 64020;
+//			int retSQL  = 64020;
 			sql         = "";
 
 			if ( transaction == null || transaction.BureauCode != bureauCode )
@@ -944,6 +963,26 @@ namespace PCIBusiness
 				retSQL = ExecuteSQLUpdate();
 			}
 			Tools.LogInfo("GetToken/90","retProc=" + retProc.ToString()+", retSQL=" + retSQL.ToString(),40,this);
+			return retProc;
+		}
+
+		public int ZeroValueCheck()
+		{
+			returnMessage = "Invalid payment provider";
+			Tools.LogInfo("ZeroValueCheck/10","Merchant Ref=" + merchantReference,10,this);
+
+			if ( transaction == null || transaction.BureauCode != bureauCode )
+				transaction = Tools.CreateTransaction(bureauCode);
+			if ( transaction == null )
+				return 38020;
+
+			int retProc = transaction.CardValidation(this);
+			sql         = "exec sp_Upd_PaymentZeroValue @TransactionId = "            + Tools.DBString(transactionID)
+		                                           + ",@TransactionStatusCode = "    + Tools.DBString(transaction.ResultCode)
+		                                           + ",@TransactionStatusMessage = " + Tools.DBString(transaction.ResultMessage);
+
+			Tools.LogInfo("ZeroValueCheck/20","SQL=" + sql,222,this);
+			int retSQL = ExecuteSQLUpdate();
 			return retProc;
 		}
 
@@ -1078,9 +1117,9 @@ namespace PCIBusiness
 		//	Payment
 			merchantReference         = dbConn.ColString("merchantReference"        ,0,0);
 			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0,0); // Only really for Ikajo, don't log error
-			paymentAmount             = dbConn.ColLong  ("amountInCents"            ,0,0);
 			currencyCode              = dbConn.ColString("currencyCode"             ,0,0);
 			paymentDescription        = dbConn.ColString("description"              ,0,0);
+			paymentAmount             = dbConn.ColLong  ("amountInCents"            ,0,0);
 
 		//	Card/token/transaction details, not always present, don't log errors
 			ccName           = dbConn.ColUniCode("NameOnCard"     ,0,0);

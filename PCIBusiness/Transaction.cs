@@ -184,38 +184,43 @@ namespace PCIBusiness
 			return 14040;
 		}
 
-		public virtual int Refund(Payment payment)
+		public virtual int CardValidation(Payment payment)
 		{
 			return 14050;
 		}
 
-		public virtual int Reversal(Payment payment)
+		public virtual int Refund(Payment payment)
 		{
 			return 14060;
 		}
 
-		public virtual int Lookup(Payment payment)
-		{
-			return 14065;
-		}
-
-		public virtual int CardTest(Payment payment)
+		public virtual int Reversal(Payment payment)
 		{
 			return 14070;
 		}
 
-		public virtual int CardPayment3rdParty(Payment payment)
+		public virtual int Lookup(Payment payment)
 		{
 			return 14080;
 		}
 
+		public virtual int CardTest(Payment payment)
+		{
+			return 14090;
+		}
+
+		public virtual int CardPayment3rdParty(Payment payment)
+		{
+			return 14100;
+		}
+
 		public virtual int ThreeDSecurePayment(Payment payment,Uri postBackURL,string languageCode="",string languageDialectCode="")
 		{
-			return 14510;
+			return 14110;
 		}
-		public virtual int ThreeDSecureCheck(string providerRef,string merchantRef="")
+		public virtual int ThreeDSecureCheck(string providerRef,string merchantRef="",string data1="",string data2="",string data3="")
 		{
-			return 14610;
+			return 14120;
 		}
 
       public virtual bool EnabledFor3d(byte transactionType)
