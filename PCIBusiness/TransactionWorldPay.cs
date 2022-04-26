@@ -328,9 +328,18 @@ namespace PCIBusiness
 
 						if ( strResult.Contains("<error") )
 						{
+							ret        = 163;
 							resultMsg  = xmlResult.SelectNodes("/paymentService/reply")[0].InnerText;
 							resultCode = xmlResult.SelectNodes("/paymentService/reply/error")[0].Attributes[0].InnerText;
 						}
+
+//						else if ( strResult.Contains("<ISO8583ReturnCode") )
+//						{
+//							ret        = 166;
+//							resultMsg  = Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","description");
+//							resultCode = Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","code");
+//						}
+
 						else if ( transactionType == (byte)Constants.TransactionType.GetToken )
 						{
 							ret      = 190;
@@ -384,9 +393,16 @@ namespace PCIBusiness
 							ret        = 230;
 							resultCode = Tools.XMLNode(xmlResult,"lastEvent");
 							resultMsg  = "";
+							if ( strResult.Contains("<ISO8583ReturnCode") )
+							{
+								ret        = 231;
+								resultCode = ( resultCode.Length > 0 ? resultCode + "/" : "" )
+								           + Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","code");
+								resultMsg  = Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","description");
+							}
 							if ( resultCode.ToUpper().StartsWith("AUTHORI") )
 								SetError ("00",resultCode);
-							else
+							else if ( resultMsg.Length < 1 )
 								SetError ("89","Zero value validation failed : " + resultCode);
 						}
 						if ( resultCode == "00" )
