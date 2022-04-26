@@ -152,7 +152,12 @@ namespace PCIWebRTR
 			else
 			{
 				lblError.Text   = errMsg;
-				Tools.LogInfo("RTR.SetAccess",errMsg + ", " + lblSUserCode.Text + ", " + lblSURL.Text,222);
+				if ( lblSUserCode.Text.Length > 0 )
+					errMsg       = errMsg + ", User " + lblSUserCode.Text;
+				if ( lblSURL.Text.Length > 0 )
+					errMsg       = errMsg + ", URL "  + lblSURL.Text;
+				Tools.LogInfo("RTR.SetAccess",errMsg,222);
+			//	Tools.LogInfo("RTR.SetAccess",errMsg + ", " + lblSUserCode.Text + ", " + lblSURL.Text,222);
 			}
 		}
 
