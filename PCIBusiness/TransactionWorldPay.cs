@@ -330,7 +330,8 @@ namespace PCIBusiness
 						{
 							ret        = 163;
 							resultMsg  = xmlResult.SelectNodes("/paymentService/reply")[0].InnerText;
-							resultCode = xmlResult.SelectNodes("/paymentService/reply/error")[0].Attributes[0].InnerText;
+							resultCode = Tools.XMLNode(xmlResult,"error","","","reply","code");
+						//	resultCode = xmlResult.SelectNodes("/paymentService/reply/error")[0].Attributes[0].InnerText;
 						}
 
 //						else if ( strResult.Contains("<ISO8583ReturnCode") )
@@ -515,6 +516,7 @@ namespace PCIBusiness
 				        +       "<userAgentHeader>" + payment.MandateBrowser + "</userAgentHeader>"
 				        +     "</browser>"
 				        +   "</shopper>"
+				        +   "<additional3DSData dfReferenceId=\"" + payment.SessionID + "\" />"
 				        + "</order>";
 
 //				        +   "<dynamicInteractionType type='ECOMMERCE' />"
@@ -602,7 +604,7 @@ namespace PCIBusiness
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.WorldPay);
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-			logPriority                          = 222;
+			logPriority                          = 10; // Make this higher for detailed logging
 		}
 	}
 }

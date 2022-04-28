@@ -529,6 +529,7 @@ namespace PCIBusiness
 					sessionId = (Guid.NewGuid()).ToString();
 				return Tools.NullToString(sessionId);
 			}
+			set { sessionId = value.Trim(); }
 		}
 		public string    Cookie
 		{
@@ -1092,7 +1093,8 @@ namespace PCIBusiness
 			     dbConn.ColStatus("CardNumber")    != Constants.DBColumnStatus.ColumnOK &&
 			     dbConn.ColStatus("Token")         != Constants.DBColumnStatus.ColumnOK )
 			{
-				transactionID = dbConn.ColString("TransactionId");
+			//	transactionID = dbConn.ColString("TransactionId");
+				transactionID = dbConn.ColGuid  ("TransactionId");
 				return;
 			}
 
