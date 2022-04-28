@@ -319,7 +319,7 @@ namespace PCIBusiness
 				else
 					try
 					{
-						Tools.LogInfo("CallWebService/31", "XML Rec=" + strResult, logPriority, this);
+						Tools.LogInfo("CallWebService/33", "XML Rec=" + strResult, logPriority, this);
 						SetError ("97","Unable to read XML returned");
 
 						ret       = 160;
@@ -330,8 +330,9 @@ namespace PCIBusiness
 						{
 							ret        = 163;
 							resultMsg  = xmlResult.SelectNodes("/paymentService/reply")[0].InnerText;
-							resultCode = Tools.XMLNode(xmlResult,"error","","","reply","code");
+							resultCode = Tools.XMLNode(xmlResult,"error","","","","code");
 						//	resultCode = xmlResult.SelectNodes("/paymentService/reply/error")[0].Attributes[0].InnerText;
+							Tools.LogInfo("CallWebService/36", "strResult="+strResult+", resultCode="+resultCode+", resultMsg="+resultMsg, logPriority, this);
 						}
 
 //						else if ( strResult.Contains("<ISO8583ReturnCode") )
@@ -403,13 +404,17 @@ namespace PCIBusiness
 							}
 							if ( resultCode.ToUpper().StartsWith("AUTHORI") )
 								SetError ("00",resultCode);
-							else if ( resultMsg.Length < 1 )
-								SetError ("89","Zero value validation failed : " + resultCode);
+							else
+							{
+								Tools.LogInfo("CallWebService/39", "strResult="+strResult+", resultCode="+resultCode+", resultMsg="+resultMsg, logPriority, this);
+								if ( resultMsg.Length < 1 )
+									SetError ("89","Zero value validation failed : " + resultCode);
+							}
 						}
 						if ( resultCode == "00" )
 							ret = 0;
 
-						Tools.LogInfo("CallWebService/32", "resultCode=" + resultCode + ", resultMsg=" + resultMsg, logPriority, this);
+						Tools.LogInfo("CallWebService/44", "resultCode=" + resultCode + ", resultMsg=" + resultMsg, logPriority, this);
 					}
 					catch (Exception ex3)
 					{

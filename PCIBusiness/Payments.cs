@@ -236,7 +236,7 @@ namespace PCIBusiness
 						if ( rowsToProcess > 0 && rowsToProcess <= success + fail )
 							break;
 					}
-					Tools.LogInfo("ProcessCards/40","Iteration " + iter.ToString() + " (" + rowsDone.ToString() + " " + desc + "s)",199,this);
+//					Tools.LogInfo("ProcessCards/40","Iteration " + iter.ToString() + " (" + rowsDone.ToString() + " " + desc + "s)",199,this);
 //	In case of a runaway loop where failures are not rectified ...
 					if ( fail > 99 && success == 0 )
 						break;
