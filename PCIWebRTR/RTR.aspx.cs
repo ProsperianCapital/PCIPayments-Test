@@ -48,6 +48,8 @@ namespace PCIWebRTR
 			else
 			{
 				lblVersion.Text = "Versions " + SystemDetails.AppVersion + " (app), " + PCIBusiness.SystemDetails.AppVersion + " (DLL)";
+				lblVerApp.Text  = SystemDetails.AppVersion + " (" + SystemDetails.AppDate + ")";
+				lblVerDLL.Text  = PCIBusiness.SystemDetails.AppVersion + " (" + PCIBusiness.SystemDetails.AppDate + ")";
 				userCode        = Tools.ObjectToString(Request["UserCode"]);
 				string ref1     = Tools.ObjectToString(Request.UrlReferrer);
 				string ref2     = Tools.ObjectToString(Request.Headers["Referer"]); // Yes, this is spelt CORRECTLY! Do not change
@@ -178,49 +180,55 @@ namespace PCIWebRTR
 	
 		private void ProviderDetails()
 		{
-			string   bureauCode  = lstProvider.SelectedValue.Trim();
-			Provider provider    = new Provider();
-			provider.BureauCode  = bureauCode;
-			lblBureauCode.Text   = provider.BureauCode;
-			lblBureauName.Text   = lstProvider.SelectedItem.Text;
-			lblBureauStatus.Text = provider.BureauStatusName;
-			rdoCard.Text         = "Single card payment";
-			rdoCard.Enabled      = provider.ThreeDEnabled;
-			btnPay.Visible       = provider.ThreeDEnabled;
-			if ( ! provider.ThreeDEnabled )
-				rdoCard.Checked   = false;
+			string bureauCode = lstProvider.SelectedValue.Trim();
 
-//			if ( provider.ThreeDEnabled )
-//				rdoCard.Text      = "Single card payment";
-//			else
-//			{
-//				rdoCard.Text      = "Single card payment (disabled)";
-//				rdoCard.Checked   = false;
-//				btnPay.Visible    = false;
-//			}
-
-			if ( provider.BureauStatusCode == 2 ) // Disabled
+			using ( Provider provider = new Provider() )
 			{
-				provider             = null;
-				lblBureauURL.Text    = "";
-			//	lblMerchantKey.Text  = "";
-			//	lblMerchantUser.Text = "";
-				lblCards.Text        = "";
-				lblPayments.Text     = "";
-				EnableButtons(false);
-				return;
-			}
-			EnableButtons(true);
+				provider.BureauCode  = bureauCode;
+				lblBureauCode.Text   = provider.BureauCode;
+				lblBureauName.Text   = lstProvider.SelectedItem.Text;
+				lblBureauStatus.Text = provider.BureauStatusName;
+				rdoCard.Text         = "Single card payment";
+				rdoCard.Enabled      = provider.ThreeDEnabled;
+				btnPay.Visible       = provider.ThreeDEnabled;
+				if ( ! provider.ThreeDEnabled )
+					rdoCard.Checked   = false;
 
-			if ( bureauCode.Length > 0 )
-				using (Payments payments = new Payments())
+//				if ( provider.ThreeDEnabled )
+//					rdoCard.Text      = "Single card payment";
+//				else
+//				{
+//					rdoCard.Text      = "Single card payment (disabled)";
+//					rdoCard.Checked   = false;
+//					btnPay.Visible    = false;
+//				}
+
+				if ( provider.BureauStatusCode == 2 ) // Disabled
 				{
-					provider             = payments.Summary(bureauCode);
-					lblBureauURL.Text    = provider.BureauURL;
-				//	lblMerchantKey.Text  = provider.MerchantKey;
-				//	lblMerchantUser.Text = provider.MerchantUserID;
-					lblCards.Text        = provider.CardsToBeTokenized.ToString()    + ( provider.CardsToBeTokenized    >= Constants.MaxRowsPayment ? "+" : "" );
-					lblPayments.Text     = provider.PaymentsToBeProcessed.ToString() + ( provider.PaymentsToBeProcessed >= Constants.MaxRowsPayment ? "+" : "" );
+				//	provider             = null;
+				//	lblBureauURL.Text    = "";
+				//	lblMerchantKey.Text  = "";
+				//	lblMerchantUser.Text = "";
+				//	lblCards.Text        = "";
+				//	lblPayments.Text     = "";
+					EnableButtons(false);
+					return;
+				}
+				EnableButtons(true);
+
+				if ( bureauCode.Length > 0 )
+				{
+				//	Ver 1
+				//	using (Payments payments = new Payments())
+				//	{
+				//	//	payments.Summary(provider,bureauCode);
+				//	//	lblBureauURL.Text    = provider.BureauURL;
+				//	//	lblMerchantKey.Text  = provider.MerchantKey;
+				//	//	lblMerchantUser.Text = provider.MerchantUserID;
+				//	//	lblCards.Text        = provider.CardsToBeTokenized.ToString()    + ( provider.CardsToBeTokenized    >= Constants.MaxRowsPayment ? "+" : "" );
+				//	//	lblPayments.Text     = provider.PaymentsToBeProcessed.ToString() + ( provider.PaymentsToBeProcessed >= Constants.MaxRowsPayment ? "+" : "" );
+				//	}
+
 					if ( provider.PaymentType == (byte)Constants.TransactionType.TokenPayment )
 					{
 //						btnProcess1.Text    = "Get Tokens";
@@ -240,7 +248,7 @@ namespace PCIWebRTR
 						btnProcess3.Visible = false;
 					}
 				}
-			provider = null;
+			}
 		}
 
 		protected void btnTest_Click(Object sender, EventArgs e)
@@ -469,14 +477,14 @@ namespace PCIWebRTR
 			try
 			{
 				string tranType = Tools.TransactionTypeName(transactionType);
-				Tools.LogInfo("ProcessWeb/1","Started, " + tranType + ", provider " + provider,10,this);
+//				Tools.LogInfo("ProcessWeb/1","Started, " + tranType + ", provider " + provider,10,this);
 
 				using (Payments payments = new Payments())
 				{
-					int k         = payments.ProcessCards(provider,transactionType,maxRows);
+					int k         = payments.ProcessCards(provider,transactionType,maxRows,"",222);
 					lblError.Text = (payments.CountSucceeded+payments.CountFailed).ToString() + " " + tranType + "(s) processed : " + payments.CountSucceeded.ToString() + " succeeded, " + payments.CountFailed.ToString() + " failed<br />&nbsp;";
 				}
-				Tools.LogInfo("ProcessWeb/2","Finished",10,this);
+//				Tools.LogInfo("ProcessWeb/2","Finished",10,this);
 			}
 			catch (Exception ex)
 			{

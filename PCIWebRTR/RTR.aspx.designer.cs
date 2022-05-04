@@ -96,6 +96,24 @@ namespace PCIWebRTR
 		protected global::System.Web.UI.WebControls.Literal lblSURL;
 
 		/// <summary>
+		/// lblVerApp control.
+		/// </summary>
+		/// <remarks>
+		/// Auto-generated field.
+		/// To modify move field declaration from designer file to code-behind file.
+		/// </remarks>
+		protected global::System.Web.UI.WebControls.Literal lblVerApp;
+
+		/// <summary>
+		/// lblVerDLL control.
+		/// </summary>
+		/// <remarks>
+		/// Auto-generated field.
+		/// To modify move field declaration from designer file to code-behind file.
+		/// </remarks>
+		protected global::System.Web.UI.WebControls.Literal lblVerDLL;
+
+		/// <summary>
 		/// lstProvider control.
 		/// </summary>
 		/// <remarks>
@@ -148,33 +166,6 @@ namespace PCIWebRTR
 		/// To modify move field declaration from designer file to code-behind file.
 		/// </remarks>
 		protected global::System.Web.UI.WebControls.Literal lblBureauCode;
-
-		/// <summary>
-		/// lblBureauURL control.
-		/// </summary>
-		/// <remarks>
-		/// Auto-generated field.
-		/// To modify move field declaration from designer file to code-behind file.
-		/// </remarks>
-		protected global::System.Web.UI.WebControls.Literal lblBureauURL;
-
-		/// <summary>
-		/// lblCards control.
-		/// </summary>
-		/// <remarks>
-		/// Auto-generated field.
-		/// To modify move field declaration from designer file to code-behind file.
-		/// </remarks>
-		protected global::System.Web.UI.WebControls.Literal lblCards;
-
-		/// <summary>
-		/// lblPayments control.
-		/// </summary>
-		/// <remarks>
-		/// Auto-generated field.
-		/// To modify move field declaration from designer file to code-behind file.
-		/// </remarks>
-		protected global::System.Web.UI.WebControls.Literal lblPayments;
 
 		/// <summary>
 		/// lblBureauStatus control.

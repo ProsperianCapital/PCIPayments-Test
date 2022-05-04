@@ -51,6 +51,12 @@ function PaySingle(mode)
 		<td>PlaNet User Code</td><td class="Red"> : <b><i><asp:Literal runat="server" ID="lblSUserCode"></asp:Literal></i></b></td></tr>
 	<tr>
 		<td>Referred URL</td><td class="Red"> : <b><i><asp:Literal runat="server" ID="lblSURL"></asp:Literal></i></b></td></tr>
+	<tr>
+		<td colspan="2"><hr /></td></tr>
+	<tr>
+		<td>App Version</td><td> : <b><i><asp:Literal runat="server" ID="lblVerApp"></asp:Literal></i></b></td></tr>
+	<tr>
+		<td>DLL Version</td><td> : <b><i><asp:Literal runat="server" ID="lblVerDLL"></asp:Literal></i></b></td></tr>
 	</table>
 	<table class="Detail">
 	<tr>
@@ -70,28 +76,29 @@ function PaySingle(mode)
 		<td colspan="2"><hr /></td></tr>
 	<tr>
 		<td>Bureau Code</td>
-		<td> : <asp:Literal runat="server" ID="lblBureauCode"></asp:Literal></td></tr>
+		<td> : <b><asp:Literal runat="server" ID="lblBureauCode"></asp:Literal></b></td></tr>
+	<!--
 	<tr>
 		<td>Payment URL</td>
-		<td> : <asp:Literal runat="server" ID="lblBureauURL"></asp:Literal></td></tr>
-	<!--
+		<td> : <asp Literal run@t="server" ID="lblBureauURL"></asp:Literal></td></tr>
 	<tr>
 		<td>Prosperian Account/Key</td>
 		<td> : <asp Literal run@t="server" ID="lblMerchantKey"></asp Literal></td></tr>
 	<tr>
 		<td>Prosperian User ID</td>
 		<td> : <asp Literal run@t="server" ID="lblMerchantUser"></asp Literal></td></tr>
-	-->
 	<tr>
 		<td>Cards waiting to be tokenized</td>
-		<td> : <asp:Literal runat="server" ID="lblCards"></asp:Literal></td></tr>
+		<td> : <asp Literal run@t="server" ID="lblCards"></asp:Literal></td></tr>
 	<tr>
 		<td>Payments waiting to be processed</td>
-		<td> : <asp:Literal runat="server" ID="lblPayments"></asp:Literal></td></tr>
+		<td> : <asp Literal run@t="server" ID="lblPayments"></asp:Literal></td></tr>
+	-->
 	<tr>
 		<td>Status</td>
-		<td> : <asp:Literal runat="server" ID="lblBureauStatus"></asp:Literal></td></tr>
+		<td> : <b><asp:Literal runat="server" ID="lblBureauStatus"></asp:Literal></b></td></tr>
 	</table>
+	<hr />
 	<asp:Panel runat="server" ID="pnlButtons" CssClass="ButtonRow">
 		<div style="color:red;font-weight:bold">Tokens</div>
 		<asp:Button  runat="server" ID="btnProcess1"  CssClass="Button" width="180px" OnClientClick="JavaScript:Busy(1,'Creating tokens ... please be patient')" onclick="btnProcess1_Click" Text="Create (Direct)" />
