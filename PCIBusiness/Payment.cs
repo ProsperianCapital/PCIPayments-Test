@@ -1013,9 +1013,10 @@ namespace PCIBusiness
 			          processMode == (int)Constants.ProcessMode.UpdatePaymentStep1 ||
 			          processMode == (int)Constants.ProcessMode.UpdatePaymentStep1AndStep2 )
 			{
-				sql = "exec sp_Upd_CardPayment @MerchantReference     = " + Tools.DBString(merchantReference)
-			                              + ",@TransactionID         = " + Tools.DBString(transaction.PaymentReference)
-			                              + ",@TransactionStatusCode = '77'";
+				sql = "exec sp_Upd_CardPayment @MerchantReference = " + Tools.DBString(merchantReference)
+			                              + ",@TransactionID = "     + Tools.DBString(transaction.PaymentReference)
+			                              + ",@TransactionStatusCode = '77'"
+			                              + ",@TransactionStatusMessage = ''";
 				Tools.LogInfo("ProcessPayment/30","SQL 1=" + sql,20,this);
 				retSQL = ExecuteSQLUpdate();
 				Tools.LogInfo("ProcessPayment/40","SQL 1 complete",20,this);
@@ -1060,9 +1061,10 @@ namespace PCIBusiness
 			          processMode == (int)Constants.ProcessMode.UpdatePaymentStep2 ||
 			          processMode == (int)Constants.ProcessMode.UpdatePaymentStep1AndStep2 )
 			{
-				sql = "exec sp_Upd_CardPayment @MerchantReference = "     + Tools.DBString(merchantReference)
-			                              + ",@TransactionStatusCode = " + Tools.DBString(transaction.ResultCode)
-			                              + ",@TransactionID = "         + Tools.DBString(transaction.PaymentReference);
+				sql = "exec sp_Upd_CardPayment @MerchantReference = "        + Tools.DBString(merchantReference)
+			                              + ",@TransactionID = "            + Tools.DBString(transaction.PaymentReference)
+			                              + ",@TransactionStatusCode = "    + Tools.DBString(transaction.ResultCode)
+			                              + ",@TransactionStatusMessage = " + Tools.DBString(transaction.ResultMessage);
 				Tools.LogInfo("ProcessPayment/70","SQL 2=" + sql,20,this);
 				retSQL = ExecuteSQLUpdate();
 				Tools.LogInfo("ProcessPayment/80","SQL 2 complete",20,this);
