@@ -22,7 +22,7 @@ namespace PCIBusiness
 
 			try
 			{
-				Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
+//				Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 				string descr = payment.PaymentDescription;
 				if ( descr.Length < 1 )
@@ -109,7 +109,7 @@ namespace PCIBusiness
 			int ret = 10;
 			payRef  = "";
 
-			Tools.LogInfo("TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
+//			Tools.LogInfo("TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 			try
 			{
@@ -167,6 +167,8 @@ namespace PCIBusiness
 				ret      = CallWebService(payment,(byte)Constants.TransactionType.TokenPayment);
 				if ( ret == 0 && payRef.Length > 0 )
 					return 0;
+
+				Tools.LogInfo("TokenPayment/50","ret="+ret.ToString()+", payRef="+payRef+", XML Sent="+xmlSent+", XML Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
@@ -331,6 +333,7 @@ namespace PCIBusiness
 							ret        = 163;
 							resultMsg  = xmlResult.SelectNodes("/paymentService/reply")[0].InnerText;
 							resultCode = Tools.XMLNode(xmlResult,"error","","","","code");
+							resultCode = "ERROR" + ( resultCode.Length > 0 ? "/" + resultCode : "" );
 						//	resultCode = xmlResult.SelectNodes("/paymentService/reply/error")[0].Attributes[0].InnerText;
 							Tools.LogInfo("CallWebService/36", "strResult="+strResult+", resultCode="+resultCode+", resultMsg="+resultMsg, logPriority, this);
 						}
@@ -488,7 +491,7 @@ namespace PCIBusiness
 				urlReturn    = urlReturn + "RegisterThreeD.aspx?ProviderCode="+bureauCode
 				                         +                    "&TransRef="    +Tools.XMLSafe(payment.MerchantReference)
 				                         +                    "&OrderCode="   +Tools.XMLSafe(payment.TransactionID)
-				                         +                    "&SessionID="   +Tools.XMLSafe(payment.SessionID);
+				                         +                    "&SessionID="   +Tools.XMLSafe(payment.SessionIDClient);
 
 				string descr = payment.PaymentDescription;
 				if ( descr.Length < 1 )
@@ -512,7 +515,7 @@ namespace PCIBusiness
 				        +       CardAddress(payment)
 				        +     "</CARD-SSL>"
 				        +     "<session shopperIPAddress='" + payment.MandateIPAddress + "'"
-				        +             " id='"               + payment.SessionID + "' />" // Session id must be unique for each order
+				        +             " id='"               + payment.SessionIDClient + "' />" // Session id must be unique for each order
 				        +   "</paymentDetails>"
 				        +   "<shopper>"
 				        +     "<shopperEmailAddress>" + payment.EMail + "</shopperEmailAddress>"
@@ -521,7 +524,110 @@ namespace PCIBusiness
 				        +       "<userAgentHeader>" + payment.MandateBrowser + "</userAgentHeader>"
 				        +     "</browser>"
 				        +   "</shopper>"
-				        +   "<additional3DSData dfReferenceId=\"" + payment.SessionID + "\" />"
+				        +   "<additional3DSData dfReferenceId=\"" + payment.SessionIDProvider + "\" />"
+				        + "</order>";
+
+//				        +   "<dynamicInteractionType type='ECOMMERCE' />"
+//				        +   "<dynamic3DS overrideAdvice='do3DS' />"
+
+				ret     = 60;
+				ret     = CallWebService(payment,(byte)Constants.TransactionType.ThreeDSecurePayment);
+
+/* Sample
+   <reply>
+      <orderStatus orderCode="ExampleOrder1"> <!--The orderCode you supplied in the order-->
+         <requestInfo>
+            <request3DSecure> <!--PaRequest must be supplied as-is. Do not truncate-->
+               <paRequest>eJxVUsFuwjAM/ZWK80aSUgpFJogNpHEo2hjTzlVr0Uq0KUkYsK+fUwpl72Q/2y/Jc2B2LvfeD2pTqGraE33e82YStrlGXHxietQoIUZjkh16RUYdQTge8DAII3846kl4n2/wIKFVkCTQ94HdUhrVaZ5UVkKSHl5Wayk6AGs5KFGvFo8lh+eu71qHOjHmpHQmhT8IhuFoDOxOQZWUKL+V3md1cvEWWCqTqxpYw0OqjpXVFzn0aeiWwFHvZW5tPWGsUtqqylilEZjjgXV3fz+6yJDOuchk/DsX8XZ3Wi+WPP6YP2IKzHVAlliUPhchHwnf4+FkGEz8CFjDQ1K6C8jl18YTT5yTD1cCanfO/JoIV3gkgJahsUovMnIvv2eA51pVSB1k/D2GDE0qLRrrkT2o6WxHAOve8vrmtpJasjYgDAg+4baapuDEC7JKRDxs1F0CzI2ydvWs/R4U/fs2f8B1wXg=</paRequest>
+               <issuerURL><![CDATA[https://secure-test.worldpay.com/jsp/test/shopper/ThreeDResponseSimulator.jsp]]></issuerURL>
+            </request3DSecure>
+         </requestInfo>
+         <echoData>1374244409987691395</echoData> <!--For compatibility with older integrations - can be ignored-->
+      </orderStatus>
+   </reply>
+*/
+				if ( ret == 0 && payRef.Length > 0 && otherRef.Length > 0 && d3Form.Length > 0 )
+				{
+					d3Form     = "<html><body onload='document.forms[\"frm3D\"].submit()'>"
+					           + "<form name='frm3D' method='POST' action='" + d3Form + "'>"
+					           +   "<input type='hidden' name='PaReq' value='" + payRef + "' />"
+					           +   "<input type='hidden' name='TermUrl' value='" + urlReturn + "' />"
+					           +   "<input type='hidden' name='MD' value='" + otherRef + "' />"
+					           + "</form></body></html>";
+					string sql = "exec sp_WP_PaymentRegister3DSecA @ContractCode="    + Tools.DBString(payment.MerchantReference)
+				              +                                 ",@ReferenceNumber=" + Tools.DBString(payRef)
+				              +                                 ",@Status='77'"; // Means payment pending
+					if ( languageCode.Length > 0 )
+						sql = sql + ",@LanguageCode="        + Tools.DBString(languageCode);
+					if ( languageDialectCode.Length > 0 )
+						sql = sql + ",@LanguageDialectCode=" + Tools.DBString(languageDialectCode);
+					using (MiscList mList = new MiscList())
+						mList.ExecQuery(sql,0,"",false,true);
+					Tools.LogInfo("ThreeDSecurePayment/50","PayReq=" + payRef + "; Cookie=" + otherRef + "; SQL=" + sql + "; " + d3Form,logPriority,this);
+					return 0;
+				}
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo     ("ThreeDSecurePayment/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("ThreeDSecurePayment/99","Ret="+ret.ToString()+", XML Sent="+xmlSent, ex,this);
+			}
+			return ret;
+		}
+
+
+		public int ThreeDSecurePaymentV1(Payment payment,Uri postBackURL,string languageCode="",string languageDialectCode="")
+		{
+			int    ret       = 10;
+			string urlReturn = "";
+
+			try
+			{
+//				Tools.LogInfo("ThreeDSecurePayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
+
+				if ( postBackURL == null )
+					urlReturn = Tools.ConfigValue("SystemURL");
+				else
+					urlReturn = postBackURL.GetLeftPart(UriPartial.Authority);
+				if ( ! urlReturn.EndsWith("/") )
+					urlReturn = urlReturn + "/";
+				ret          = 20;
+				urlReturn    = urlReturn + "RegisterThreeD.aspx?ProviderCode="+bureauCode
+				                         +                    "&TransRef="    +Tools.XMLSafe(payment.MerchantReference)
+				                         +                    "&OrderCode="   +Tools.XMLSafe(payment.TransactionID)
+				                         +                    "&SessionID="   +Tools.XMLSafe(payment.SessionIDClient);
+
+				string descr = payment.PaymentDescription;
+				if ( descr.Length < 1 )
+					descr = "Initial 3d Secure payment";
+
+				ret     = 40;
+				xmlSent = "<order orderCode='" + payment.TransactionID + "'>"
+				        +   "<description>" + payment.PaymentDescription + "</description>"
+				        +   "<amount currencyCode='" + payment.CurrencyCode + "'"
+				        +          " exponent='2'"
+				        +          " value='" + payment.PaymentAmount.ToString() + "' />"
+				        +   "<orderContent />"
+				        +   "<paymentDetails>"
+				        +     "<CARD-SSL>"
+				        +       "<cardNumber>" + payment.CardNumber + "</cardNumber>"
+				        +       "<expiryDate>"
+				        +         "<date month='" + payment.CardExpiryMM + "' year='" + payment.CardExpiryYYYY + "' />"
+				        +       "</expiryDate>"
+				        +       "<cardHolderName>3D</cardHolderName>" // + payment.CardName + "</cardHolderName>"
+				        +       "<cvc>" + payment.CardCVV + "</cvc>"
+				        +       CardAddress(payment)
+				        +     "</CARD-SSL>"
+				        +     "<session shopperIPAddress='" + payment.MandateIPAddress + "'"
+				        +             " id='"               + payment.SessionIDClient + "' />" // Session id must be unique for each order
+				        +   "</paymentDetails>"
+				        +   "<shopper>"
+				        +     "<shopperEmailAddress>" + payment.EMail + "</shopperEmailAddress>"
+				        +     "<browser>"
+				        +       "<acceptHeader>text/html</acceptHeader>"
+				        +       "<userAgentHeader>" + payment.MandateBrowser + "</userAgentHeader>"
+				        +     "</browser>"
+				        +   "</shopper>"
 				        + "</order>";
 
 //				        +   "<dynamicInteractionType type='ECOMMERCE' />"
@@ -609,7 +715,7 @@ namespace PCIBusiness
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.WorldPay);
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-			logPriority                          = 10; // Make this higher for detailed logging
+			logPriority                          = 222; // Make this higher for detailed logging
 		}
 	}
 }

@@ -66,7 +66,8 @@ namespace PCIBusiness
 		private string   webForm;
 
 //	WorldPay fields
-		private string   sessionId;
+		private string   sessionIdClient;
+		private string   sessionIdProvider;
 		private string   machineCookie;
 
 //	Stripe fields
@@ -520,16 +521,22 @@ namespace PCIBusiness
 		{
 			get { return  Tools.NullToString(merchantReferenceOriginal); }
 		}
-		public string    SessionID
+		public string    SessionIDClient
 		{
 //			Used by WorldPay
 			get
 			{
-				if ( Tools.NullToString(sessionId).Length < 1 )
-					sessionId = (Guid.NewGuid()).ToString();
-				return Tools.NullToString(sessionId);
+				if ( Tools.NullToString(sessionIdClient).Length < 1 )
+					sessionIdClient = (Guid.NewGuid()).ToString();
+				return Tools.NullToString(sessionIdClient);
 			}
-			set { sessionId = value.Trim(); }
+			set { sessionIdClient = value.Trim(); }
+		}
+		public string    SessionIDProvider
+		{
+//			Used by WorldPay
+			get { return Tools.NullToString(sessionIdProvider); }
+			set { sessionIdProvider = value.Trim(); }
 		}
 		public string    Cookie
 		{
