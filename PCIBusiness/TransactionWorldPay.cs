@@ -28,13 +28,6 @@ namespace PCIBusiness
 				if ( descr.Length < 1 )
 					descr = "Recurring payment token";
 
-//				xmlSent = "<?xml version='1.0' encoding='UTF-8'?>"
-//				        + "<!DOCTYPE paymentService PUBLIC"
-//				        +          " '-//WorldPay//DTD WorldPay PaymentService v1//EN'"
-//				        +          " 'http://dtd.worldpay.com/paymentService_v1.dtd'>"
-//				        + "<paymentService version='1.4' merchantCode='" + payment.ProviderAccount + "'>"
-//				        +   "<submit>"
-
 				xmlSent = "<paymentTokenCreate>"
 				        +   "<createToken tokenScope='merchant'>"
 				        +     "<tokenEventReference>" + payment.MerchantReference + "</tokenEventReference>"
@@ -50,6 +43,11 @@ namespace PCIBusiness
 				        +     "</cardDetails>"
 				        +   "</paymentInstrument>"
 				        + "</paymentTokenCreate>";
+
+//				        +   "<paymentDetails>"
+//				        +     "<storedCredentials usage='FIRST' />"
+//				        +   "</paymentDetails>"
+
 /*
 
 <?xml version="1.0" encoding="UTF-8"?> 
@@ -113,13 +111,6 @@ namespace PCIBusiness
 
 			try
 			{
-//				xmlSent = "<?xml version='1.0' encoding='UTF-8'?>"
-//				        + "<!DOCTYPE paymentService PUBLIC"
-//				        +          " '-//WorldPay//DTD WorldPay PaymentService v1//EN'"
-//				        +          " 'http://dtd.worldpay.com/paymentService_v1.dtd'>"
-//				        + "<paymentService version='1.4' merchantCode='" + payment.ProviderAccount + "'>"
-//				        +   "<submit>"
-
 				xmlSent = "<order orderCode='" + payment.TransactionID + "'>"
 				        +   "<description>" + payment.PaymentDescription + "</description>"
 				        +   "<amount currencyCode='" + payment.CurrencyCode + "'"
@@ -188,7 +179,7 @@ namespace PCIBusiness
 				        +   "<description>" + payment.PaymentDescription + "</description>"
 				        +   "<amount currencyCode='" + payment.CurrencyCode + "'"
 				        +          " exponent='2'"
-				        +          " value='0' />"
+				        +          " value='" + payment.PaymentAmount.ToString() + "' />"
 				        +   "<paymentDetails>"
 				        +     "<CARD-SSL>"
 				        +       "<cardNumber>" + payment.CardNumber + "</cardNumber>"
@@ -236,20 +227,22 @@ namespace PCIBusiness
 
 			SetError ("99","Internal error connecting to " + url);
 
-			ret       = 60;
-			payToken  = "";
-			payRef    = "";
-			otherRef  = "";
-			d3Form    = "";
-			strResult = "";
-			xmlSent   = "<?xml version='1.0' encoding='UTF-8'?>"
-				       + "<!DOCTYPE paymentService PUBLIC"
-				       +          " '-//WorldPay//DTD WorldPay PaymentService v1//EN'"
-				       +          " 'http://dtd.worldpay.com/paymentService_v1.dtd'>"
-				       + "<paymentService version='1.4' merchantCode='" + payment.ProviderAccount + "'>"
-			          + "<submit>"
-			          + xmlSent
-			          + "</submit></paymentService>";
+			ret        = 60;
+			payToken   = "";
+			payRef     = "";
+			otherRef   = "";
+			d3Form     = "";
+			strResult  = "";
+			resultCode = "";
+			resultMsg  = "";
+			xmlSent    = "<?xml version='1.0' encoding='UTF-8'?>"
+				        + "<!DOCTYPE paymentService PUBLIC"
+				        +          " '-//WorldPay//DTD WorldPay PaymentService v1//EN'"
+				        +          " 'http://dtd.worldpay.com/paymentService_v1.dtd'>"
+				        + "<paymentService version='1.4' merchantCode='" + payment.ProviderAccount + "'>"
+			           + "<submit>"
+			           + xmlSent
+			           + "</submit></paymentService>";
 
 			try
 			{
@@ -328,27 +321,47 @@ namespace PCIBusiness
 						xmlResult = new XmlDocument();
 						xmlResult.LoadXml(strResult);
 
+						string lastEventMsg = Tools.XMLNode(xmlResult,"lastEvent");
+
 						if ( strResult.Contains("<error") )
 						{
-							ret        = 163;
+							ret        = 165;
 							resultMsg  = xmlResult.SelectNodes("/paymentService/reply")[0].InnerText;
 							resultCode = Tools.XMLNode(xmlResult,"error","","","","code");
 							resultCode = "ERROR" + ( resultCode.Length > 0 ? "/" + resultCode : "" );
-						//	resultCode = xmlResult.SelectNodes("/paymentService/reply/error")[0].Attributes[0].InnerText;
-							Tools.LogInfo("CallWebService/36", "strResult="+strResult+", resultCode="+resultCode+", resultMsg="+resultMsg, logPriority, this);
 						}
 
-//						else if ( strResult.Contains("<ISO8583ReturnCode") )
-//						{
-//							ret        = 166;
-//							resultMsg  = Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","description");
-//							resultCode = Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","code");
-//						}
-
-						else if ( transactionType == (byte)Constants.TransactionType.GetToken )
+						if ( strResult.Contains("<ISO8583ReturnCode") )
 						{
-							ret      = 190;
+							ret        = 170;
+							resultCode = ( resultCode.Length > 0 ? resultCode + "/" : "" )
+							           + Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","code");
+							resultMsg  = ( resultMsg.Length  > 0 ? resultMsg  + "/" : "" )
+							           + Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","description");
+						}
+
+						if ( resultMsg.Length == 0 && resultCode.Length == 0 )
+						{
+							ret        = 175;
+							resultCode = lastEventMsg;
+							resultMsg  = "";
+						}
+						else
+						{
+							ret = 178;
+							if ( lastEventMsg.Length > 0 )
+								resultMsg = ( resultMsg.Length > 0 ? resultMsg + " (" : "" )
+							             + lastEventMsg
+							             + ( resultMsg.Length > 0 ? resultMsg + ")" : "" );
+							Tools.LogInfo("CallWebService/37", "resultCode=" + resultCode + ", resultMsg=" + resultMsg, logPriority, this);
+							return ret;
+						}
+						
+						if ( transactionType == (byte)Constants.TransactionType.GetToken )
+						{
+							ret      = 180;
 							payToken = Tools.XMLNode(xmlResult,"paymentTokenID");
+							payRef   = Tools.XMLNode(xmlResult,"transactionIdentifier");
 							if ( payToken.Length > 0 )
 								SetError ("00","");
 							else
@@ -356,13 +369,13 @@ namespace PCIBusiness
 						}
 						else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
 						{
-							ret       = 200;
-							resultMsg = Tools.XMLNode(xmlResult,"lastEvent");
-							payRef    = Tools.XMLNode(xmlResult,"cardNumber");
-							if ( resultMsg.ToUpper().StartsWith("AUTHORI") )
-								SetError ("00",resultMsg);
-							else if ( resultMsg.Length > 0 )
-								SetError ("95","Payment failed (" + resultMsg + ")");
+							ret        = 200;
+						//	resultCode = Tools.XMLNode(xmlResult,"lastEvent");
+							payRef     = Tools.XMLNode(xmlResult,"cardNumber");
+							if ( resultCode.ToUpper().StartsWith("AUTHORI") )
+								SetError ("00",resultCode);
+							else if ( resultCode.Length > 0 )
+								SetError ("95","Payment failed (" + resultCode + ")");
 							else
 								SetError ("94","Payment failed");
 						}
@@ -381,7 +394,7 @@ namespace PCIBusiness
 						else if ( transactionType == (byte)Constants.TransactionType.ThreeDSecureCheck )
 						{
 							ret        = 220;
-							resultCode = Tools.XMLNode(xmlResult,"lastEvent");
+						//	resultCode = lastEventMsg; // Tools.XMLNode(xmlResult,"lastEvent");
 							resultMsg  = Tools.XMLNode(xmlResult,"ThreeDSecureResult","","","","description");
 							if ( resultCode.ToUpper().StartsWith("AUTHORI") )
 								if ( resultMsg.Length > 0 )
@@ -396,15 +409,15 @@ namespace PCIBusiness
 						else if ( transactionType == (byte)Constants.TransactionType.ZeroValueCheck )
 						{
 							ret        = 230;
-							resultCode = Tools.XMLNode(xmlResult,"lastEvent");
-							resultMsg  = "";
-							if ( strResult.Contains("<ISO8583ReturnCode") )
-							{
-								ret        = 231;
-								resultCode = ( resultCode.Length > 0 ? resultCode + "/" : "" )
-								           + Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","code");
-								resultMsg  = Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","description");
-							}
+						//	resultCode = lastEventMsg; // Tools.XMLNode(xmlResult,"lastEvent");
+						//	resultMsg  = "";
+//							if ( strResult.Contains("<ISO8583ReturnCode") )
+//							{
+//								ret        = 231;
+//								resultCode = ( resultCode.Length > 0 ? resultCode + "/" : "" )
+//								           + Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","code");
+//								resultMsg  = Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","description");
+//							}
 							if ( resultCode.ToUpper().StartsWith("AUTHORI") )
 								SetError ("00",resultCode);
 							else
@@ -447,7 +460,7 @@ namespace PCIBusiness
 			int ret = 10;
 			try
 			{
-//				Tools.LogInfo("ThreeDSecurePayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
+//				Tools.LogInfo("ThreeDSecureCheck/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 				ret     = 40;
 				xmlSent = "<order orderCode='" + merchantRef + "'>" // The order code from the first message 
@@ -467,7 +480,7 @@ namespace PCIBusiness
 			}
 			catch (Exception ex)
 			{
-
+				Tools.LogException("ThreeDSecureCheck/99","xmlSent=" + xmlSent,ex,this);
 			}
 			return ret;
 		}
@@ -578,6 +591,8 @@ namespace PCIBusiness
 
 		public int ThreeDSecurePaymentV1(Payment payment,Uri postBackURL,string languageCode="",string languageDialectCode="")
 		{
+//	No longer used
+	
 			int    ret       = 10;
 			string urlReturn = "";
 
@@ -715,7 +730,8 @@ namespace PCIBusiness
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.WorldPay);
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-			logPriority                          = 222; // Make this higher for detailed logging
+//			logPriority                          = 10;  // For production, when all is stable
+			logPriority                          = 222; // For testing/development, to log very detailed errors
 		}
 	}
 }

@@ -555,6 +555,10 @@ namespace PCIBusiness
 		{
 			try
 			{
+			//	Quick check, if not there just exit
+				if ( xmlTag.Length > 0 && ! xmlDoc.OuterXml.ToString().ToUpper().Contains(xmlTag.ToUpper()))
+					return "";
+
 				string ret = "";
 
 				if ( parentNode.Length > 0 )
@@ -1871,9 +1875,6 @@ namespace PCIBusiness
 				}
 			return "";
 		}
-
-//		public static string LoadChat(string productCode)
-//		{
 
 		public static string LoadChat(string productCode)
 		{
