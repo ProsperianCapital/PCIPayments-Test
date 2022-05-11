@@ -968,12 +968,12 @@ namespace PCIBusiness
 				sql = "exec sp_Upd_CardTokenVault @MerchantReference = "           + Tools.DBString(merchantReference) // nvarchar(20),
 				                              + ",@PaymentBureauCode = "           + Tools.DBString(bureauCode)        // char(3),
 			                                 + ",@PaymentBureauToken = "          + Tools.DBString(transaction.PaymentToken)
-			                                 + ",@PaymentMethodId = "             + Tools.DBString(transaction.PaymentMethodId)
 			                                 + ",@CustomerId = "                  + Tools.DBString(transaction.CustomerId)
 			                                 + ",@BureauSubmissionSoap = "        + Tools.DBString(transaction.XMLSent,3)
 			                                 + ",@BureauResultSoap = "            + Tools.DBString(transaction.XMLResult,3)
 			                                 + ",@TransactionStatusCode = "       + Tools.DBString(transaction.ResultCode)
-			                                 + ",@PaymentMethodId = "             + Tools.DBString(transaction.PaymentReference)
+//			                                 + ",@PaymentMethodId = "             + Tools.DBString(transaction.PaymentReference)
+			                                 + ",@PaymentMethodId = "             + Tools.DBString(transaction.PaymentMethodId)
 		                                    + ",@CardTokenisationStatusCode = '" + ( retProc == 0 ? "007'" : "001'" );
 				Tools.LogInfo("GetToken/20","SQL=" + sql,20,this);
 				retSQL = ExecuteSQLUpdate();

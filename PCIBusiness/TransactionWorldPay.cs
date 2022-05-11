@@ -434,6 +434,8 @@ namespace PCIBusiness
 									SetError ("89","Zero value validation failed : " + resultCode);
 							}
 						}
+
+						paymentMethodId = payRef;
 						if ( resultCode == "00" )
 							ret = 0;
 						else
