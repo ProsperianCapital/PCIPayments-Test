@@ -146,7 +146,14 @@ namespace PCIBusiness
 		}
 		public string    PaymentMethodID
 		{
-			get { return  Tools.NullToString(paymentMethodID); }
+		//	Don't TRIM() here!
+			set { paymentMethodID = value; }
+			get
+			{
+				if ( string.IsNullOrWhiteSpace(paymentMethodID) )
+					return "";
+				return paymentMethodID;
+			}
 		}
 
 //		Payment Provider stuff
@@ -966,6 +973,7 @@ namespace PCIBusiness
 			                                 + ",@BureauSubmissionSoap = "        + Tools.DBString(transaction.XMLSent,3)
 			                                 + ",@BureauResultSoap = "            + Tools.DBString(transaction.XMLResult,3)
 			                                 + ",@TransactionStatusCode = "       + Tools.DBString(transaction.ResultCode)
+			                                 + ",@PaymentMethodId = "             + Tools.DBString(transaction.PaymentReference)
 		                                    + ",@CardTokenisationStatusCode = '" + ( retProc == 0 ? "007'" : "001'" );
 				Tools.LogInfo("GetToken/20","SQL=" + sql,20,this);
 				retSQL = ExecuteSQLUpdate();
@@ -985,11 +993,12 @@ namespace PCIBusiness
 				return 38020;
 
 			int retProc = transaction.CardValidation(this);
-			sql         = "exec sp_Upd_PaymentZeroValue @TransactionId = "            + Tools.DBString(transactionID)
-		                                           + ",@TransactionStatusCode = "    + Tools.DBString(transaction.ResultCode)
-		                                           + ",@TransactionStatusMessage = " + Tools.DBString(transaction.ResultMessage);
+			sql         = "exec sp_Upd_PaymentZeroValue @TransactionId = "               + Tools.DBString(transactionID)
+		                                           + ",@TransactionStatusCode = "       + Tools.DBString(transaction.ResultCode)
+		                                           + ",@TransactionStatusMessage = "    + Tools.DBString(transaction.ResultMessage)
+		                                           + ",@SchemeTransactionIdentifier = " + Tools.DBString(transaction.PaymentReference);
 
-			Tools.LogInfo("ZeroValueCheck/20","SQL=" + sql,222,this);
+			Tools.LogInfo("ZeroValueCheck/20","SQL=" + sql,20,this);
 			int retSQL = ExecuteSQLUpdate();
 			return retProc;
 		}
@@ -1143,7 +1152,7 @@ namespace PCIBusiness
 			ccPIN            = dbConn.ColString ("PIN"            ,0,0);
 			transactionID    = dbConn.ColGuid   ("TransactionId"  ,0,0);
 		//	transactionID    = dbConn.ColString ("TransactionId"  ,0,0,177);
-		//	Used by Stripe (bureauCode 028)
+		//	Used by Stripe (bureauCode 028) and WorldPay (bureauCode 032)
 			customerID       = dbConn.ColString ("CustomerId"     ,0,0);
 			paymentMethodID  = dbConn.ColString ("PaymentMethodId",0,0);
 
