@@ -189,7 +189,7 @@ namespace PCIBusiness
 				        +   "<amount currencyCode='" + payment.CurrencyCode + "'"
 				        +          " exponent='2'"
 				        +          " value='" + payment.PaymentAmount.ToString() + "' />"
-				        +   "<paymentDetails>"
+				        +   "<paymentDetails action='ACCOUNTVERIFICATION'>"
 				        +     "<CARD-SSL>"
 				        +       "<cardNumber>" + payment.CardNumber + "</cardNumber>"
 				        +       "<expiryDate>"
@@ -236,22 +236,27 @@ namespace PCIBusiness
 
 			SetError ("99","Internal error connecting to " + url);
 
-			ret        = 60;
-			payToken   = "";
-			payRef     = "";
-			otherRef   = "";
-			d3Form     = "";
-			strResult  = "";
-			resultCode = "";
-			resultMsg  = "";
-			xmlSent    = "<?xml version='1.0' encoding='UTF-8'?>"
-				        + "<!DOCTYPE paymentService PUBLIC"
-				        +          " '-//WorldPay//DTD WorldPay PaymentService v1//EN'"
-				        +          " 'http://dtd.worldpay.com/paymentService_v1.dtd'>"
-				        + "<paymentService version='1.4' merchantCode='" + payment.ProviderAccount + "'>"
-			           + "<submit>"
-			           + xmlSent
-			           + "</submit></paymentService>";
+			string xmlOuter = "submit";
+			if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
+				xmlOuter = "modify";
+
+			ret         = 60;
+			payToken    = "";
+			payRef      = "";
+			otherRef    = "";
+			d3Form      = "";
+			strResult   = "";
+			resultCode  = "";
+			resultMsg   = "";
+			xmlSent     = "<?xml version='1.0' encoding='UTF-8'?>"
+				         + "<!DOCTYPE paymentService PUBLIC"
+				         +          " '-//WorldPay//DTD WorldPay PaymentService v1//EN'"
+				         +          " 'http://dtd.worldpay.com/paymentService_v1.dtd'>"
+				         + "<paymentService version='1.4' merchantCode='" + payment.ProviderAccount + "'>"
+			            + "<"  + xmlOuter + ">"
+			            + xmlSent
+			            + "</" + xmlOuter + ">"
+			            + "</paymentService>";
 
 			try
 			{
@@ -362,7 +367,7 @@ namespace PCIBusiness
 							if ( lastEventMsg.Length > 0 )
 								resultMsg = ( resultMsg.Length > 0 ? resultMsg + " (" : "" )
 							             + lastEventMsg
-							             + ( resultMsg.Length > 0 ? resultMsg + ")" : "" );
+							             + ( resultMsg.Length > 0 ? ")" : "" );
 							Tools.LogInfo("CallWebService/37", "resultCode=" + resultCode + ", resultMsg=" + resultMsg, logPriority, this);
 							return ret;
 						}
@@ -375,7 +380,7 @@ namespace PCIBusiness
 							if ( payToken.Length > 0 )
 								SetError ("00","");
 							else
-								SetError ("96","Unable to retrieve token");
+								SetError ("98","Unable to get token");
 						}
 						else if ( transactionType == (byte)Constants.TransactionType.TokenPayment )
 						{
@@ -384,9 +389,20 @@ namespace PCIBusiness
 							if ( resultCode.ToUpper().StartsWith("AUTHORI") )
 								SetError ("00",resultCode);
 							else if ( resultCode.Length > 0 )
-								SetError ("95","Payment failed (" + resultCode + ")");
+								SetError ("97","Payment failed (" + resultCode + ")");
 							else
-								SetError ("94","Payment failed");
+								SetError ("96","Payment failed");
+						}
+						else if ( transactionType == (byte)Constants.TransactionType.DeleteToken )
+						{
+							ret      = 225;
+							payToken = Tools.XMLNode(xmlResult,"deleteTokenReceived","","","","paymentTokenID");
+							if ( strResult.ToUpper().Contains("REPLY><OK") && payToken.Length > 0 )
+								SetError ("00",resultCode);
+							else if ( resultCode.Length > 0 )
+								SetError ("95","Delete token failed (" + resultCode + ")");
+							else
+								SetError ("94","Delete token failed");
 						}
 						else if ( transactionType == (byte)Constants.TransactionType.ThreeDSecurePayment )
 						{
@@ -418,13 +434,6 @@ namespace PCIBusiness
 						{
 							ret    = 250;
 							payRef = Tools.XMLNode(xmlResult,"transactionIdentifier","","","","",93); // Don't TRIM()
-//							if ( strResult.Contains("<ISO8583ReturnCode") )
-//							{
-//								ret        = 231;
-//								resultCode = ( resultCode.Length > 0 ? resultCode + "/" : "" )
-//								           + Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","code");
-//								resultMsg  = Tools.XMLNode(xmlResult,"ISO8583ReturnCode","","","","description");
-//							}
 							if ( resultCode.ToUpper().StartsWith("AUTHORI") )
 								SetError ("00",resultCode);
 							else
@@ -490,6 +499,36 @@ namespace PCIBusiness
 			catch (Exception ex)
 			{
 				Tools.LogException("ThreeDSecureCheck/99","xmlSent=" + xmlSent,ex,this);
+			}
+			return ret;
+		}
+
+		public override int DeleteToken(Payment payment)
+		{
+			int ret = 10;
+
+			try
+			{
+				string descr = payment.PaymentDescription;
+				if ( descr.Length < 1 )
+					descr = "Delete token";
+
+				xmlSent  = "<paymentTokenDelete tokenScope='merchant'>"
+				         +   "<paymentTokenID>" + payment.CardToken + "</paymentTokenID>"
+				         +   "<tokenEventReference>" + payment.MerchantReference + "</tokenEventReference>"
+				         +   "<tokenReason>" + descr + "</tokenReason>"
+				         + "</paymentTokenDelete>";
+				ret      = 20;
+				ret      = CallWebService(payment,(byte)Constants.TransactionType.DeleteToken);
+				if ( ret == 0 && payToken.Length > 0 )
+					return 0;
+
+				Tools.LogInfo("DeleteToken/50","ret="+ret.ToString()+", payToken="+payToken+", XML Sent="+xmlSent+", XML Rec="+strResult,199,this);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo     ("DeleteToken/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("DeleteToken/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex ,this);
 			}
 			return ret;
 		}
