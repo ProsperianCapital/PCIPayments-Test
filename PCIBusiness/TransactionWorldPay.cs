@@ -31,10 +31,11 @@ namespace PCIBusiness
 						payment.PaymentMethodID = payRef;
 					else
 					{
-						if ( ret < 1 )
-							ret = 20;
-						Tools.LogInfo("GetToken/20","ret="+ret.ToString()+", payRef=" + payRef + ", XML Sent="+xmlSent+", XML Rec="+strResult,199,this);
-						return ret;
+						if ( ret > 0 ) // XML gets logged in CardValidation()
+							Tools.LogInfo("GetToken/20","ret="+ret.ToString()+", payRef=" + payRef,199,this);
+						else           // XML not logged in CardValidation()
+							Tools.LogInfo("GetToken/30","payRef=" + payRef + ", XML Sent="+xmlSent+", XML Rec="+strResult,199,this);
+						return 20;
 					}
 				}
 
