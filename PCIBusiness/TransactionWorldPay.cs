@@ -25,9 +25,20 @@ namespace PCIBusiness
 //				Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 				if ( payment.PaymentMethodID.Length < 1 )
-					if ( CardValidation(payment) == 0 && payRef.Length > 0 )
+				{
+					ret = CardValidation(payment);
+					if ( ret == 0 && payRef.Length > 0 )
 						payment.PaymentMethodID = payRef;
+					else
+					{
+						if ( ret < 1 )
+							ret = 20;
+						Tools.LogInfo("GetToken/20","ret="+ret.ToString()+", payRef=" + payRef + ", XML Sent="+xmlSent+", XML Rec="+strResult,199,this);
+						return ret;
+					}
+				}
 
+				ret          = 30;
 				string descr = payment.PaymentDescription;
 				if ( descr.Length < 1 )
 					descr = "Recurring payment token";
@@ -86,7 +97,7 @@ namespace PCIBusiness
   </submit>
 </paymentService>
 */
-				ret      = 20;
+				ret      = 40;
 				ret      = CallWebService(payment,(byte)Constants.TransactionType.GetToken);
 				if ( ret == 0 && payToken.Length > 0 )
 					return 0;
@@ -205,6 +216,8 @@ namespace PCIBusiness
 				ret      = CallWebService(payment,(byte)Constants.TransactionType.ZeroValueCheck);
 				if ( ret == 0 )
 					return 0;
+
+				Tools.LogInfo("CardValidation/50","ret="+ret.ToString()+", XML Sent="+xmlSent+", XML Rec="+strResult,199,this);
 			}
 			catch (Exception ex)
 			{
@@ -398,7 +411,7 @@ namespace PCIBusiness
 							ret      = 225;
 							payToken = Tools.XMLNode(xmlResult,"deleteTokenReceived","","","","paymentTokenID");
 							if ( strResult.ToUpper().Contains("REPLY><OK") && payToken.Length > 0 )
-								SetError ("00",resultCode);
+								SetError ("Success","");
 							else if ( resultCode.Length > 0 )
 								SetError ("95","Delete token failed (" + resultCode + ")");
 							else
@@ -743,20 +756,46 @@ namespace PCIBusiness
 
 		private string CardAddress(Payment payment)
 		{
+
+/*
+            <address>
+              <address1>47A</address1>
+              <address2>Queensbridge Road</address2>
+              <address3>Suburbia</address3>
+              <postalCode>CB94BQ</postalCode>
+              <city>Cambridge</city>
+              <state>Cambridgeshire</state>
+              <countryCode>GB</countryCode>
+            </address>
+*/
+
 			string addr = "";
 
 			if ( payment.Address1(0).Length > 0 )
 				addr = addr + "<address1>" + payment.Address1(0) + "</address1>";
-			if ( payment.Address2(0).Length > 0 )
-				addr = addr + "<address2>" + payment.Address2(0) + "</address2>";
-			if ( payment.Address3(0).Length > 0 )
-				addr = addr + "<address3>" + payment.Address3(0) + "</address3>";
+			else
+				addr = addr + "<address1>3A Bellpark Plaza, De Lange Street</address1>";
+
+			if ( payment.Address2(0).Length > 0 && payment.Address3(0).Length > 0 )
+				addr = addr + "<address2>" + payment.Address2(0) + "</address2>"
+				            + "<city>"     + payment.Address3(0) + "</city>";
+
+			else if ( payment.Address2(0).Length > 0 )
+				addr = addr + "<city>"     + payment.Address2(0) + "</city>";
+
+			else if ( payment.Address3(0).Length > 0 )
+				addr = addr + "<city>"     + payment.Address3(0) + "</city>";
+
+			else
+				addr = addr + "<city>Bellville</city>";
+
 			if ( payment.PostalCode(0).Length > 0 )
 				addr = addr + "<postalCode>" + payment.PostalCode(0) + "</postalCode>";
 			if ( payment.State.Length > 0 )
 				addr = addr + "<state>" + payment.State + "</state>";
 			if ( payment.CountryCode(0).Length > 0 )
 				addr = addr + "<countryCode>" + payment.CountryCode(0) + "</countryCode>";
+
 			if ( addr.Length > 0 )
 				addr = "<cardAddress><address>" + addr + "</address></cardAddress>";
 
