@@ -777,28 +777,40 @@ namespace PCIBusiness
 			else
 				addr = addr + "<address1>3A Bellpark Plaza, De Lange Street</address1>";
 
-			if ( payment.Address2(0).Length > 0 && payment.Address3(0).Length > 0 )
-				addr = addr + "<address2>" + payment.Address2(0) + "</address2>"
-				            + "<city>"     + payment.Address3(0) + "</city>";
-
-			else if ( payment.Address2(0).Length > 0 )
-				addr = addr + "<city>"     + payment.Address2(0) + "</city>";
-
-			else if ( payment.Address3(0).Length > 0 )
-				addr = addr + "<city>"     + payment.Address3(0) + "</city>";
-
-			else
-				addr = addr + "<city>Bellville</city>";
+//			if ( payment.Address2(0).Length > 0 && payment.Address3(0).Length > 0 )
+//				addr = addr + "<address2>" + payment.Address2(0) + "</address2>"
+//				            + "<city>"     + payment.Address3(0) + "</city>";
+//
+//			else if ( payment.Address2(0).Length > 0 )
+//				addr = addr + "<city>"     + payment.Address2(0) + "</city>";
+//
+//			else if ( payment.Address3(0).Length > 0 )
+//				addr = addr + "<city>"     + payment.Address3(0) + "</city>";
+//
+//			else
+//				addr = addr + "<city>Bellville</city>";
 
 			if ( payment.PostalCode(0).Length > 0 )
 				addr = addr + "<postalCode>" + payment.PostalCode(0) + "</postalCode>";
+			else
+				addr = addr + "<postalCode>7530</postalCode>";
+
+			if ( payment.Address2(0).Length > 0 )
+				addr = addr + "<city>" + payment.Address2(0) + "</city>";
+			else
+				addr = addr + "<city>Bellville</city>";
+
 			if ( payment.State.Length > 0 )
 				addr = addr + "<state>" + payment.State + "</state>";
+			else
+				addr = addr + "<state>Western Cape</state>";
+
 			if ( payment.CountryCode(0).Length > 0 )
 				addr = addr + "<countryCode>" + payment.CountryCode(0) + "</countryCode>";
+			else
+				addr = addr + "<countryCode>ZA</countryCode>";
 
-			if ( addr.Length > 0 )
-				addr = "<cardAddress><address>" + addr + "</address></cardAddress>";
+			addr = "<cardAddress><address>" + addr + "</address></cardAddress>";
 
 			return addr;
 		}
