@@ -123,6 +123,7 @@ namespace PCIBusiness
 				         +     "</payment>"
 				         +   "</paymentProfiles>"
 				         + "</profile>"
+				         + ( Tools.SystemIsLive() ? "" : "<validationMode>testMode</validationMode>" )
 				         + "</createCustomerProfileRequest>";
 //				         + "<validationMode>" + ( Tools.SystemIsLive() ? "liveMode" : "testMode" ) + "</validationMode>"
 				ret      = 20;
@@ -146,6 +147,32 @@ namespace PCIBusiness
 			}
 			return ret;
 		}
+
+		public override int DeleteToken(Payment payment)
+		{
+			int ret = 10;
+
+			try
+			{
+				xmlSent  = "<deleteCustomerPaymentProfileRequest xmlns='AnetApi/xml/v1/schema/AnetApiSchema.xsd'>"
+				         + "[AUTHENTICATION]"
+				         + "<customerProfileId>" + payment.CustomerID + "</customerProfileId>"
+				         + "<customerPaymentProfileId>" + payment.CardToken + "</customerPaymentProfileId>"
+				         + "</deleteCustomerPaymentProfileRequest>";
+				ret      = 20;
+				ret      = CallWebService(payment,(byte)Constants.TransactionType.DeleteToken);
+				if ( ret == 0 && Successful )
+					return 0;
+				Tools.LogInfo("DeleteToken/50","Ret=" + ret.ToString() + ", XML Sent="+xmlSent+", XML Rec="+XMLResult,201,this);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo     ("DeleteToken/98","Ret="+ret.ToString()+", XML Sent="+XMLSent,255,this);
+				Tools.LogException("DeleteToken/99","Ret="+ret.ToString()+", XML Sent="+XMLSent,ex ,this);
+			}
+			return ret;
+		}
+
 
 		public override int TokenPayment(Payment payment)
 		{
