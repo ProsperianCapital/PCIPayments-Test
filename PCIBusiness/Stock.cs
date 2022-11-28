@@ -124,7 +124,7 @@ namespace PCIBusiness
 
 		public  DateTime Date
 		{
-			get { return theDate; }
+			get { return  theDate; }
 		}
 
 		public int UpdatePrice()
@@ -144,6 +144,9 @@ namespace PCIBusiness
 				{
 					Tools.LogException("Stock.UpdatePrice/2",sql,ex);
 				}
+			else
+				Tools.LogInfo("Stock.UpdatePrice/3","price="+price.ToString()+", stockId="+stockId.ToString()+", tickType="+tickType.ToString(),222);
+
 			return 8199;
 		}
 
@@ -164,6 +167,9 @@ namespace PCIBusiness
 				{
 					Tools.LogException("Stock.UpdateQuantity/2",sql,ex);
 				}
+			else
+				Tools.LogInfo("Stock.UpdateQuantity/3","quantity="+quantity.ToString()+", stockId="+stockId.ToString()+", tickType="+tickType.ToString(),222);
+
 			return 9199;
 		}
 

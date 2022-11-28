@@ -123,10 +123,8 @@ namespace PCIBusiness
 				         +     "</payment>"
 				         +   "</paymentProfiles>"
 				         + "</profile>"
-				         + "<validationMode>testMode</validationMode>"
+				         + "<validationMode>" + ( Tools.SystemIsLive() ? "liveMode" : "testMode" ) + "</validationMode>"
 				         + "</createCustomerProfileRequest>";
-//	Always use "testMode"
-//				         + "<validationMode>" + ( Tools.SystemIsLive() ? "liveMode" : "testMode" ) + "</validationMode>"
 				ret      = 20;
 				ret      = CallWebService(payment,(byte)Constants.TransactionType.GetToken);
 				if ( ret == 0 )
@@ -338,8 +336,8 @@ namespace PCIBusiness
 			base.LoadBureauDetails(Constants.PaymentProvider.PaymentCloud);
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
-		//	logPriority                           = 233; // Testing, always log
-			logPriority                           =  10; // Live, only log errors
+			logPriority                           = 233; // Testing, always log
+		//	logPriority                           =  10; // Live, only log errors
 		}
 	}
 }

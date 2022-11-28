@@ -271,7 +271,7 @@ namespace PCIBusiness
 
 		public enum WebDataType : byte
 		{
-			FormGetOrPost = 1,
+			URLParameters = 1,
 			FormPost      = 2,
 			JSON          = 3,
 			XML           = 4
@@ -279,7 +279,8 @@ namespace PCIBusiness
 
 		public enum ErrorType : int
 		{
-			InvalidMenu = 1
+			InvalidMenu       = 1,
+			SQLNotImplemented = 909707505
 		}
 
 //		public enum PaymentType : byte
