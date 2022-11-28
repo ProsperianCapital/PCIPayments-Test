@@ -127,6 +127,10 @@ namespace PCIWebRTR
 					if ( k >= 0 )
 						lblSQLUser.Text = x.Substring(k+4);
 				}
+				if ( lblSQLUser.Text.Length > 3 )
+					lblSQLUser.Text = lblSQLUser.Text.Substring(0,1) + "******" + lblSQLUser.Text.Substring(lblSQLUser.Text.Length-1);
+				else
+					lblSQLUser.Text = "******";
 				if ( Tools.OpenDB(ref conn) )
 					lblSQLStatus.Text = "Connected";
 				else
@@ -139,7 +143,6 @@ namespace PCIWebRTR
 				for ( int y = System.DateTime.Now.Year ; y < System.DateTime.Now.Year+15 ; y++ )
 					lstCCYear.Items.Add(new ListItem(y.ToString(),y.ToString()));
 			}
-		//	ProviderDetails();
 		}
 
 		private void SetAccess(bool allow,string errMsg="")
@@ -636,6 +639,10 @@ namespace PCIWebRTR
 					string connStr = db.ConnectionString.Trim();
 					int    k       = connStr.ToUpper().IndexOf("PWD=");
 					int    j       = connStr.ToUpper().IndexOf(";",k+1);
+					if ( k >= 0 )
+						connStr     = connStr.Substring(0,k+4) + "******" + ( j > k ? connStr.Substring(j) : "" );
+					k              = connStr.ToUpper().IndexOf("UID=");
+					j              = connStr.ToUpper().IndexOf(";",k+1);
 					if ( k >= 0 )
 						connStr     = connStr.Substring(0,k+4) + "******" + ( j > k ? connStr.Substring(j) : "" );
 					folder         = folder + connStr;
