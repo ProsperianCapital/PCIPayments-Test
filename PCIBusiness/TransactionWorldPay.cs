@@ -8,12 +8,54 @@ namespace PCIBusiness
 {
 	public class TransactionWorldPay : Transaction
 	{
-		private byte logPriority;
+		private byte   logPriority;
 
 //		public  bool Successful
 //		{
 //			get { return Tools.JSONValue(strResult,"success").ToUpper() == "TRUE"; }
 //		}
+
+		public override int AccountUpdate(Payment payment)
+		{
+			int ret = 10;
+
+//	Testing
+//	//	payment.CardNumber = "4444333322221111";
+//	Testing
+
+			try
+			{
+				xmlSent = "<order orderCode='" + payment.TransactionID + "'>"
+				        +   "<description>" + payment.PaymentDescription + "</description>"
+				        +   "<amount currencyCode='" + payment.CurrencyCode + "'"
+				        +          " exponent='2'"
+				        +          " value='" + payment.PaymentAmount.ToString() + "' />"
+				        +   "<paymentDetails action='ACCOUNTVERIFICATION'>"
+				        +     "<CARD-SSL>"
+				        +       "<cardNumber>" + payment.CardNumber + "</cardNumber>"
+				        +       "<expiryDate>"
+				        +         "<date month='" + payment.CardExpiryMM + "' year='" + payment.CardExpiryYYYY + "' />"
+				        +       "</expiryDate>"
+				        +       "<cardHolderName>" + payment.CardName + "</cardHolderName>"
+				        +       "<cvc>" + payment.CardCVV + "</cvc>"
+				        +       CardAddress(payment)
+				        +     "</CARD-SSL>"
+				        +   "</paymentDetails>"
+				        + "</order>";
+				ret      = 20;
+				ret      = CallWebService(payment,(byte)Constants.TransactionType.ZeroValueCheck);
+				if ( ret == 0 )
+					return 0;
+
+				Tools.LogInfo("AccountUpdate/50","ret="+ret.ToString()+", XML Sent="+xmlSent+", XML Rec="+strResult,199,this);
+			}
+			catch (Exception ex)
+			{
+				Tools.LogInfo     ("AccountUpdate/98","Ret="+ret.ToString()+", XML Sent="+xmlSent,255,this);
+				Tools.LogException("AccountUpdate/99","Ret="+ret.ToString()+", XML Sent="+xmlSent,ex ,this);
+			}
+			return ret;
+		}
 
 		public override int GetToken(Payment payment)
 		{
@@ -24,11 +66,11 @@ namespace PCIBusiness
 			{
 //				Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
-				if ( payment.PaymentMethodID.Length < 1 )
+				if ( payment.SchemeTransactionID.Length < 1 )
 				{
 					ret = CardValidation(payment);
 					if ( ret == 0 && payRef.Length > 0 )
-						payment.PaymentMethodID = payRef;
+						payment.SchemeTransactionID = payRef;
 					else
 					{
 						if ( ret > 0 ) // XML gets logged in CardValidation()
@@ -59,7 +101,7 @@ namespace PCIBusiness
 				        +     "</cardDetails>"
 				        +   "</paymentInstrument>"
 				        +   "<storedCredentials usage='FIRST'>"
-				        +     "<schemeTransactionIdentifier>" + payment.PaymentMethodID + "</schemeTransactionIdentifier>"
+				        +     "<schemeTransactionIdentifier>" + payment.SchemeTransactionID + "</schemeTransactionIdentifier>"
 				        +   "</storedCredentials>"
 				        + "</paymentTokenCreate>";
 
@@ -140,7 +182,7 @@ namespace PCIBusiness
 				        +       "</paymentInstrument>"
 				        +     "</TOKEN-SSL>"
 				        +     "<storedCredentials usage='USED' merchantInitiatedReason='RECURRING'>"
-				        +       "<schemeTransactionIdentifier>" + payment.PaymentMethodID + "</schemeTransactionIdentifier>"
+				        +       "<schemeTransactionIdentifier>" + payment.SchemeTransactionID + "</schemeTransactionIdentifier>"
 				        +     "</storedCredentials>"
 				        +   "</paymentDetails>"
 				        + "</order>";
@@ -293,7 +335,7 @@ namespace PCIBusiness
 				            ", URL=" + url +
 				            ", Account=" + payment.ProviderAccount +
 				            ", User=" + payment.ProviderUserID +
-				            ", Pwd=" + payment.ProviderPassword +
+				            ", Pwd=" + Tools.MaskedValue(payment.ProviderPassword) +
 				            ", Cookie=" + payment.Cookie +
 				            ", Authorization=" + auth64 +
 				            ", XML Sent=" + xmlSent, logPriority, this);
@@ -457,8 +499,26 @@ namespace PCIBusiness
 									SetError ("89","Zero value validation failed : " + resultCode);
 							}
 						}
+						else if ( transactionType == (byte)Constants.TransactionType.AccountUpdate )
+						{
+							ret    = 250;
+						//	payRef = Tools.XMLNode(xmlResult,"transactionIdentifier","","","","",93); // Don't TRIM()
+						//	if ( resultCode.ToUpper().StartsWith("AUTHORI") )
+						//		SetError ("00",resultCode);
+						//	else
+						//	{
+						//		Tools.LogInfo("CallWebService/39", "strResult="+strResult+", resultCode="+resultCode+", resultMsg="+resultMsg, logPriority, this);
+						//		if ( resultMsg.Length < 1 )
+						//			SetError ("89","Zero value validation failed : " + resultCode);
+						//	}
+						}
 
-						paymentMethodId = payRef;
+//	"payRef" is the WorldPay "schemeTransactionIdentifier", but it is saved in "paymentMethodId" because SP sp_Upd_CardTokenVault
+//	has a parameter with this name and it expects it in this variable.
+//	For WorldPay, "paymentMethodId" is eaxctly the same as "schemeTransactionID"
+//	See Payment.GetToken()
+						paymentMethodId     = payRef;
+//						schemeTransactionId = payRef;
 						if ( resultCode == "00" )
 							ret = 0;
 						else
@@ -574,7 +634,7 @@ namespace PCIBusiness
 
 				ret     = 40;
 				xmlSent = "<order orderCode='" + payment.TransactionID + "'>"
-				        +   "<description>" + payment.PaymentDescription + "</description>"
+				        +   "<description>" + descr + "</description>"
 				        +   "<amount currencyCode='" + payment.CurrencyCode + "'"
 				        +          " exponent='2'"
 				        +          " value='" + payment.PaymentAmount.ToString() + "' />"
@@ -680,7 +740,7 @@ namespace PCIBusiness
 
 				ret     = 40;
 				xmlSent = "<order orderCode='" + payment.TransactionID + "'>"
-				        +   "<description>" + payment.PaymentDescription + "</description>"
+				        +   "<description>" + descr + "</description>"
 				        +   "<amount currencyCode='" + payment.CurrencyCode + "'"
 				        +          " exponent='2'"
 				        +          " value='" + payment.PaymentAmount.ToString() + "' />"
@@ -815,8 +875,6 @@ namespace PCIBusiness
 			return addr;
 		}
 
-
-
 		private void SetError(string eCode,string eMsg)
 		{
 			resultCode = eCode;
@@ -830,8 +888,8 @@ namespace PCIBusiness
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.WorldPay);
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-//			logPriority                          = 10;  // For production, when all is stable
-			logPriority                          = 222; // For testing/development, to log very detailed errors
+			logPriority                          = 10;  // For production, when all is stable
+//			logPriority                          = 222; // For testing/development, to log very detailed errors
 		}
 	}
 }
