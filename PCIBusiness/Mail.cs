@@ -72,10 +72,10 @@ namespace PCIBusiness
 		{
 			set {	msg.From = new MailAddress(value); }
 		}
-//		public  string Sender
-//		{
-//			set {	msg.Sender = new MailAddress(value); }
-//		}
+		public  string Sender
+		{
+			set {	msg.Sender = new MailAddress(value); }
+		}
 		public  string Heading
 		{
 			get {	return Tools.NullToString(msg.Subject); }
@@ -128,23 +128,6 @@ namespace PCIBusiness
 				if ( msg.To.Count < 1 )
 					break;
 
-//				if ( msg.Sender == null )
-//					try
-//					{
-//						msg.Sender = new MailAddress(smtpSender);
-//					//	msg.Sender = new MailAddress(Tools.ConfigValue("SMTP-From"));
-//					}
-//					catch
-//					{ }
-
-//				if ( msg.Sender == null )
-//					try
-//					{
-//						msg.Sender = new MailAddress(Tools.ConfigValue("SMTP-User"));
-//					}
-//					catch
-//					{ }
-
 				err = 70;
 				if ( msg.From == null )
 					msg.From = msg.Sender;
@@ -162,7 +145,7 @@ namespace PCIBusiness
 					}
 					catch (Exception ex)
 					{
-						if ( q > 3 ) // Log an error on the 4'th failed attempt
+						if ( q == 4 ) // Log an error on the 4'th failed attempt
 							Tools.LogException("Send/10","EMail failure (try " + q.ToString() + "), to " + msg.To.ToString(), ex, this);
 					}
 
@@ -191,7 +174,8 @@ namespace PCIBusiness
 
 		public byte LoadConfig()
 		{
-			byte ret = 10;
+			byte   ret      = 10;
+			string smtpData = "";
 
 			try
 			{
@@ -201,35 +185,38 @@ namespace PCIBusiness
 				string ePwd     = Tools.ConfigValue("SMTP-Password");
 				string eFrom    = Tools.ConfigValue("SMTP-From");
 				string eBCC     = Tools.ConfigValue("SMTP-BCC");
-				string smtpData = eServer
-				        + " / " + eUser
-				        + " / " + ePwd
-				        + " / " + ePort.ToString()
-				        + " / " + eFrom
-				        + " / " + eBCC;
-				Tools.LogInfo("LoadConfig/10","SMTP Config ... " + smtpData,222,this);
+				smtpData        = "SMTP Config = " + eServer
+				                           + " / " + eUser
+				                           + " / " + Tools.MaskedValue(ePwd)
+				                           + " / " + ePort.ToString()
+				                           + " / " + eFrom
+				                           + " / " + eBCC;
+				Tools.LogInfo("LoadConfig/10",smtpData,10,this);
 
-				ret     = 20;
-				smtp    = new SmtpClient(eServer);
-				ret     = 30;
-				if ( eFrom.Length > 5 )
-					From = eFrom;
-				else
-					From = eUser;
-				ret     = 40;
-				BCC     = eBCC;
-				ret     = 50;
-				if ( ePort > 0 )
-					smtp.Port = ePort;
-				ret                        = 60;
+				ret                        = 20;
+				smtp                       = new SmtpClient(eServer);
+				ret                        = 30;
+				smtp.EnableSsl             = true;
 				smtp.UseDefaultCredentials = false;
-			//	smtp.EnableSsl             = false;
 				smtp.Credentials           = new NetworkCredential(eUser,ePwd);
-				ret                        = 0;
+				ret                        = 40;
+
+				if ( eFrom.Length > 5 )
+					From      = eFrom;
+				else
+					From      = eUser;
+				ret          = 50;
+				Sender       = eUser;
+				ret          = 60;
+				BCC          = eBCC;
+				ret          = 70;
+				if ( ePort   > 0 )
+					smtp.Port = ePort;
+				ret          = 0;
 			}
 			catch (Exception ex)
 			{
-				Tools.LogException("LoadConfig/90","ret="+ret.ToString(),ex,this);
+				Tools.LogException("LoadConfig/90","ret="+ret.ToString() + ", " + smtpData,ex,this);
 			}
 			return ret;
 		}
@@ -244,7 +231,7 @@ namespace PCIBusiness
 //			string smtpData = provider.BureauCode + " / " + provider.BureauType
 //			                                      + " / " + provider.BureauURL
 //			                                      + " / " + provider.MerchantUserID
-//			                                      + " / " + provider.MerchantPassword
+//			                                      + " / " + Tools.MaskedValue(provider.MerchantPassword)
 //			                                      + " / " + provider.Sender
 //			                                      + " / " + provider.Port.ToString();
 
@@ -256,8 +243,8 @@ namespace PCIBusiness
 					smtp       = new SmtpClient (provider.BureauURL);
 					if ( provider.Port > 0 )
 						smtp.Port = provider.Port;
+					smtp.EnableSsl             = true;
 					smtp.UseDefaultCredentials = false;
-				//	smtp.EnableSsl             = false;
 					smtp.Credentials           = new NetworkCredential(provider.MerchantUserID,provider.MerchantPassword);
 				//	SendGrid testing
 				//	For SendGrid, the NetworkCredential userName must equal "apikey" (the actual string "apikey")
@@ -279,7 +266,7 @@ namespace PCIBusiness
 			smtp = null;
 		}
 
-		public Mail()
+		public Mail() : base()
 		{
 			msg = new MailMessage();
 		}

@@ -1577,11 +1577,11 @@ namespace PCIBusiness
 			if ( strToMask.Length >= 13 )
 				return strToMask.Substring(0, 6) + "******"           + strToMask.Substring(12);
 			if ( strToMask.Length >= 11 )
-				return strToMask.Substring(0, 6) + "****"             + strToMask.Substring(10);
+				return strToMask.Substring(0, 4) + "******"           + strToMask.Substring(10);
 			if ( strToMask.Length >=  9 )
-				return strToMask.Substring(0, 4) + "****"             + strToMask.Substring( 8);
+				return strToMask.Substring(0, 3) + "*****"            + strToMask.Substring( 8);
 			if ( strToMask.Length >=  5 )
-				return strToMask.Substring(0, 2) + "**"               + strToMask.Substring( 4);
+				return strToMask.Substring(0, 2) + "***"              + strToMask.Substring( 5);
 			if ( strToMask.Length >=  1 )
 				return strToMask.Substring(0, 1) + "****";
 			return "";
@@ -1836,46 +1836,123 @@ namespace PCIBusiness
 			if ( transactionType == (byte)Constants.TransactionType.Transfer              ) return "Transfer";
 			if ( transactionType == (byte)Constants.TransactionType.TransactionLookup     ) return "Transaction Lookup";
 			if ( transactionType == (byte)Constants.TransactionType.ZeroValueCheck        ) return "Zero-Value Validation";
+			if ( transactionType == (byte)Constants.TransactionType.AccountUpdate         ) return "Account Update";
 			if ( transactionType == (byte)Constants.TransactionType.Test                  ) return "Test";
 			return "Unknown (transactionType=" + transactionType.ToString() + ")";
 		}
 
 		public static string ErrorTypeName(int errType)
 		{
-			if ( errType == (int)Constants.ErrorType.InvalidMenu ) return "Invalid/missing menu for this application/language";
+			if ( errType == (int)Constants.ErrorType.InvalidMenu )
+				return "Invalid/missing menu for this application/language";
 			return "";
 		}
 
-		public static string LoadGoogleAnalytics(string productCode)
+		public static string LoadGoogleAnalytics(string productCode,byte version=3,string transactionId="",byte noScript=0)
 		{
-			string sql = "exec sp_WP_Get_GoogleACA @ProductCode=" + Tools.DBString(productCode);
+			string sql     = "exec sp_WP_Get_GoogleACA @ProductCode=" + Tools.DBString(productCode);
+			string gScript = "";
+			string gaCode  = "";
+			string url     = "";
+
+			if ( version < 1 )
+				version   = 3;
+
+//	Version 3. See code further down
+//			if ( version == 3 && noScript == 0 )
+//				return "<script>" + Environment.NewLine
+//				     + "(function(w,d,s,l,i)" + Environment.NewLine
+//				     + "{w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});" + Environment.NewLine
+//				     + "var f=d.getElementsByTagName(s)[0]," + Environment.NewLine
+//				     + "j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;" + Environment.NewLine
+//				     + "j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})" + Environment.NewLine
+//				     + "(window,document,'script','dataLayer','GTM-5VHQMGR');" + Environment.NewLine
+//				     + "</script>";
+//
+//			if ( version == 3 && noScript > 0 )
+//				return "<noscript>"
+//				     + "<iframe src='https://www.googletagmanager.com/ns.html?id=GTM-5VHQMGR' height='0' width='0' style='display:none;visibility:hidden'>" + Environment.NewLine
+//				     + "</iframe>"
+//				     + "</noscript>";
+
+//			Tools.LogInfo("Tools.LoadGoogleAnalytics/3","ProductCode="+productCode+", SQL="+sql,233);
 
 			using (MiscList miscList = new MiscList())
 				try
 				{
 					if ( miscList.ExecQuery(sql,0) == 0 && ! miscList.EOF )
 					{
-						string gaCode = miscList.GetColumn("GoogleAnalyticCode");
-						string url    = miscList.GetColumn("URL");
-						return Environment.NewLine
-					        + "<script>" + Environment.NewLine
-						     + "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){"
-						     + "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),"
-						     + "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)"
-						     + "})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');" + Environment.NewLine
-						     + "ga('create', '" + gaCode + "', 'auto', {'allowLinker': true});" + Environment.NewLine
-						     + "ga('require', 'linker');" + Environment.NewLine
-						     + "ga('linker:autoLink', ['" + url + "'] );" + Environment.NewLine
-						     + "ga('send', 'pageview');" + Environment.NewLine
-						     + "</script>" + Environment.NewLine;
+						gaCode = miscList.GetColumn("GoogleAnalyticCode");
+						url    = miscList.GetColumn("URL");
+
+						if ( gaCode.Length < 1 )
+							gaCode  = "GTM-5VHQMGR";
+						//	gaCode  = "AW-11030275536"
+
+						if ( version == 3 && noScript == 0 )
+						//	From Johrika Burger via Anton Koekemoer at Open Circle Solutions, 2023/04/21
+							gScript = "<script>" + Environment.NewLine
+							        + "(function(w,d,s,l,i)" + Environment.NewLine
+							        + "{w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});" + Environment.NewLine
+							        + "var f=d.getElementsByTagName(s)[0]," + Environment.NewLine
+							        + "j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;" + Environment.NewLine
+							        + "j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})" + Environment.NewLine
+							        + "(window,document,'script','dataLayer','" + gaCode + "');" + Environment.NewLine
+							        + "</script>";
+
+						else if ( version == 3 && noScript > 0 )
+						//	From Johrika Burger via Anton Koekemoer at Open Circle Solutions, 2023/04/21
+							gScript = "<noscript>"
+							        + "<iframe src='https://www.googletagmanager.com/ns.html?id=" + gaCode + "' height='0' width='0' style='display:none;visibility:hidden'>" + Environment.NewLine
+							        + "</iframe>"
+							        + "</noscript>";
+
+						else if ( version == 2 || gaCode.ToUpper().StartsWith("G") )
+							gScript = "<script async src='https://www.googletagmanager.com/gtag/js?id=" + gaCode + "'></script>" + Environment.NewLine
+							        + "<script>" + Environment.NewLine
+							        + "window.dataLayer = window.dataLayer || [];" + Environment.NewLine
+							        + "function gtag(){dataLayer.push(arguments);}" + Environment.NewLine
+							        + "gtag('js', new Date());" + Environment.NewLine
+							        + "gtag('config', '" + gaCode + "', { 'linker': { 'domains': ['" + url + "'] } } );" + Environment.NewLine
+							        + "</script>";
+
+/* From https://developers.google.com/analytics/devguides/collection/gtagjs/cross-domain
+gtag('config', 'GA_MEASUREMENT_ID', {
+  'linker': {
+    'domains': ['example.com']
+  }
+});
+*/
+						else
+							gScript = "<script>" + Environment.NewLine
+							        + "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){"
+							        + "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),"
+							        + "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)"
+							        + "})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');" + Environment.NewLine
+							        + "ga('create', '" + gaCode + "', 'auto', {'allowLinker': true});" + Environment.NewLine
+							        + "ga('require', 'linker');" + Environment.NewLine
+							        + "ga('linker:autoLink', ['" + url + "'] );" + Environment.NewLine
+							        + "ga('send', 'pageview');" + Environment.NewLine
+							        + "</script>";
+
+					//	Tools.LogInfo("Tools.LoadGoogleAnalytics/5","gCode="+gaCode+", gScript="+gScript,233);
 					}
 					else
-						LogException("Tools.LoadGoogleAnalytics/1","Failed to load Google UA code ("+sql+")");
+						LogException("Tools.LoadGoogleAnalytics/7","Failed to load Google UA code ("+sql+")");
 				}
 				catch (Exception ex)
 				{
-					LogException("Tools.LoadGoogleAnalytics/2",sql,ex);
+					LogException("Tools.LoadGoogleAnalytics/9",sql,ex);
 				}
+
+			if ( gScript.Length > 0 && gaCode.Length > 0 )
+			{
+				if ( transactionId.Length > 0 )
+					gScript = gScript + Environment.NewLine + "<script>"
+					                  + "gtag('event', 'conversion', { 'send_to': '" + gaCode + "/CHq3CJGyloMYENDL0osp', 'transaction_id': '" + transactionId + "' });"
+					                  + Environment.NewLine + "</script>";
+				return Environment.NewLine + gScript + Environment.NewLine;
+			}
 			return "";
 		}
 
