@@ -19,10 +19,6 @@ namespace PCIBusiness
 		{
 			int ret = 10;
 
-//	Testing
-//	//	payment.CardNumber = "4444333322221111";
-//	Testing
-
 			try
 			{
 				xmlSent = "<order orderCode='" + payment.TransactionID + "'>"
@@ -231,10 +227,6 @@ namespace PCIBusiness
 		public override int CardValidation(Payment payment) // Also called Zero-Value Check
 		{
 			int ret = 10;
-
-//	Testing
-//	//	payment.CardNumber = "4444333322221111";
-//	Testing
 
 			try
 			{
@@ -888,8 +880,8 @@ namespace PCIBusiness
 		{
 			base.LoadBureauDetails(Constants.PaymentProvider.WorldPay);
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-			logPriority                          = 10;  // For production, when all is stable
-//			logPriority                          = 222; // For testing/development, to log very detailed errors
+//			logPriority                          = 10;  // For production, when all is stable
+			logPriority                          = 222; // For testing/development, to log very detailed errors
 		}
 	}
 }
