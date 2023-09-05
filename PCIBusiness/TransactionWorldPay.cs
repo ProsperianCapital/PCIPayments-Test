@@ -21,23 +21,23 @@ namespace PCIBusiness
 
 			try
 			{
-				xmlSent = "<order orderCode='" + payment.TransactionID + "'>"
-				        +   "<description>" + payment.PaymentDescription + "</description>"
-				        +   "<amount currencyCode='" + payment.CurrencyCode + "'"
-				        +          " exponent='2'"
-				        +          " value='" + payment.PaymentAmount.ToString() + "' />"
-				        +   "<paymentDetails action='ACCOUNTVERIFICATION'>"
-				        +     "<CARD-SSL>"
-				        +       "<cardNumber>" + payment.CardNumber + "</cardNumber>"
-				        +       "<expiryDate>"
-				        +         "<date month='" + payment.CardExpiryMM + "' year='" + payment.CardExpiryYYYY + "' />"
-				        +       "</expiryDate>"
-				        +       "<cardHolderName>" + payment.CardName + "</cardHolderName>"
-				        +       "<cvc>" + payment.CardCVV + "</cvc>"
-				        +       CardAddress(payment)
-				        +     "</CARD-SSL>"
-				        +   "</paymentDetails>"
-				        + "</order>";
+				xmlSent  = "<order orderCode='" + payment.TransactionID + "'>"
+				         +   "<description>" + payment.PaymentDescription + "</description>"
+				         +   "<amount currencyCode='" + payment.CurrencyCode + "'"
+				         +          " exponent='2'"
+				         +          " value='" + payment.PaymentAmount.ToString() + "' />"
+				         +   "<paymentDetails action='ACCOUNTVERIFICATION'>"
+				         +     "<CARD-SSL>"
+				         +       "<cardNumber>" + payment.CardNumber + "</cardNumber>"
+				         +       "<expiryDate>"
+				         +         "<date month='" + payment.CardExpiryMM + "' year='" + payment.CardExpiryYYYY + "' />"
+				         +       "</expiryDate>"
+				         +       "<cardHolderName>" + payment.CardName + "</cardHolderName>"
+				         +       "<cvc>" + payment.CardCVV + "</cvc>"
+				         +       CardAddress(payment)
+				         +     "</CARD-SSL>"
+				         +   "</paymentDetails>"
+				         + "</order>";
 				ret      = 20;
 				ret      = CallWebService(payment,(byte)Constants.TransactionType.ZeroValueCheck);
 				if ( ret == 0 )

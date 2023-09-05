@@ -1170,8 +1170,13 @@ namespace PCIBusiness
 		//	Used by Stripe (bureauCode 028) and PaymentCloude (bureauCode 031)
 			customerID       = dbConn.ColString ("CustomerId"     ,0,0);
 			paymentMethodID  = dbConn.ColString ("PaymentMethodId",0,0);
+
 		//	Used by WorldPay (bureauCode 032)
+		//	For WorldPay, "paymentMethodId" is eaxctly the same as "schemeTransactionID"
+		//	So first check if there is a "SchemeTransactionIdentifier". If not, use "paymentMethodId"
 			schemeTranID     = dbConn.ColString ("SchemeTransactionIdentifier",0,0);
+			if ( schemeTranID.Length < 1 && paymentMethodID.Length > 0 )
+				schemeTranID  = paymentMethodID;
 
 		//	Contract/customer mandate
 			mandateDateTime  = dbConn.ColDate   ("ContractDate"   ,0,0);
