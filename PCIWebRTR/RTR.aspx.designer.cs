@@ -303,6 +303,15 @@ namespace PCIWebRTR
 		protected global::System.Web.UI.WebControls.Button btnProcess9;
 
 		/// <summary>
+		/// btnProcess14 control.
+		/// </summary>
+		/// <remarks>
+		/// Auto-generated field.
+		/// To modify move field declaration from designer file to code-behind file.
+		/// </remarks>
+		protected global::System.Web.UI.WebControls.Button btnProcess14;
+
+		/// <summary>
 		/// btnConfig control.
 		/// </summary>
 		/// <remarks>
