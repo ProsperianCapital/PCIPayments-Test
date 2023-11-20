@@ -179,6 +179,9 @@ namespace PCIWebRTR
 			btnProcess9.Enabled  = false; // not implemented yet
 			btnProcess10.Enabled = enable;
 			btnProcess11.Enabled = enable;
+			btnProcess12.Enabled = enable;
+		//	btnProcess13.Enabled = enable;
+			btnProcess14.Enabled = enable;
 		}
 	
 		private void ProviderDetails()
@@ -256,8 +259,10 @@ namespace PCIWebRTR
 
 		protected void btnTest_Click(Object sender, EventArgs e)
 		{
-			txtRows.Text = "1";
-			ProcessCards((byte)PCIBusiness.Constants.TransactionType.Test);
+			txtTest.Text = "Error code " + PCIBusiness.Encryption.Encrypt(txtTest.Text).ToString();
+
+//			txtRows.Text = "1";
+//			ProcessCards((byte)PCIBusiness.Constants.TransactionType.Test);
 		}
 
 		protected void btnPay_Click(Object sender, EventArgs e)
@@ -323,6 +328,10 @@ namespace PCIWebRTR
 		protected void btnProcess12_Click(Object sender, EventArgs e)
 		{
 			ProcessCards((byte)Constants.TransactionType.ZeroValueCheck);
+		}
+		protected void btnProcess14_Click(Object sender, EventArgs e)
+		{
+			ProcessCards((byte)Constants.TransactionType.AccountUpdate);
 		}
 
 		private void ProcessCards(byte transactionType)
