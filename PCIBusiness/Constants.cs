@@ -74,11 +74,18 @@ namespace PCIBusiness
 			CyberSource      = 25,
 			CyberSource_Moto = 26,
 			PaymentsOS       = 27, // PayU Hub
-			Stripe_USA       = 28,
-			Stripe_EU        = 29,
-			Stripe_Asia      = 30,
 			PaymentCloud     = 31, // Authorize.Net
-			WorldPay         = 32  // FlutterWave
+			WorldPay         = 32, // FlutterWave
+			StripeUSA        = 34,
+			StripeUSA_Moto   = 28,
+//			StripeEU         = 29,
+			StripeEU_Moto    = 29,
+			StripeEE         = 36,
+			StripeEE_Moto    = 37,
+//			StripeAsia       = 30,
+			StripeAsia_Moto  = 30,
+			StripeSG         = 45
+//			StripeSG_Moto    = 45
 		}
 
 		public enum MessageProvider : int

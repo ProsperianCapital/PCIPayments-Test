@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using Stripe;
 
 namespace PCIBusiness
@@ -6,6 +7,7 @@ namespace PCIBusiness
 	public class TransactionStripe : Transaction
 	{
 		private string err;
+		private byte   logPriority;
 
 	//	Moved to Transaction.cs
 	//	private string customerId;
@@ -136,7 +138,7 @@ namespace PCIBusiness
 				{
 					resultMsg = "Success";
 					ret       = 0;
-				//	Tools.LogInfo ("GetToken/189","Ret=0"                 + err,255,this);
+					Tools.LogInfo ("GetToken/189","Ret=0"                 + err,logPriority,this);
 				}
 				else
 					Tools.LogInfo ("GetToken/197","Ret=" + ret.ToString() + err,231,this);
@@ -301,7 +303,7 @@ namespace PCIBusiness
 					ret        = 0;
 					resultCode = "Success";
 				//	resultCode = "Success/" + resultCode;
-				//	Tools.LogInfo ("TokenPayment/189","Ret=0" + err,255,this);
+					Tools.LogInfo ("TokenPayment/189","Ret=0" + err,logPriority,this);
 				}
 				else
 					resultCode = resultMsg;
@@ -479,7 +481,7 @@ namespace PCIBusiness
 				err                = err + ", StripeResponse="+Tools.NullToString(resultCode);
 				ret                = 90;
 
-				Tools.LogInfo("ThreeDSecurePayment/60","strResult="+strResult,221,this);
+				Tools.LogInfo("ThreeDSecurePayment/60","strResult="+strResult,logPriority,this);
 
 				string sql = "exec sp_WP_PaymentRegister3DSecA @ContractCode="    + Tools.DBString(payment.MerchantReference)
 				           +                                 ",@ReferenceNumber=" + Tools.DBString(payRef)
@@ -491,7 +493,7 @@ namespace PCIBusiness
 				using (MiscList mList = new MiscList())
 					mList.ExecQuery(sql,0,"",false,true);
 
-				Tools.LogInfo("ThreeDSecurePayment/80","PayRef=" + payRef + "; SQL=" + sql + "; " + d3Form,10,this);
+				Tools.LogInfo("ThreeDSecurePayment/80","PayRef=" + payRef + "; SQL=" + sql + "; " + d3Form,logPriority,this);
 				return 0;
 			}
 			catch (Exception ex)
@@ -500,16 +502,20 @@ namespace PCIBusiness
 			}
 			return ret;
 		}
-
-		public TransactionStripe() : base(Constants.PaymentProvider.Stripe_USA)
-		{
-			err = "";
-		}
 		public TransactionStripe(Constants.PaymentProvider provider) : base(provider)
 		{
-			err = "";
+			base.LoadBureauDetails(provider);
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol  = SecurityProtocolType.Tls12;
+//			logPriority                           = 10;  // For production, when all is stable
+			logPriority                           = 222; // For testing/development, to log very detailed errors
+			err                                   = "";
 		}
 
+//		public TransactionStripe() : base(Constants.PaymentProvider.StripeUSA)
+//		{
+//			err = "";
+//		}
 //		public TransactionStripe(string provider) : base()
 //		{
 //			base.LoadBureauDetails((Constants.PaymentProvider)Tools.StringToInt(provider));

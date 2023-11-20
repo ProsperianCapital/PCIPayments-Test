@@ -73,9 +73,17 @@ namespace PCIBusiness
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Peach)           ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Ecentric)        ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.TokenEx)         ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA)      ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_EU)       ||
-					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_Asia)     ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeUSA)       ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeUSA_Moto)  ||
+//					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeEU)        ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeEU_Moto)   ||
+//					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeAsia)      ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeAsia_Moto) ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeEE)        ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeEE_Moto)   ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeSG)        ||
+//					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeSG_Moto)   ||
+					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.WorldPay)        ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource)     ||
 					     bureauCode == Tools.BureauCode(Constants.PaymentProvider.CyberSource_Moto) )
 						bureauStatus = 3; // Live

@@ -241,7 +241,7 @@ namespace PCIBusiness
 					return "IcJSjbVloKPQsS5PJrCdGOz8W/pLOBjzO4QVqKG4Ai8=";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "daea1771-d849-4fa4-a648-230a54186964"; // Public key
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA) ) // Public key
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeUSA_Moto) ) // Public key
 					return "pk_test_51It78gGmZVKtO2iKXD0LEFRDvEs1Wkld93qRjifDLyWRoOgxXwGDJZzs9i902shBJqEk8v3XYg1WLLdButIK0QfU00xtFyxDQf";
 //					return "pk_test_51It78gGmZVKtO2iKc4eB6JveDn9HZAWR7F9cbiISEcYHGquyNoqb1YNnSQuzlJlR8maNlTUmaH0pBHHw4tZAOUBc00KZH2PeKW";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentCloud) )
@@ -335,7 +335,7 @@ namespace PCIBusiness
 					return "g1Kzk8GY";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.PaymentsOS) )
 					return "3790d1d5-4847-43e6-a29a-f22180cc9fda"; // Private/secret key
-				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.Stripe_USA) ) // Secret key
+				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.StripeUSA_Moto) ) // Secret key
 					return "sk_test_51It78gGmZVKtO2iKBZF7DA5JisJzRqvibQdXSfBj9eQh4f5UDvgCShZIjznOWCxu8MtcJG5acVkDcd8K184gIegx001uXlHI5g";
 				else if ( bureauCode == Tools.BureauCode(Constants.PaymentProvider.FNB) )
 					return "sbyq0CUAvUSPMifwRH0f68fByQ5ZgSjyEpbeKg77o1Cuh9BD30ucakuXtpCCUMJN"; // Instance key
@@ -1089,12 +1089,12 @@ namespace PCIBusiness
 			                              + ",@TransactionID = "            + Tools.DBString(transaction.PaymentReference)
 			                              + ",@TransactionStatusCode = "    + Tools.DBString(transaction.ResultCode)
 			                              + ",@TransactionStatusMessage = " + Tools.DBString(transaction.ResultMessage);
-				Tools.LogInfo("ProcessPayment/70","SQL 2=" + sql,20,this);
+				Tools.LogInfo("ProcessPayment/70","SQL 2=" + sql,10,this);
 				retSQL = ExecuteSQLUpdate();
-				Tools.LogInfo("ProcessPayment/80","SQL 2 complete",20,this);
+				Tools.LogInfo("ProcessPayment/80","SQL 2 complete",10,this);
 			}
 			else
-				Tools.LogInfo("ProcessPayment/90","SQL 2 skipped",20,this);
+				Tools.LogInfo("ProcessPayment/90","SQL 2 skipped",10,this);
 
 			return retProc;
 		}
@@ -1148,7 +1148,6 @@ namespace PCIBusiness
 			//	ipAddress     = dbConn.ColString ("IPAddress"  ,0,0);
 			}
 
-
 		//	Payment
 			merchantReference         = dbConn.ColString("merchantReference"        ,0,0);
 			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0,0); // Only really for Ikajo, don't log error
@@ -1187,12 +1186,12 @@ namespace PCIBusiness
 		//	Token Provider (if empty, then it is the same as the payment provider)
 			if ( dbConn.ColStatus("TxKey") == Constants.DBColumnStatus.ColumnOK )
 			{
-				tokenizerID   = dbConn.ColString("TxID");
-				tokenizerKey  = dbConn.ColString("TxKey");
-				tokenizerURL  = dbConn.ColString("TxURL");
+				tokenizerID   = dbConn.ColString ("TxID");
+				tokenizerKey  = dbConn.ColString ("TxKey");
+				tokenizerURL  = dbConn.ColString ("TxURL");
 			}
 			if ( dbConn.ColStatus("TxToken") == Constants.DBColumnStatus.ColumnOK )
-				ccToken       = dbConn.ColString("TxToken");
+				ccToken       = dbConn.ColString ("TxToken");
 
 //	Testing
 //			countryCode      = "ZA";
