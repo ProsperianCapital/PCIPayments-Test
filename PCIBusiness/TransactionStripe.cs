@@ -34,6 +34,7 @@ namespace PCIBusiness
 				ret                        = 20;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
 
+				Tools.LogInfo("GetToken/30","About to create Stripe.TokenCreateOptions",logPriority,this);
 				ret                        = 30;
 				var tokenOptions           = new TokenCreateOptions
 				{
@@ -45,12 +46,15 @@ namespace PCIBusiness
 						Cvc      = payment.CardCVV
 					}
 				};
+
+				Tools.LogInfo("GetToken/40","About to create Stripe.TokenService",logPriority,this);
 				ret              = 40;
 				var tokenService = new TokenService();
 				var token        = tokenService.Create(tokenOptions);
 				payToken         = token.Id;
 				err              = err + ", tokenId="+Tools.NullToString(payToken);
 
+				Tools.LogInfo("GetToken/50","About to create Stripe.PaymentMethodCardOptions",logPriority,this);
 				ret                      = 50;
 				var paymentMethodOptions = new PaymentMethodCreateOptions
 				{
@@ -60,12 +64,15 @@ namespace PCIBusiness
 						Token = token.Id
 					}
 				};
+
+				Tools.LogInfo("GetToken/60","About to create Stripe.PaymentMethodService",logPriority,this);
 				ret                      = 60;
 				var paymentMethodService = new PaymentMethodService();
 				var paymentMethod        = paymentMethodService.Create(paymentMethodOptions);
 				paymentMethodId          = paymentMethod.Id;
 				err                      = err + ", paymentMethodId="+Tools.NullToString(paymentMethodId);
 
+				Tools.LogInfo("GetToken/70","About to create Stripe.CustomerCreateOptions",logPriority,this);
 				ret                 = 70;
 				string tmp          = (payment.FirstName + " " + payment.LastName).Trim();
 				var customerOptions = new CustomerCreateOptions
@@ -79,6 +86,7 @@ namespace PCIBusiness
 				ret = 75;
 				if ( payment.Address1(0).Length > 0 || payment.Address2(0).Length > 0 || payment.ProvinceCode.Length > 0 || payment.CountryCode(0).Length > 0 )
 				{
+					Tools.LogInfo("GetToken/80","About to create Stripe.AddressOptions",logPriority,this);
 					ret                     = 80;
 					customerOptions.Address = new AddressOptions()
 					{
@@ -93,6 +101,7 @@ namespace PCIBusiness
 						customerOptions.Address.Country = payment.CountryCode(0).ToUpper();
 				}
 
+				Tools.LogInfo("GetToken/90","About to create Stripe.CustomerService",logPriority,this);
 				ret                 = 90;
 				var customerService = new CustomerService();
 				var customer        = customerService.Create(customerOptions);
@@ -107,6 +116,7 @@ namespace PCIBusiness
 				int k               = resultCode.ToUpper().IndexOf(" STATUS=");
 				ret                 = 110;
 				err                 = err + ", StripeResponse="+Tools.NullToString(resultCode);
+				Tools.LogInfo("GetToken/110","strResult="+strResult+", err="+err,logPriority,this);
 
 //	customer.StripeResponse.ToString() is as follows:
 //	<Stripe.StripeResponse status=200 Request-Id=req_bI0B5glG6r6DNe Date=2021-05-28T09:35:23>
@@ -171,6 +181,7 @@ namespace PCIBusiness
 				ret                        = 620;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
 
+				Tools.LogInfo("TokenPayment/624","About to create Stripe.PaymentIntentCreateOptions",logPriority,this);
 				ret                        = 624;
 				err                        = err + ", customerId="      + Tools.NullToString(payment.CustomerID)
 				                                 + ", paymentMethodId=" + Tools.NullToString(payment.PaymentMethodID)
@@ -216,11 +227,13 @@ namespace PCIBusiness
 //				else
 //					err       = err + ", No mandate";
 
+				Tools.LogInfo("TokenPayment/690","About to create Stripe.PaymentIntentService",logPriority,this);
 				ret                      = 690;
 				var paymentIntentService = new PaymentIntentService();
 				var paymentIntent        = paymentIntentService.Create(paymentIntentOptions);	
 				err                      = err + ", paymentIntentId="+Tools.NullToString(paymentIntent.Id);
 
+				Tools.LogInfo("TokenPayment/700","About to create Stripe.PaymentIntentConfirmOptions",logPriority,this);
 				ret                = 700;
 				var confirmOptions = new PaymentIntentConfirmOptions
 				{

@@ -59,33 +59,42 @@ namespace PCIBusiness
 
 		public enum PaymentProvider : int
 		{
-			MyGate           =  2,
-			T24              =  6,
-			Ikajo            = 15,
-			PayU             = 16,
-			PayGate          = 17,
-			PayGenius        = 18,
-			Ecentric         = 19,
-			eNETS            = 20,
-			Peach            = 21,
-			TokenEx          = 22,
-			SatchelPay       = 23,
-			FNB              = 24,
-			CyberSource      = 25,
-			CyberSource_Moto = 26,
-			PaymentsOS       = 27, // PayU Hub
-			PaymentCloud     = 31, // Authorize.Net
-			WorldPay         = 32, // FlutterWave
-			StripeUSA        = 34,
-			StripeUSA_Moto   = 28,
-//			StripeEU         = 29,
-			StripeEU_Moto    = 29,
-			StripeEE         = 36,
-			StripeEE_Moto    = 37,
-//			StripeAsia       = 30,
-			StripeAsia_Moto  = 30,
-			StripeSG         = 45
-//			StripeSG_Moto    = 45
+			MyGate           =   2,
+			T24              =   6,
+			Ikajo            =  15,
+			PayU             =  16,
+			PayGate          =  17,
+			PayGenius        =  18,
+			Ecentric         =  19,
+			eNETS            =  20,
+			Peach            =  21,
+			TokenEx          =  22,
+			SatchelPay       =  23,
+			FNB              =  24,
+			CyberSource      =  25,
+			CyberSource_Moto =  26,
+			PaymentsOS       =  27, // PayU Hub
+			PaymentCloud     =  31, // Authorize.Net
+			WorldPay         =  32, // FlutterWave
+			StripeAU         = 101,
+			StripeEE         = 102,
+			StripeHK         = 103,
+			StripeSG         = 104,
+			StripeTH         = 105,
+			StripeUK         = 106,
+			StripeUS         = 107
+
+//	Not used
+//			StripeUSA        = 34,
+//			StripeUSA_Moto   = 28,
+//	//		StripeEU         = 29,
+//			StripeEU_Moto    = 29,
+//			StripeEE         = 36,
+//			StripeEE_Moto    = 37,
+//	//		StripeAsia       = 30,
+//			StripeAsia_Moto  = 30,
+//			StripeSG         = 45
+//	//		StripeSG_Moto    = 45
 		}
 
 		public enum MessageProvider : int
