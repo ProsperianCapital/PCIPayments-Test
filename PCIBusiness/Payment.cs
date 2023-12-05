@@ -989,7 +989,8 @@ namespace PCIBusiness
 			                                 + ",@TransactionStatusCode = "       + Tools.DBString(transaction.ResultCode)
 //			                                 + ",@PaymentMethodId = "             + Tools.DBString(transaction.PaymentReference)
 			                                 + ",@PaymentMethodId = "             + Tools.DBString(transaction.PaymentMethodId)
-		                                    + ",@CardTokenisationStatusCode = '" + ( retProc == 0 ? "007'" : "001'" );
+		                                    + ",@CardTokenisationStatusCode = '" + ( retProc == 0 ? "007'" : "002'" );
+//		                                    + ",@CardTokenisationStatusCode = '" + ( retProc == 0 ? "007'" : "001'" );
 				Tools.LogInfo("GetToken/20","SQL=" + sql,20,this);
 				retSQL = ExecuteSQLUpdate();
 			}
@@ -1152,7 +1153,7 @@ namespace PCIBusiness
 			merchantReference         = dbConn.ColString("merchantReference"        ,0,0);
 			merchantReferenceOriginal = dbConn.ColString("merchantReferenceOriginal",0,0); // Only really for Ikajo, don't log error
 			currencyCode              = dbConn.ColString("currencyCode"             ,0,0);
-			paymentDescription        = dbConn.ColString("description"              ,0,0);
+			paymentDescription        = dbConn.ColString("statementDescriptor"      ,0,0);
 			paymentAmount             = dbConn.ColLong  ("amountInCents"            ,0,0);
 
 		//	Card/token/transaction details, not always present, don't log errors

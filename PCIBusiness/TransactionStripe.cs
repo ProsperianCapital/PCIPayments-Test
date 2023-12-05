@@ -24,7 +24,7 @@ namespace PCIBusiness
 			resultCode      = "991";
 			resultMsg       = "Fail";
 
-			Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
+//			Tools.LogInfo("GetToken/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 			try
 			{
@@ -34,7 +34,7 @@ namespace PCIBusiness
 				ret                        = 20;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
 
-				Tools.LogInfo("GetToken/30","About to create Stripe.TokenCreateOptions",logPriority,this);
+//				Tools.LogInfo("GetToken/30","About to create Stripe.TokenCreateOptions",logPriority,this);
 				ret                        = 30;
 				var tokenOptions           = new TokenCreateOptions
 				{
@@ -47,14 +47,15 @@ namespace PCIBusiness
 					}
 				};
 
-				Tools.LogInfo("GetToken/40","About to create Stripe.TokenService",logPriority,this);
+//				Tools.LogInfo("GetToken/40","About to create Stripe.TokenService",logPriority,this);
 				ret              = 40;
 				var tokenService = new TokenService();
 				var token        = tokenService.Create(tokenOptions);
 				payToken         = token.Id;
-				err              = err + ", tokenId="+Tools.NullToString(payToken);
+				err              = err + ", cardNumber=" + Tools.MaskedValue(payment.CardNumber) + ", tokenId="+Tools.NullToString(payToken);
+				Tools.LogInfo("GetToken/40","Stripe.TokenService.Create(), cardNumber=" + Tools.MaskedValue(payment.CardNumber) + " ,token="+Tools.NullToString(payToken),logPriority,this);
 
-				Tools.LogInfo("GetToken/50","About to create Stripe.PaymentMethodCardOptions",logPriority,this);
+//				Tools.LogInfo("GetToken/50","About to create Stripe.PaymentMethodCardOptions",logPriority,this);
 				ret                      = 50;
 				var paymentMethodOptions = new PaymentMethodCreateOptions
 				{
@@ -65,14 +66,15 @@ namespace PCIBusiness
 					}
 				};
 
-				Tools.LogInfo("GetToken/60","About to create Stripe.PaymentMethodService",logPriority,this);
+//				Tools.LogInfo("GetToken/60","About to create Stripe.PaymentMethodService",logPriority,this);
 				ret                      = 60;
 				var paymentMethodService = new PaymentMethodService();
 				var paymentMethod        = paymentMethodService.Create(paymentMethodOptions);
 				paymentMethodId          = paymentMethod.Id;
 				err                      = err + ", paymentMethodId="+Tools.NullToString(paymentMethodId);
+				Tools.LogInfo("GetToken/60","Stripe.PaymentMethodService.Create(), paymentMethodId="+Tools.NullToString(paymentMethodId),logPriority,this);
 
-				Tools.LogInfo("GetToken/70","About to create Stripe.CustomerCreateOptions",logPriority,this);
+//				Tools.LogInfo("GetToken/70","About to create Stripe.CustomerCreateOptions",logPriority,this);
 				ret                 = 70;
 				string tmp          = (payment.FirstName + " " + payment.LastName).Trim();
 				var customerOptions = new CustomerCreateOptions
@@ -83,10 +85,12 @@ namespace PCIBusiness
 					Description   = payment.MerchantReference + ( tmp.Length > 0 ? " (" + tmp + ")" : "" ),
 					PaymentMethod = paymentMethod.Id
 				};
-				ret = 75;
+
+				ret         = 75;
+//				string addr = "[Empty]";
 				if ( payment.Address1(0).Length > 0 || payment.Address2(0).Length > 0 || payment.ProvinceCode.Length > 0 || payment.CountryCode(0).Length > 0 )
 				{
-					Tools.LogInfo("GetToken/80","About to create Stripe.AddressOptions",logPriority,this);
+//					Tools.LogInfo("GetToken/80","About to create Stripe.AddressOptions",logPriority,this);
 					ret                     = 80;
 					customerOptions.Address = new AddressOptions()
 					{
@@ -96,18 +100,23 @@ namespace PCIBusiness
 						State      = payment.ProvinceCode,
 						PostalCode = payment.PostalCode(0)
 					};
-					ret = 85;
+//					addr = payment.Address1(0)+"/"+payment.Address2(0)+"/"+payment.ProvinceCode+"/"+payment.PostalCode(0);
+					ret  = 85;
 					if ( payment.CountryCode(0).Length == 2 )
+					{
 						customerOptions.Address.Country = payment.CountryCode(0).ToUpper();
+//						addr = addr + "/" + payment.CountryCode(0).ToUpper();
+					}
 				}
+//				Tools.LogInfo("GetToken/89","Address="+addr,logPriority,this);
 
-				Tools.LogInfo("GetToken/90","About to create Stripe.CustomerService",logPriority,this);
 				ret                 = 90;
 				var customerService = new CustomerService();
 				var customer        = customerService.Create(customerOptions);
 //				customer.Currency   = payment.CurrencyCode.ToLower();
 				customerId          = customer.Id;
 				err                 = err + ", customerId="+Tools.NullToString(customerId);
+				Tools.LogInfo("GetToken/90","Stripe.CustomerService.Create(), customerId="+Tools.NullToString(customerId),logPriority,this);
 
 				ret                 = 100;
 				strResult           = customer.StripeResponse.Content;
@@ -151,13 +160,32 @@ namespace PCIBusiness
 					Tools.LogInfo ("GetToken/189","Ret=0"                 + err,logPriority,this);
 				}
 				else
-					Tools.LogInfo ("GetToken/197","Ret=" + ret.ToString() + err,231,this);
+					Tools.LogInfo ("GetToken/190","Ret=" + ret.ToString() + err,231,this);
 			}
-			catch (Exception ex)
+			catch (WebException ex1)
+			{
+				string exData = Tools.DecodeWebException(ex1,ClassName+".GetToken/191","ret="+ret.ToString()+err);
+				Tools.LogInfo     ("GetToken/192",exData,231,this);
+				Tools.LogException("GetToken/193",err,ex1,this);
+			}
+			catch (Exception ex2)
 			{
 				err = "Ret=" + ret.ToString() + err;
-				Tools.LogInfo     ("GetToken/198",err,231,this);
-				Tools.LogException("GetToken/199",err,ex ,this);
+				Tools.LogInfo     ("GetToken/194",err,231,this);
+				Tools.LogException("GetToken/195",err,ex2,this);
+
+				err   = "";
+				int k = 0;
+				foreach (System.Collections.DictionaryEntry exPair in ex2.Data)
+				{
+					k++;
+					err = err + "[" + k.ToString() + "] " + exPair.Key.ToString() + " = " + exPair.Value.ToString() + Environment.NewLine;
+				}
+				if ( err.Length > 0 )
+				{
+					Tools.LogInfo     ("GetToken/196",err,231,this);
+					Tools.LogException("GetToken/197",err,ex2,this);
+				}
 			}
 			return ret;
 		}
@@ -174,14 +202,14 @@ namespace PCIBusiness
 			resultMsg  = "Fail";
 			resultCode = "981";
 
-			Tools.LogInfo("TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
+//			Tools.LogInfo("TokenPayment/10","Merchant Ref=" + payment.MerchantReference,10,this);
 
 			try
 			{
 				ret                        = 620;
 				StripeConfiguration.ApiKey = payment.ProviderPassword; // Secret key
 
-				Tools.LogInfo("TokenPayment/624","About to create Stripe.PaymentIntentCreateOptions",logPriority,this);
+//				Tools.LogInfo("TokenPayment/624","About to create Stripe.PaymentIntentCreateOptions",logPriority,this);
 				ret                        = 624;
 				err                        = err + ", customerId="      + Tools.NullToString(payment.CustomerID)
 				                                 + ", paymentMethodId=" + Tools.NullToString(payment.PaymentMethodID)
@@ -227,13 +255,14 @@ namespace PCIBusiness
 //				else
 //					err       = err + ", No mandate";
 
-				Tools.LogInfo("TokenPayment/690","About to create Stripe.PaymentIntentService",logPriority,this);
+//				Tools.LogInfo("TokenPayment/690","About to create Stripe.PaymentIntentService",logPriority,this);
 				ret                      = 690;
 				var paymentIntentService = new PaymentIntentService();
 				var paymentIntent        = paymentIntentService.Create(paymentIntentOptions);	
 				err                      = err + ", paymentIntentId="+Tools.NullToString(paymentIntent.Id);
+				Tools.LogInfo("TokenPayment/690","Stripe.PaymentIntentService.Create(): "+err,logPriority,this);
 
-				Tools.LogInfo("TokenPayment/700","About to create Stripe.PaymentIntentConfirmOptions",logPriority,this);
+//				Tools.LogInfo("TokenPayment/700","About to create Stripe.PaymentIntentConfirmOptions",logPriority,this);
 				ret                = 700;
 				var confirmOptions = new PaymentIntentConfirmOptions
 				{
@@ -276,6 +305,7 @@ namespace PCIBusiness
 				var paymentConfirm = paymentIntentService.Confirm(paymentIntent.Id,confirmOptions);
 				payRef             = paymentConfirm.Id;
 				err                = err + ", paymentConfirmId="+Tools.NullToString(payRef);
+				Tools.LogInfo("TokenPayment/720","Stripe.PaymentIntentService.Confirm(): "+err,logPriority,this);
 
 				ret                = 730;
 				strResult          = paymentConfirm.StripeResponse.Content;
@@ -319,7 +349,10 @@ namespace PCIBusiness
 					Tools.LogInfo ("TokenPayment/189","Ret=0" + err,logPriority,this);
 				}
 				else
+				{
 					resultCode = resultMsg;
+					Tools.LogInfo ("TokenPayment/190","Ret=" + ret.ToString() + err,231,this);
+				}
 			}
 			catch (Exception ex)
 			{
@@ -460,7 +493,8 @@ namespace PCIBusiness
 				var paymentIntentOptions = new PaymentIntentCreateOptions
 				{
 					Amount                = 050,   // payment.PaymentAmount,
-					Currency              = "usd", // payment.CurrencyCode.ToLower(), // Must be "usd" not "USD"
+				//	Currency              = "usd", // payment.CurrencyCode.ToLower(), // Must be "usd" not "USD"
+					Currency              = payment.CurrencyCode.ToLower(),
 					StatementDescriptor   = payment.PaymentDescriptionLeft(22),
 					Customer              = customer.Id,
 					PaymentMethod         = paymentMethod.Id,
